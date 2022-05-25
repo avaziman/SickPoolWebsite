@@ -1,0 +1,12 @@
+#community {
+    border-top: 1px solid var(--border);
+}
+
+#community-links {
+    list-style: none;
+    cursor: pointer;
+}
+
+#community-links li, #community h3 {
+    padding: 0.5rem 2rem;
+}
