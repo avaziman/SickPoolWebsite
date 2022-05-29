@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import { hrToText, unixTimeToText } from './utils.js';
+import { hrToText, unixTimeToClockText } from './utils.js';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -53,7 +53,7 @@ export default function Solver(props) {
             .then((res) => res.json())
             .then((res) => {
                 console.log(res);
-                setHistoryTs(res.map(i => unixTimeToText(i[0])));
+                setHistoryTs(res.map(i => unixTimeToClockText(i[0])));
                 setHistoryHr(res.map(i => i[1]));
             })
             .catch(err => console.log("Failed to fetch!"));

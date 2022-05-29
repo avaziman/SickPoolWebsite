@@ -12,7 +12,7 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import './Stats.css'
-import { diffToText, hrToText, unixTimeToText } from './utils.js';
+import { diffToText, hrToText, unixTimeToClockText } from './utils.js';
 import reactDom from 'react-dom';
 
 const primaryColor = [27, 121, 247];
@@ -165,7 +165,7 @@ export default function Stats(props) {
                 fetch(`${url}/hashrateHistory?coin=${coin}`)
                     .then(res => res.json())
                     .then(res => {
-                        setHrTs(res.result.map(i => unixTimeToText(i.timestamp)));
+                        setHrTs(res.result.map(i => unixTimeToClockText(i.timestamp)));
                         setHrHistory(res.result.map(i => i.total));
                     }).catch(err => console.log("Failed to get stats!"));
                 break;
@@ -173,7 +173,7 @@ export default function Stats(props) {
                 fetch(`${url}/hashrateHistory?coin=${coin}`)
                     .then(res => res.json())
                     .then(res => {
-                        setHrTs(res.result.map(i => unixTimeToText(i.timestamp)));
+                        setHrTs(res.result.map(i => unixTimeToClockText(i.timestamp)));
                         setHrHistory(res.result.map(i => i.total));
                     }).catch(err => console.log("Failed to get stats!"));   
                 break;
@@ -181,14 +181,14 @@ export default function Stats(props) {
                 fetch(`${url}/effortHistory?coin=${coin}`)
                     .then(res => res.json())
                     .then(res => {
-                        setEffortTs(res.result.map(i => unixTimeToText(i.timestamp)));
+                        setEffortTs(res.result.map(i => unixTimeToClockText(i.timestamp)));
                         setEffortHistory(res.result.map(i => i.effort));
                     }).catch(err => console.log("Failed to get stats!"));
                 
                 fetch(`${url}/networkDifficultyHistory?coin=${coin}`)
                     .then(res => res.json())
                     .then(res => {
-                        setNetDiffTs(res.result.map(i => unixTimeToText(i.timestamp)));
+                        setNetDiffTs(res.result.map(i => unixTimeToClockText(i.timestamp)));
                         setNetDiffHistory(res.result.map(i => i.effort));
                     }).catch(err => console.log("Failed to get stats!"));
                 break;

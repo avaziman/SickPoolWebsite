@@ -17,10 +17,6 @@ header {
     padding: 0 2rem;
 }
 
-#main-header a:hover {
-    background-color: red;
-}
-
 #main-header h1 {
     height: 100%;
     display: inline;
@@ -131,6 +127,21 @@ header {
 
 #borgir-menu svg {
     height: 60%;
+}
+
+#theme-change {
+    background-color: var(--secondary-color);
+    color: var(--font-color);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 0 1rem;
+    margin: 0.25rem 0;
+    font-size: 1rem;
+    text-align: center;
+}
+
+#theme-change:hover {
+    background-color: gray;
 }
 
 @media (max-width: 1000px) {

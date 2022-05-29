@@ -26,7 +26,7 @@ const CoinOptions = [
 
 const StyledBorgirNav = styled.nav`
     height: 100%;
-    background-color: red;
+    // background-color: red;
     display: flex;
     flex-direction: row;
 
@@ -84,7 +84,9 @@ class Header extends React.Component {
                             </select > */}
                             {/* <Dropdown id="coin-dropdown" options={CoinOptions} defaultValue={CoinOptions[0].value}
                                 onChange={(e, data) => console.log(data.value)} /> */}
-                            <button onClick={this.props.themeChange}>Dark/Light Mode</button>
+                            <button id="theme-change" onClick={this.props.themeChange}>
+                                { document.documentElement.attributes["theme"] == "dark" ? "Light" : "Dark"} Mode
+                            </button>
                         </StyledBorgirNav>
                         <button id="borgir-menu" onClick={() => this.setState({ menuOpen: !this.state.menuOpen })}>
                             <svg viewBox="0 0 15 15">
