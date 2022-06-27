@@ -7,6 +7,7 @@ import Header from './Header';
 import Footer from './Footer';
 import Verus from './Verus';
 import Solver from './Solver';
+import Solvers from './Solvers';
 import './App.css'
 import React, { useState } from 'react';
 
@@ -25,9 +26,9 @@ class App extends React.Component {
   }
 
   themeChange = () => {
-    this.state.darkMode = !this.state.darkMode;
-    document.documentElement.setAttribute('theme', this.state.darkMode ?
+    document.documentElement.setAttribute('theme', !this.state.darkMode ?
       'dark' : 'light');
+    this.setState({ darkMode: !this.state.darkMode });
   }
 
   render() {
@@ -35,12 +36,13 @@ class App extends React.Component {
     return (
       <IntlProvider locale={this.state.locale} messages={messages[this.state.locale]}>
         <div className="app">
-          <Header localeChange={this.localeChange} themeChange={this.themeChange} dir={messages[this.state.locale].dir} />
+          <Header localeChange={this.localeChange} themeChange={this.themeChange} theme={this.state.darkMode} dir={messages[this.state.locale].dir} />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/verustest/stats" element={<Stats coin="VRSCTEST" />} />
             <Route path="/verus/stats" element={<Stats coin="VRSC" />} />
-            <Route path="/verus/solver/*" element={<Solver coin="VRSC" />} />
+            <Route path="/verus/solvers" element={<Solvers coin="VRSC" />} />
+            <Route path="/verus/solver/:addr" element={<Solver coin="VRSC" />} />
             <Route path="/verus/blocks/*" element={<Blocks coin="VRSC" />} />
             <Route path="/calculator" element={<Calculator />} />
             <Route path="*" element={<NotFound />} />

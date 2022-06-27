@@ -1,0 +1,61 @@
+.nested-card {
+    box-sizing: border-box;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    width: 100%;
+    padding: 0.5rem 1rem;
+}
+
+.nested-card h3 {
+    font-size: 1.25rem;
+    opacity: 0.9;
+    text-align: center;
+    margin: 0.15rem;
+    white-space: nowrap;
+}
+
+.nested-card h4 {
+    font-weight: normal;
+    text-align: center;
+}
+
+.nested-card h2 {
+    border-bottom: 1px solid var(--border);
+    font-size: 1.4rem;
+    padding-bottom: 0.2rem;
+    margin-bottom: 0.4rem;
+}
+
+.stats-sub-card-holder {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    /* gap: 5rem; */
+    justify-content: space-evenly;
+}
+
+.stats-card-holder {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 0.5rem 1rem;
+}
+
+@media (max-width: 1000px) {
+    .stats-card-holder {
+        grid-template-columns: repeat(2, 2fr);
+    }
+}
+
+@media (max-width: 550px) {
+    .stats-card-holder {
+        grid-template-columns: repeat(1, 1fr);
+    }
+}
+
+.nested-card svg {
+    width: 1.65rem;
+    height: 1.65rem;
+    float: right;
+    opacity: 0.8;
+}

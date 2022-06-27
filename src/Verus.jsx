@@ -11,6 +11,7 @@ import {
     Filler
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
+const {REACT_APP_API_URL} = process.env;
 
 const options = {
     plugins: { legend: { display: false } },
@@ -44,11 +45,10 @@ export default function Verus() {
 
     const [hashrate, setHashrate] = useState([]);
     const [time, setTime] = useState([]);
-    let url = 'http://127.0.0.1:1111/pool/stats?coin=VRSC';
     const period = 60 * 5;
 
     useEffect(() => {
-        fetch(url)
+        fetch(REACT_APP_API_URL)
             .then(res => res.json())
             .then((tuple) => {
                 setTime(tuple.map(i => new Date(i[0]).toLocaleTimeString("en-US")));
@@ -57,7 +57,7 @@ export default function Verus() {
             });
         // setHashrate([1, 2, 1]);
         // setTime([1, 2, 1]);
-    }, [url]);
+    }, []);
 
     console.table(hashrate);
     console.table(time);

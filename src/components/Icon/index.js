@@ -1,4 +1,6 @@
+export { default as Chart } from "./Chart";
 export { default as Blocks } from "./Blocks";
+export { default as ChartFull } from "./ChartFull";
 export { default as DropDownArrow } from "./DropDownArrow";
 export { default as DropUpArrow } from "./DropUpArrow";
 export { default as Payouts } from "./Payouts";

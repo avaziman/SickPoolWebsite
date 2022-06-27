@@ -53,7 +53,7 @@ class Header extends React.Component {
     state = {
         isSearchOpen: false,
         menuOpen: false,
-        coin: CoinOptions[0].value
+        coin: CoinOptions[0].value,
     }
     render() {
         return (
@@ -85,7 +85,7 @@ class Header extends React.Component {
                             {/* <Dropdown id="coin-dropdown" options={CoinOptions} defaultValue={CoinOptions[0].value}
                                 onChange={(e, data) => console.log(data.value)} /> */}
                             <button id="theme-change" onClick={this.props.themeChange}>
-                                { document.documentElement.attributes["theme"] == "dark" ? "Light" : "Dark"} Mode
+                                <p>{this.props.theme ? "Light" : "Dark"} Mode</p>
                             </button>
                         </StyledBorgirNav>
                         <button id="borgir-menu" onClick={() => this.setState({ menuOpen: !this.state.menuOpen })}>
@@ -131,7 +131,7 @@ class Header extends React.Component {
                                     }
                                 }
                             </FormattedMessage>
-                            <button id={"search-button" + (this.state.isSearchOpen ? " search-button-open" : "")} onClick={() => this.setState({ isSearchOpen: !this.state.isSearchOpen })}>
+                            <button className={"search-button" + (this.state.isSearchOpen ? " search-button-open" : "")} onClick={() => this.setState({ isSearchOpen: !this.state.isSearchOpen })}>
                                 <span >
                                     <FormattedMessage id="search" />
                                 </span>

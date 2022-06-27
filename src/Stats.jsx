@@ -1,36 +1,26 @@
 import React, { useState, setState, useEffect } from 'react';
-import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    Title,
-    Tooltip,
-    Legend,
-    Filler
-} from 'chart.js';
-import { Line } from 'react-chartjs-2';
 import './Stats.css'
 import { diffToText, hrToText, unixTimeToClockText } from './utils.js';
 import reactDom from 'react-dom';
+import HistoryChart from './HistroyChart';
+const { REACT_APP_API_URL } = process.env;
 
 const primaryColor = [27, 121, 247];
 
 const hrChartOptions = {
     plugins: {
         legend: { display: false },
-        tooltip: {
-            intersect: false,
-            mode: 'index',
-            backgroundColor: 'black',
-            displayColors: false,
-            callbacks: {
-                label: function (context) {
-                    return 'Total Hashrate: ' + hrToText(parseFloat(context.parsed.y));
-                }
-            }
-        }
+        // tooltip: {
+        //     intersect: false,
+        //     mode: 'index',
+        //     backgroundColor: 'black',
+        //     displayColors: false,
+        //     callbacks: {
+        //         // label: function (context) {
+        //             // return context.label + hrToText(parseFloat(context.parsed.y));
+        //         // }
+        //     }
+        // }
     },
     scales: {
         y: {
@@ -78,7 +68,7 @@ const effortChartOptions = {
         y: {
             ticks: {
                 callback: function (x) { return `${(x).toFixed(2)}%`; },
-                
+
                 color: "white",
                 font: {
                     size: 18
@@ -88,7 +78,7 @@ const effortChartOptions = {
                 color: "rgba(255, 255, 255, 0.1)",
             }
         },
-        x: {    
+        x: {
             ticks: {
                 color: "white",
                 font: {
@@ -102,23 +92,12 @@ const effortChartOptions = {
     },
 };
 
-ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    Title,
-    Tooltip,
-    Legend,
-    Filler
-);
-
 export default function Stats(props) {
 
     const coin = props.coin;
     const [tabIndex, setTabIndex] = useState(1);
 
-    const [poolStats, setPoolStats] = useState({ hashrate: 0, miners: 0, workers: 0, blocks: 0, effort: 0});
+    const [poolStats, setPoolStats] = useState({ hashrate: 0, miners: 0, workers: 0, blocks: 0, effort: 0 });
 
     const [hrHistory, setHrHistory] = useState([]);
     const [hrTs, setHrTs] = useState([]);
@@ -127,15 +106,14 @@ export default function Stats(props) {
     const [netDiffHistory, setNetDiffHistory] = useState([]);
     const [netDiffTs, setNetDiffTs] = useState([]);
 
-    const url = `http://127.0.0.1:1111/pool`;
     const period = 60 * 5;
 
     useEffect(() => {
         Promise.all([
-            fetch(`${url}/hashrate?coin=${coin}`),
-            fetch(`${url}/minerCount?coin=${coin}`),
-            fetch(`${url}/workerCount?coin=${coin}`),
-            fetch(`${url}/currentEffort?coin=${coin}`),
+            fetch(`${REACT_APP_API_URL}/pool/currentHashrate?coin=${coin}`),
+            fetch(`${REACT_APP_API_URL}/pool/minerCount?coin=${coin}`),
+            fetch(`${REACT_APP_API_URL}/pool/workerCount?coin=${coin}`),
+            fetch(`${REACT_APP_API_URL}/pool/currentEffort?coin=${coin}`),
         ]).then(([hr, minerCount, workerCount, currentEffort]) => Promise.all([hr.json(), minerCount.json(), workerCount.json(), currentEffort.json()]))
             .then(([hr, minerCount, workerCount, currentEffort]) => {
                 setPoolStats({
@@ -146,7 +124,9 @@ export default function Stats(props) {
                     effort: currentEffort.result
                 });
             })
-            .catch(err => console.log("Failed to fetch!"));
+            .catch(err => {
+                // console.log("Failed to fetch!")
+            });
         // fetch(`${url}/history?coin=${coin}`)
         //     .then(res => res.json())
         //     .then((tuple) => {
@@ -154,46 +134,6 @@ export default function Stats(props) {
         //         setHrHistory(tuple.map(i => i[1] / period / 1e6));
         //     }).catch(err => console.log("Failed to get stats!"));
     }, []);
-
-    useEffect(() => {
-        LoadChart()
-    }, [tabIndex]);
-
-    function LoadChart() {
-        switch (tabIndex) {
-            case 1:
-                fetch(`${url}/hashrateHistory?coin=${coin}`)
-                    .then(res => res.json())
-                    .then(res => {
-                        setHrTs(res.result.map(i => unixTimeToClockText(i.timestamp)));
-                        setHrHistory(res.result.map(i => i.total));
-                    }).catch(err => console.log("Failed to get stats!"));
-                break;
-            case 2:
-                fetch(`${url}/hashrateHistory?coin=${coin}`)
-                    .then(res => res.json())
-                    .then(res => {
-                        setHrTs(res.result.map(i => unixTimeToClockText(i.timestamp)));
-                        setHrHistory(res.result.map(i => i.total));
-                    }).catch(err => console.log("Failed to get stats!"));   
-                break;
-            case 4:
-                fetch(`${url}/effortHistory?coin=${coin}`)
-                    .then(res => res.json())
-                    .then(res => {
-                        setEffortTs(res.result.map(i => unixTimeToClockText(i.timestamp)));
-                        setEffortHistory(res.result.map(i => i.effort));
-                    }).catch(err => console.log("Failed to get stats!"));
-                
-                fetch(`${url}/networkDifficultyHistory?coin=${coin}`)
-                    .then(res => res.json())
-                    .then(res => {
-                        setNetDiffTs(res.result.map(i => unixTimeToClockText(i.timestamp)));
-                        setNetDiffHistory(res.result.map(i => i.effort));
-                    }).catch(err => console.log("Failed to get stats!"));
-                break;
-        }
-    }
 
     let hrChartData = {
         labels: hrTs,
@@ -227,50 +167,41 @@ export default function Stats(props) {
 
     return (
         <div id="stats">
-            <div id="pow-stats-container">
-                <p className="stats-title">PoW Statistics</p>
+            <div className="stats-container">
+                <p className="stats-title">Proof-of-Work Statistics</p>
                 <div className="stats-card-holder">
                     <div className={tabIndex == 1 ? "stats-card stats-card-active" : "stats-card"} onClick={() => {
                         setTabIndex(1);
-                        LoadChart();
                     }
                     }>
-                        <p className="stats-card-key">Current Hashrate</p>
-                        <p className="stats-card-val">{hrToText(poolStats.hashrate)}</p>
+                        <h3>Current Hashrate</h3>
+                        <p>{hrToText(poolStats.hashrate)}</p>
                     </div>
                     <div className={tabIndex == 3 ? "stats-card stats-card-active" : "stats-card"} onClick={() => setTabIndex(3)}>
-                        <p className="stats-card-key">Merge-mining</p>
-                        <p className="stats-card-val">{poolStats.blocks} chains</p>
+                        <h3>Merge-mining</h3>
+                        <p>{poolStats.blocks} chains</p>
                     </div>
                     {/* <div className={tabIndex == 2 ? "stats-card stats-card-active" : "stats-card"} onClick={() => setTabIndex(2)}>
-                        <p className="stats-card-key">Miners</p>
-                        <p className="stats-card-val">{poolStats.miners}/{poolStats.workers}</p>
+                        <h2>Miners</h2>                        <p>{poolStats.miners}/{poolStats.workers}</p>
                     </div> */}
                     <div className={tabIndex == 3 ? "stats-card stats-card-active" : "stats-card"} onClick={() => setTabIndex(3)}>
-                        <p className="stats-card-key">Workers</p>
-                        <p className="stats-card-val">{poolStats.blocks}</p>
+                        <h3>Workers</h3>
+                        <p>{poolStats.blocks}</p>
                     </div>
                     <div className={tabIndex == 4 ? "stats-card stats-card-active" : "stats-card"} onClick={() => setTabIndex(4)}>
-                        <p className="stats-card-key">Current Effort</p>
-                        <p className="stats-card-val">{poolStats.effort.toFixed(2)}%</p>
+                        <h3>Current Effort</h3>
+                        <p>{poolStats.effort.toFixed(2)}%</p>
                         {/* <div className="progress-bar-holder">
                         <div className="progress-bar-fill" style={{width: "65%"}}></div>
                     </div> */}
                     </div>
-                    
+
                 </div>
-                <div className="chart-container" style={{ display: tabIndex == 1 ? 'block' : 'none' }}>
-                    <p className="chart-title">Hashrate History (24h)</p>
-                    <Line className="history-chart" data={hrChartData} options={hrChartOptions} height="100rem" />
-                </div>
-                <div className="chart-container" style={{ display: tabIndex == 2 ? 'block' : 'none' }}>
-                    <p className="chart-title">Miner & Worker History (24h)</p>
-                    <Line className="history-chart" data={hrChartData} options={hrChartOptions} height="100rem" />
-                </div>
-                <div className="chart-container" style={{ display: tabIndex == 4 ? 'block' : 'none' }}>
-                    <p className="chart-title">Effort History (24h)</p>
-                    <Line className="history-chart" data={effortChartData} options={effortChartOptions} height="100rem" />
-                </div>
+                <HistoryChart data={hrChartData} options={hrChartOptions}
+                    url={`${REACT_APP_API_URL}/pool/hashrateHistory?coin=${coin}`}
+                    style={{ display: tabIndex == 1 ? 'block' : 'none' }} />
+                <HistoryChart data={hrChartData} options={hrChartOptions} style={{ display: tabIndex == 2 ? 'block' : 'none' }} />
+                <HistoryChart data={effortChartData} options={effortChartOptions} url={`effortHistory?coin=${coin}`} style={{ display: tabIndex == 4 ? 'block' : 'none' }} />
             </div>
         </div>
     );
