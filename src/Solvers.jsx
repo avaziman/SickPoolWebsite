@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { Link } from 'react-router-dom';
 import SortableTable from "./SortableTable";
 import { timeToText, hrToText } from './utils';
 
@@ -32,7 +33,7 @@ export default function Solvers() {
     function ShowEntry(solver) {
         return (
             <tr>
-                <td>{solver.address}</td>
+                <td><Link to={`/verus/solver/${solver.address}`}>{solver.address}</Link></td>
                 <td>{solver.balance}</td>
                 <td>{hrToText(solver.hashrate)}</td>
                 <td>{solver.worker_count}</td>

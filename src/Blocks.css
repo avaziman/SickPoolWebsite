@@ -53,6 +53,10 @@ th, td {
     width: 100%;
 }
 
+td a:link, td a:visited {
+    color: var(--primary-color);
+}
+
 .error, .loading {
     text-align: center;
     height: 10rem;

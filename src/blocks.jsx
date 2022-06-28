@@ -3,7 +3,10 @@ import { useTable } from 'react-table/dist/react-table.development';
 import { DropDownArrow, SortDown, SortUp } from './components/Icon';
 import SortableTable from './SortableTable';
 import { diffToText, timeToText, unixTimeToClockText, truncateAddress } from './utils'
-const {REACT_APP_API_URL} = process.env;
+import { Link } from 'react-router-dom';
+
+const { REACT_APP_API_URL } = process.env;
+
 
 require('./Blocks.css')
 
@@ -81,7 +84,9 @@ export default function Blocks() {
             <td>{block.block_type} </td>
             <td>{block.height}</td>
             <td>{block.reward / 1e8}</td>
-            <td>{truncateAddress(block.solver)}</td>
+            <td><Link to={`/verus/solver/${block.solver}`}>
+                {truncateAddress(block.solver)}</Link>
+            </td>
             <td>{diffToText(block.difficulty)}</td>
             <td>{block.effort_percent.toPrecision(4)} %</td>
             <td>{timeToText(block.duration)}</td>
