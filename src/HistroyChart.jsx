@@ -28,11 +28,11 @@ ChartJS.register(
 
 export default function HistoryChart(props) {
     return (
-        
+
         <div className="chart-container" style={props.style}>
             <p className="chart-title">{props.title}</p>
             {(!props.err && !props.data.datasets[0].data) && <p>Loading...</p>}
-            {(!props.err && props.data.datasets[0].data) && <p>No data.</p>}
+            {(!props.err && props.data.datasets[0].data && props.data.datasets[0].data.length == 0) && <p>No data.</p>}
             {props.err && <div className="chart-error">{props.err}</div>}
             {(!props.err && props.data.labels.length !== 0) &&
                 <Line className="history-chart" data={props.data} options={props.options} height="100rem" />}

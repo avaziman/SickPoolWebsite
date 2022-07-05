@@ -1,10 +1,11 @@
-.table-section {
+.table-holder {
     overflow-x: auto;
     /* scrollable */
 }
 
 th {
     cursor: pointer;
+    text-transform: capitalize;
 }
 
 th:first-child {

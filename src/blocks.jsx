@@ -17,7 +17,7 @@ const COLUMNS =
             sortBy: 'number'
         },
         {
-            header: 'Status',
+            header: 'Confirmations',
             sortBy: null,
         },
         {
@@ -79,7 +79,7 @@ export default function Blocks() {
     function ShowEntry(block) {
         return (<tr>
             <td>{block.number}</td>
-            <td>{block.is_accepted ? "OK" : "ORPHANED"}</td>
+            <td>{block.confirmations}</td>
             <td>{block.chain} </td>
             <td>{block.block_type} </td>
             <td>{block.height}</td>
@@ -105,15 +105,15 @@ export default function Blocks() {
                     </div>
                     <div className="stats-card">
                         <h3>PoW Blocks</h3>
-                        <p>{111}%</p>
+                        <p>Soon</p>
                     </div>
                     <div className="stats-card">
                         <h3>PoS Blocks Effort</h3>
-                        <p>{111}%</p>
+                        <p>Soon</p>
                     </div>
                     <div className="stats-card">
                         <h3>PoS Blocks</h3>
-                        <p>{111}%</p>
+                        <p>Soon</p>
                     </div>
                 </div>
 
@@ -123,7 +123,7 @@ export default function Blocks() {
                             <p>Chain: </p>
                         </div> */}
                     </div>
-                    <SortableTable id="block-table" columns={columns} showEntry={ShowEntry} entryName="Block" defaultSortBy={columns[0].sortBy} />
+                    <SortableTable id="block-table" columns={columns} showEntry={ShowEntry} entryName="Block" section="pool" isPaginated={true} defaultSortBy={columns[0].sortBy} />
                 </div>
             </div>
         </div>

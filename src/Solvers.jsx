@@ -51,7 +51,7 @@ export default function Solvers() {
             </div>
             <div className="stats-container">
                 <p className="stats-title">Solvers table</p>
-                <SortableTable columns={columns} entryName="Solver" showEntry={ShowEntry} defaultSortBy={ columns[1].sortBy} />
+                <SortableTable columns={columns} entryName="Solver" showEntry={ShowEntry} defaultSortBy={columns[1].sortBy} section="pool" isPaginated={true} />
             </div>
         </div>
     );

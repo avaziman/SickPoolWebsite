@@ -17,7 +17,41 @@ import './solver.css'
 import ChartSVG from './components/Icon/Chart'
 import ChartFullSVG from './components/Icon/ChartFull'
 import HistoryChart from './HistroyChart.jsx';
+import SortableTable from './SortableTable.jsx';
+import { useMemo } from 'react';
+
 const { REACT_APP_API_URL, REACT_APP_ADDRESS_LEN } = process.env;
+const COLUMNS = [
+    {
+        header: 'name',
+        sortBy: null,
+    },
+    {
+        header: 'current hashrate',
+        sortBy: null,
+    },
+    {
+        header: 'average hashrate',
+        sortBy: null,
+    },
+    {
+        header: 'valid shares',
+        // sortBy: 'worker-count'
+        sortBy: null,
+    },
+    {
+        header: 'stale shares',
+        sortBy: null,
+
+        // sortBy: 'join-time'
+    },
+    {
+        header: 'invalid shares',
+        sortBy: null,
+
+        // sortBy: 'join-time'
+    }
+]
 
 const hrChartOptions = {
     plugins: {
@@ -45,7 +79,7 @@ const hrChartOptions = {
                 }
             },
             grid: {
-                color: "#243240"
+                color: "rgba(255, 255, 255, 0.1)",
             }
         },
         x: {
@@ -55,6 +89,9 @@ const hrChartOptions = {
                 font: {
                     size: 18
                 }
+            },
+            grid: {
+                color: "rgba(255, 255, 255, 0.1)",
             }
         }
     },
@@ -67,6 +104,7 @@ const hrChartOptions = {
 export default function Solver(props) {
     const { addr } = useParams();
     const isWorker = addr.includes('.');
+    const columns = useMemo(() => COLUMNS, []);
 
     const [labels, setLabels] = useState([]);
     const [hrData, setHrData] = useState(null);
@@ -75,11 +113,11 @@ export default function Solver(props) {
     const [shareErr, setShareErr] = useState(null);
 
     const [workerData, setWorkerData] = useState([]);
-    const [maxWorkers, setMaxWorkers] = useState([]);
+    const [maxWorkers, setMaxWorkers] = useState(0);
 
-    const [validShareData, setValidShareData] = useState([]);
-    const [staleShareData, setStaleShareData] = useState([]);
-    const [invalidShareData, setInvalidShareData] = useState([]);
+    const [validShareData, setValidShareData] = useState(null);
+    const [staleShareData, setStaleShareData] = useState(null);
+    const [invalidShareData, setInvalidShareData] = useState(null);
     const [lastShares, setLastShares] = useState(['?', '?', '?']);
 
     const [balanceData, setBalanceData] = useState(null);
@@ -99,7 +137,7 @@ export default function Solver(props) {
                     }
                 },
                 grid: {
-                    color: "#243240"
+                    color: "rgba(255, 255, 255, 0.1)",
                 }
             },
             y1: {
@@ -109,14 +147,18 @@ export default function Solver(props) {
                 type: 'linear',
                 display: true,
                 position: 'right',
+
             },
             x: {
+                stacked: true,
                 ticks: {
                     callback: unixTimeToClockText,
                     color: "white",
                     font: {
                         size: 18
                     }
+                }, grid: {
+                    color: "rgba(255, 255, 255, 0.1)",
                 }
             }
         },
@@ -151,13 +193,14 @@ export default function Solver(props) {
             .catch(err => {
                 setHrErr("Failed to load chart :(");
             });
-        
-        fetch(`${REACT_APP_API_URL}/solver/balanceHistory?address=${addr}`)
+
+        fetch(`${REACT_APP_API_URL}/solver/balance?address=${addr}`)
             .then(res => res.json())
             .then(res => {
                 // setBalanceLabels(res.result.map(a => a.time))
                 // setBalanceData(res.result.map(a => a.balance))
                 setBalanceData(res.result)
+                console.log(res.result);
             }).catch(err => {
                 // setBalanceError("Failed to load chart :(");
             })
@@ -170,10 +213,10 @@ export default function Solver(props) {
                 let workerDataTs = [];
                 let j = 0;
                 for (const label of labels) {
+                    if (res.result[j].workers > maxWorkers) {
+                        setMaxWorkers(res.result[j].workers);
+                    }
                     if (res.result[j + 1] && res.result[j + 1].time <= label) {
-                        if (res.result[j].workers > maxWorkers) {
-                            setMaxWorkers(res.result[j].workers);
-                        }
 
                         j = Math.min(j + 1, res.result.length - 1);
                     }
@@ -229,9 +272,9 @@ export default function Solver(props) {
                 type: 'bar',
                 label: 'Stale shares',
                 data: staleShareData,
-                color: "#FFDB58",
-                borderColor: "#FFDB58",
-                backgroundColor: "#FFDB58",
+                color: "#ff8e00",
+                borderColor: "#ff8e00",
+                backgroundColor: "#ff8e00",
                 pointBorderColor: "#fff",
                 pointBorderWidth: 2,
                 pointRadius: 4,
@@ -242,9 +285,9 @@ export default function Solver(props) {
                 type: 'bar',
                 label: 'Invalid shares',
                 data: invalidShareData,
-                color: "#FFDB58",
-                borderColor: "#FFDB58",
-                backgroundColor: "#FFDB58",
+                color: "#ff5003",
+                borderColor: "#ff5003",
+                backgroundColor: "#ff5003",
                 pointBorderColor: "#fff",
                 yAxisID: 'y',
             },
@@ -291,7 +334,7 @@ export default function Solver(props) {
                         <div className="stats-sub-card-holder">
                             <div className="stats-sub-card">
                                 <h4>Current</h4>
-                                <h3>{!hrData  ? "?" : hrToText(hrData[hrData.length - 1])}</h3>
+                                <h3>{!hrData ? "?" : hrToText(hrData[hrData.length - 1])}</h3>
                             </div>
                             <div className="stats-sub-card">
                                 <h4>Average 6HR</h4>
@@ -338,7 +381,7 @@ export default function Solver(props) {
                             <div className="stats-sub-card-holder">
                                 <div className="stats-sub-card">
                                     <h4>Immature</h4>
-                                    <h3>{ (balanceData && balanceData.length > 0)  ? balanceData[0] : '?'}</h3>
+                                    <h3>{(balanceData && balanceData.immature != null) ? balanceData.immature : '?'}</h3>
                                 </div>
                                 <div className="stats-sub-card">
                                     <h4>Mature</h4>
@@ -351,8 +394,29 @@ export default function Solver(props) {
                 <HistoryChart title="Hashrate (24h)" data={hrChartData} options={hrChartOptions} err={hrErr} />
                 <HistoryChart title={(isWorker ? "Shares" : "Shares & Workers") + " (24h)"} data={sharesChartData} options={shareChartOptions} err={shareErr} />
                 {/* <HistoryChart title="Balance" data={balanceChartData} options={shareChartOptions} err={balanceError} /> */}
+                <p className="stats-title">Worker list</p>
+                <SortableTable columns={columns} entryName="Worker" showEntry={ShowEntry} defaultSortBy={columns[1].sortBy} section="miner" isPaginated={false} address={addr} />
             </div>
         </div>
     );
 }
 // TODO: maybe add graph icon to hashrate & shares to pop the graph
+
+function ShowEntry(worker) {
+    console.log('f' + worker)
+    return (
+        <tr>
+            <td>{worker.worker}</td>
+            <td>{hrToText(worker.stats.currentHr)}</td>
+            <td>{hrToText(worker.stats.averageHr)}</td>
+            <td>{worker.stats.validShares}</td>
+            <td>{worker.stats.staleShares}</td>
+            <td>{worker.stats.invalidShares}</td>
+            {/* <td>{hrToText(solver.hashrate)}</td>
+            <td>{solver.worker_count}</td>
+            <td>{timeToText(Date.now() - solver.joined * 1000)} ago</td> */}
+        </tr>
+    )
+}
+
+export { hrChartOptions };

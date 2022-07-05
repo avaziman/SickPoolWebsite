@@ -3,51 +3,11 @@ import './Stats.css'
 import { diffToText, hrToText, unixTimeToClockText } from './utils.js';
 import reactDom from 'react-dom';
 import HistoryChart from './HistroyChart';
+import { hrChartOptions } from './Solver';
+
 const { REACT_APP_API_URL } = process.env;
 
 const primaryColor = [27, 121, 247];
-
-const hrChartOptions = {
-    plugins: {
-        legend: { display: false },
-        // tooltip: {
-        //     intersect: false,
-        //     mode: 'index',
-        //     backgroundColor: 'black',
-        //     displayColors: false,
-        //     callbacks: {
-        //         // label: function (context) {
-        //             // return context.label + hrToText(parseFloat(context.parsed.y));
-        //         // }
-        //     }
-        // }
-    },
-    scales: {
-        y: {
-            ticks: {
-                callback: hrToText,
-                color: "white",
-                font: {
-                    size: 18
-                }
-            },
-            grid: {
-                color: "rgba(255, 255, 255, 0.1)"
-            }
-        },
-        x: {
-            ticks: {
-                color: "white",
-                font: {
-                    size: 18
-                }
-            },
-            grid: {
-                color: "rgba(255, 255, 255, 0.1)"
-            }
-        }
-    },
-};
 
 const effortChartOptions = {
     plugins: {
@@ -127,19 +87,24 @@ export default function Stats(props) {
             .catch(err => {
                 // console.log("Failed to fetch!")
             });
-        // fetch(`${url}/history?coin=${coin}`)
-        //     .then(res => res.json())
-        //     .then((tuple) => {
-        //         setHistoryTs(tuple.map(i => new Date(i[0]).toLocaleTimeString("en-US")));
-        //         setHrHistory(tuple.map(i => i[1] / period / 1e6));
-        //     }).catch(err => console.log("Failed to get stats!"));
     }, []);
+
+    useEffect(() => {
+        if (tabIndex == 1) {
+            fetch(`${REACT_APP_API_URL}/pool/hashrateHistory`)
+                .then(res => res.json())
+                .then((res) => {
+                    setHrTs(res.result.map(i => i[0]));
+                    setHrHistory(res.result.map(i => i[1]));
+                }).catch(err => console.log("Failed to get stats!"));
+        }
+    }, [tabIndex])
 
     let hrChartData = {
         labels: hrTs,
         datasets: [
             {
-                label: 'Hashrate history',
+                label: 'hashrate',
                 borderColor: `rgb(${primaryColor})`,
                 data: hrHistory,
                 pointBorderWidth: 0,
@@ -175,7 +140,7 @@ export default function Stats(props) {
                     }
                     }>
                         <h3>Current Hashrate</h3>
-                        <p>{hrToText(poolStats.hashrate)}</p>
+                        <p>{hrToText(hrHistory[hrHistory.length - 1])}</p>
                     </div>
                     <div className={tabIndex == 3 ? "stats-card stats-card-active" : "stats-card"} onClick={() => setTabIndex(3)}>
                         <h3>Merge-mining</h3>
@@ -198,7 +163,7 @@ export default function Stats(props) {
 
                 </div>
                 <HistoryChart data={hrChartData} options={hrChartOptions}
-                    url={`${REACT_APP_API_URL}/pool/hashrateHistory?coin=${coin}`}
+                    url={`${REACT_APP_API_URL}/pool/hashrateHistory`}
                     style={{ display: tabIndex == 1 ? 'block' : 'none' }} />
                 <HistoryChart data={hrChartData} options={hrChartOptions} style={{ display: tabIndex == 2 ? 'block' : 'none' }} />
                 <HistoryChart data={effortChartData} options={effortChartOptions} url={`effortHistory?coin=${coin}`} style={{ display: tabIndex == 4 ? 'block' : 'none' }} />
