@@ -48,7 +48,7 @@ const StyledBorgirNav = styled.nav`
         
         transition: transform 0.3s ease-in-out;
         `;
-        //TODO: think
+//TODO: think
 //         transform: ${({ open }) => open ? 'translateX(0)' : 'translateX(100%)'};
 //     }
 // `
@@ -132,13 +132,15 @@ function Header(props: Props) {
                         })
                     }
                     <div id="search-field">
-                        <SvgBackArrow id="close-search" onClick={() => setIsSearchOpen(false)} style={{display: isSearchOpen ? "flex" : "none"}} />
+                        <SvgBackArrow id="close-search" onClick={() => setIsSearchOpen(false)} style={{ display: isSearchOpen ? "flex" : "none" }} />
                         <input type="text" id="search-input" placeholder={useIntl().formatMessage({ "id": "searchPlaceHolder" })} dir="ltr"
                             onKeyPress={(e) => {
                                 setSolverSearch((e.target as any).value);
                                 if (e.key === 'Enter') {
                                     e.preventDefault();
-                                    navigate(`${CoinOptions[0].value}/solver/${solverSearch}`);
+                                    if (solverSearch !== '') {
+                                        navigate(`${CoinOptions[0].value}/solver/${solverSearch}`);
+                                    }
                                 }
                             }}
                             style={{
