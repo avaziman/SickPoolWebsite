@@ -1,16 +1,17 @@
 import { useMemo } from 'react'
-import { Link } from 'react-router-dom';
-import SortableTable from "./SortableTable";
+import { Link, useParams } from 'react-router-dom';
+import SortableTable, { Column, Sort, TableResult, ApiTableResult } from "./SortableTable";
+import ToCoinSymbol from './ToCoinSymbol';
 import { timeToText, hrToText } from './utils';
+const { REACT_APP_API_URL } = process.env;
 
-const COLUMNS = [
+const COLUMNS: Column[] = [
     {
         header: 'Address',
-        sortBy: null
     },
     {
         header: 'Staking/balance',
-        sortBy: 'balance'
+        sortBy: 'mature-balance'
     },
     {
         header: 'Hashrate',
@@ -26,11 +27,21 @@ const COLUMNS = [
     }
 ]
 
+interface Solver {
+    address: string;
+    hashrate: number;
+    worker_count: number;
+    balance: number;
+    joined: number;
+}
+
 export default function Solvers() {
+    const { coinPretty } = useParams();
+    const coin_symbol: string = coinPretty ? ToCoinSymbol(coinPretty) : 'unknown';
 
     const columns = useMemo(() => COLUMNS, []);
 
-    function ShowEntry(solver) {
+    function ShowEntry(solver: Solver) : JSX.Element {
         return (
             <tr>
                 <td><Link to={`/verus/solver/${solver.address}`}>{solver.address}</Link></td>
@@ -42,6 +53,11 @@ export default function Solvers() {
         )
     }
 
+    function LoadSolvers(sort: Sort): Promise<ApiTableResult<Solver>> {
+        return fetch(`${REACT_APP_API_URL}/pool/solvers?coin=${coin_symbol}&page=${sort.page}&limit=${sort.limit}&sortby=${sort.by}&sortdir=${sort.dir}`)
+            .then(res => res.json());
+    }
+
     return (
         <div id="table-section">
             <div id="filter">
@@ -51,7 +67,7 @@ export default function Solvers() {
             </div>
             <div className="stats-container">
                 <p className="stats-title">Solvers table</p>
-                <SortableTable columns={columns} entryName="Solver" showEntry={ShowEntry} defaultSortBy={columns[1].sortBy} section="pool" isPaginated={true} />
+                <SortableTable id="solver-table" columns={columns} loadTable={LoadSolvers} showEntry={ShowEntry} isPaginated={true} />
             </div>
         </div>
     );

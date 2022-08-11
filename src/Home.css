@@ -43,6 +43,12 @@
 .coin-preview h2 {
     text-align: left;
     font-size: 1.75rem;
+    display: inline;
+}
+
+.coin-icon {
+    width: 2rem;
+    height: 2rem;
 }
 
 .earn-estimates {

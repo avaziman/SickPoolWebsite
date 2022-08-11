@@ -1,4 +1,4 @@
-const messages = {
+const messages : any = {
     en: {
         dir: 'ltr',
         benchmark: 'Benchmark',

@@ -1,11 +1,16 @@
 export { default as Chart } from "./Chart";
+export { default as BackArrow } from "./BackArrow";
 export { default as Blocks } from "./Blocks";
 export { default as ChartFull } from "./ChartFull";
+export { default as Cross } from "./Cross";
 export { default as DropDownArrow } from "./DropDownArrow";
 export { default as DropUpArrow } from "./DropUpArrow";
+export { default as LightningFill } from "./LightningFill";
+export { default as LightningLight } from "./LightningLight";
 export { default as Payouts } from "./Payouts";
 export { default as Search } from "./Search";
 export { default as Solvers } from "./Solvers";
 export { default as SortDown } from "./SortDown";
 export { default as SortUp } from "./SortUp";
 export { default as Stats } from "./Stats";
+export { default as VerusIconBlue } from "./VerusIconBlue";

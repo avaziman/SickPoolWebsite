@@ -1,16 +1,16 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useTable } from 'react-table/dist/react-table.development';
 import { DropDownArrow, SortDown, SortUp } from './components/Icon';
-import SortableTable from './SortableTable';
+import SortableTable, { Sort, Column, ApiTableResult } from './SortableTable';
 import { diffToText, timeToText, unixTimeToClockText, truncateAddress } from './utils'
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
+import ToCoinSymbol from './ToCoinSymbol';
 
 const { REACT_APP_API_URL } = process.env;
 
 
 require('./Blocks.css')
 
-const COLUMNS =
+const COLUMNS: Column[] =
     [
         {
             header: 'No.',
@@ -18,19 +18,15 @@ const COLUMNS =
         },
         {
             header: 'Confirmations',
-            sortBy: null,
         },
         {
             header: 'Chain',
-            sortBy: null,
         },
         {
             header: 'Type',
-            sortBy: null,
         },
         {
             header: 'Height',
-            sortBy: null,
         },
         {
             header: 'Reward',
@@ -38,7 +34,6 @@ const COLUMNS =
         },
         {
             header: 'Solver',
-            sortBy: null,
         },
         {
             header: 'Difficulty',
@@ -54,20 +49,40 @@ const COLUMNS =
         },
         {
             header: 'Date',
-            sortBy: null //'number' //same order as number
+            //same order as number
         },
     ];
 
+interface Block {
+    confirmations: number;
+    block_type: number;
+    reward: number;
+    time: number;
+    duration: number;
+    height: number;
+    number: number;
+    difficulty: number;
+    effort_percent: number;
+    chain: string;
+    solver: string;
+    worker: string;
+    hash: string;
+}
+
 export default function Blocks() {
+
+    const { coinPretty } = useParams();
+
+    const coin_symbol: string = coinPretty ? ToCoinSymbol(coinPretty) : 'unknown';
 
     let columns = useMemo(() => COLUMNS, []);
 
-    let [blockStats, setBlockStats] = useState({ pow_effort: 0, pow_blocks: 0, pos_effort: 0, pos_effort: 0 });
+    let [blockStats, setBlockStats] = useState({ pow_effort: 0, pow_blocks: 0, pos_effort: 0, pos_blocks: 0 });
 
     useEffect(() => {
-        fetch(`${REACT_APP_API_URL}/pool/currentEffortPoW`).then(res => res.json()).then(powEffort => {
+        fetch(`${REACT_APP_API_URL}/pool/currentEffortPoW`).then(res => res.json()).then(res => {
             setBlockStats({
-                pow_effort: powEffort * 100,
+                pow_effort: res.result * 100,
                 pow_blocks: 0,
                 pos_effort: 0,
                 pos_blocks: 0
@@ -76,12 +91,12 @@ export default function Blocks() {
 
     }, []);
 
-    function ShowEntry(block) {
+    function ShowEntry(block: Block) {
         return (<tr>
             <td>{block.number}</td>
             <td>{block.confirmations}</td>
             <td>{block.chain} </td>
-            <td>{block.block_type} </td>
+            <td>{block.block_type == 1 ? "PoW" : "PoS"} </td>
             <td>{block.height}</td>
             <td>{block.reward / 1e8}</td>
             <td><Link to={`/verus/solver/${block.solver}`}>
@@ -92,6 +107,11 @@ export default function Blocks() {
             <td>{timeToText(block.duration)}</td>
             <td>{timeToText(Date.now() - block.time)} ago</td>
         </tr>)
+    }
+
+    function LoadBlocks(sort: Sort) : Promise<ApiTableResult<Block>> {
+        return fetch(`${REACT_APP_API_URL}/pool/blocks?coin=${coin_symbol}&page=${sort.page}&limit=${sort.limit}&sortby=${sort.by}&sortdir=${sort.dir}`)
+            .then(res => res.json());
     }
 
     return (
@@ -123,7 +143,7 @@ export default function Blocks() {
                             <p>Chain: </p>
                         </div> */}
                     </div>
-                    <SortableTable id="block-table" columns={columns} showEntry={ShowEntry} entryName="Block" section="pool" isPaginated={true} defaultSortBy={columns[0].sortBy} />
+                    <SortableTable id="block-table" columns={columns} showEntry={ShowEntry} isPaginated={true} loadTable={LoadBlocks} />
                 </div>
             </div>
         </div>

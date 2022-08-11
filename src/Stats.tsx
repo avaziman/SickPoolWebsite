@@ -1,60 +1,21 @@
-import React, { useState, setState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Stats.css'
 import { diffToText, hrToText, unixTimeToClockText } from './utils.js';
 import reactDom from 'react-dom';
-import HistoryChart from './HistroyChart';
-import { hrChartOptions } from './Solver';
+import HistoryChart from './HistoryChart';
+import HashrateChart from './HashrateChart';
+import ToCoinSymbol from './ToCoinSymbol';
+import { useParams } from 'react-router-dom';
 
 const { REACT_APP_API_URL } = process.env;
 
 const primaryColor = [27, 121, 247];
 
-const effortChartOptions = {
-    plugins: {
-        legend: { display: false },
-        tooltip: {
-            intersect: false,
-            mode: 'index',
-            backgroundColor: 'black',
-            displayColors: false,
-            callbacks: {
-                label: function (context) {
-                    return `Total effort: ${context.parsed.y.toFixed(2)}%`;
-                }
-            }
-        }
-    },
-    scales: {
-        y: {
-            ticks: {
-                callback: function (x) { return `${(x).toFixed(2)}%`; },
+export default function Stats() {
 
-                color: "white",
-                font: {
-                    size: 18
-                }
-            },
-            grid: {
-                color: "rgba(255, 255, 255, 0.1)",
-            }
-        },
-        x: {
-            ticks: {
-                color: "white",
-                font: {
-                    size: 18
-                }
-            },
-            grid: {
-                color: "rgba(255, 255, 255, 0.1)",
-            }
-        }
-    },
-};
-
-export default function Stats(props) {
-
-    const coin = props.coin;
+    const { coinPretty } = useParams();
+    const coin_symbol: string = coinPretty ? ToCoinSymbol(coinPretty) : 'unknown';
+    
     const [tabIndex, setTabIndex] = useState(1);
 
     const [poolStats, setPoolStats] = useState({ hashrate: 0, miners: 0, workers: 0, blocks: 0, effort: 0 });
@@ -70,10 +31,10 @@ export default function Stats(props) {
 
     useEffect(() => {
         Promise.all([
-            fetch(`${REACT_APP_API_URL}/pool/currentHashrate?coin=${coin}`),
-            fetch(`${REACT_APP_API_URL}/pool/minerCount?coin=${coin}`),
-            fetch(`${REACT_APP_API_URL}/pool/workerCount?coin=${coin}`),
-            fetch(`${REACT_APP_API_URL}/pool/currentEffort?coin=${coin}`),
+            fetch(`${REACT_APP_API_URL}/pool/currentHashrate?coin=${coin_symbol}`),
+            fetch(`${REACT_APP_API_URL}/pool/minerCount?coin=${coin_symbol}`),
+            fetch(`${REACT_APP_API_URL}/pool/workerCount?coin=${coin_symbol}`),
+            fetch(`${REACT_APP_API_URL}/pool/currentEffort?coin=${coin_symbol}`),
         ]).then(([hr, minerCount, workerCount, currentEffort]) => Promise.all([hr.json(), minerCount.json(), workerCount.json(), currentEffort.json()]))
             .then(([hr, minerCount, workerCount, currentEffort]) => {
                 setPoolStats({
@@ -91,11 +52,11 @@ export default function Stats(props) {
 
     useEffect(() => {
         if (tabIndex == 1) {
-            fetch(`${REACT_APP_API_URL}/pool/hashrateHistory`)
+            fetch(`${REACT_APP_API_URL}/pool/hashrateHistory?coin=${coin_symbol}`)
                 .then(res => res.json())
                 .then((res) => {
-                    setHrTs(res.result.map(i => i[0]));
-                    setHrHistory(res.result.map(i => i[1]));
+                    setHrTs(res.result.map((i: number[]) => i[0]));
+                    setHrHistory(res.result.map((i: number[]) => i[1]));
                 }).catch(err => console.log("Failed to get stats!"));
         }
     }, [tabIndex])
@@ -139,34 +100,33 @@ export default function Stats(props) {
                         setTabIndex(1);
                     }
                     }>
-                        <h3>Current Hashrate</h3>
+                        <h3>Pool Hashrate</h3>
                         <p>{hrToText(hrHistory[hrHistory.length - 1])}</p>
                     </div>
-                    <div className={tabIndex == 3 ? "stats-card stats-card-active" : "stats-card"} onClick={() => setTabIndex(3)}>
-                        <h3>Merge-mining</h3>
-                        <p>{poolStats.blocks} chains</p>
+                    <div className={tabIndex == -1 ? "stats-card stats-card-active" : "stats-card"} onClick={() => setTabIndex(3)}>
+                        <h3>Network Hashrate</h3>
+                        <p>Soon</p>
                     </div>
                     {/* <div className={tabIndex == 2 ? "stats-card stats-card-active" : "stats-card"} onClick={() => setTabIndex(2)}>
                         <h2>Miners</h2>                        <p>{poolStats.miners}/{poolStats.workers}</p>
                     </div> */}
-                    <div className={tabIndex == 3 ? "stats-card stats-card-active" : "stats-card"} onClick={() => setTabIndex(3)}>
-                        <h3>Workers</h3>
-                        <p>{poolStats.blocks}</p>
+                    <div className={tabIndex == -1 ? "stats-card stats-card-active" : "stats-card"} onClick={() => setTabIndex(3)}>
+                        <h3>Miners</h3>
+                        <p>Soon</p>
                     </div>
-                    <div className={tabIndex == 4 ? "stats-card stats-card-active" : "stats-card"} onClick={() => setTabIndex(4)}>
-                        <h3>Current Effort</h3>
-                        <p>{poolStats.effort.toFixed(2)}%</p>
+                    <div className={tabIndex == -1 ? "stats-card stats-card-active" : "stats-card"} onClick={() => setTabIndex(4)}>
+                        <h3>Workers</h3>
+                        {/* <p>{poolStats.effort.toFixed(2)}%</p> */}
+                        <p>Soon</p>
                         {/* <div className="progress-bar-holder">
                         <div className="progress-bar-fill" style={{width: "65%"}}></div>
                     </div> */}
                     </div>
 
                 </div>
-                <HistoryChart data={hrChartData} options={hrChartOptions}
-                    url={`${REACT_APP_API_URL}/pool/hashrateHistory`}
-                    style={{ display: tabIndex == 1 ? 'block' : 'none' }} />
-                <HistoryChart data={hrChartData} options={hrChartOptions} style={{ display: tabIndex == 2 ? 'block' : 'none' }} />
-                <HistoryChart data={effortChartData} options={effortChartOptions} url={`effortHistory?coin=${coin}`} style={{ display: tabIndex == 4 ? 'block' : 'none' }} />
+                {tabIndex == 1 && <HashrateChart title="Pool Hashrate" data={hrChartData} error='' />}
+                {/*<HistoryChart data={hrChartData} options={hrChartOptions} style={{ display: tabIndex == 2 ? 'block' : 'none' }} />
+                <HistoryChart data={effortChartData} options={effortChartOptions} url={`effortHistory?coin=${coin_symbol}`} style={{ display: tabIndex == 4 ? 'block' : 'none' }} /> */}
             </div>
         </div>
     );

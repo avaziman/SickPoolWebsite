@@ -1,3 +1,4 @@
+import { LightningLight, VerusIconBlue } from './components/Icon';
 import './Home.css'
 
 export default function Home() {
@@ -10,7 +11,7 @@ export default function Home() {
           A hybrid mining & staking pool made easy.
         </h2>
         <div id="features">
-          <p>High-end servers & highly efficient custom software</p>
+          <p>Highly efficient mining software written in house</p>
           <p>Payouts every 6 hours</p>
           <p>Transaction fees covered by us</p>
           <p>Optional instant payout (not covered)</p>
@@ -21,8 +22,10 @@ export default function Home() {
           {/* <svg viewBox="0 0 209 213" fill-rule="evenodd" clip-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2">
             <use href="verus_logo.svg#icon" />
           </svg> */}
-          <div className="coin-preview-header">
+          <div className="coin-preview-header"><div>
+            <VerusIconBlue className="coin-icon"/>
             <h2>Verus</h2>
+          </div>
             <span>
               PoW fee: 0%
               <br />
@@ -31,6 +34,7 @@ export default function Home() {
           </div>
           <div className="earn-estimates">
             <div className="mining-estimate">
+              {/* <LightningLight/> */}
               <p className="estimate-title">Mining estimated earnings: </p>
               <p>100MH/s daily,</p>
               <p>{(powHourly * 24).toFixed(3)}VRSC / {toCurrency(powHourly * 24).toFixed(3)}$</p>
@@ -41,7 +45,7 @@ export default function Home() {
               <p>APY: {  CalculateAPY(GetNetworkStaked(), VERUS_BLOCK_REWARD, VERUS_BLOCK_TIME * 2).toFixed(3)}%</p>
               {/* <p>1000 VRSC monthly,</p> */}
               {/* <p>{(posHourly * 24 * 30.42).toFixed(3)}VRSC / {toCurrency(posHourly * 24 * 30.42).toFixed(3)}$ </p> */}
-              <button className="start-button">Start Staking</button>
+              {/* <button className="start-button">Start Staking</button> */}
             </div>
           </div>
         </div>
