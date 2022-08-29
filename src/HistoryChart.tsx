@@ -11,7 +11,9 @@ import {
     Legend,
     ChartTypeRegistry,
     ChartData,
-    ChartOptions
+    ChartOptions,
+    LineController,
+    ChartConfiguration
 } from 'chart.js';
 import { Line, Bar, Chart } from 'react-chartjs-2';
 
@@ -23,6 +25,7 @@ ChartJS.register(
     Title,
     Tooltip,
     Legend,
+    LineController,
 );
 
 interface HistoryChartProp{
