@@ -1,3 +1,4 @@
+import './App.css'
 import { Link, Route, Routes, Navigate } from 'react-router-dom';
 import Home from './Home';
 import Calculator from './Calculator';
@@ -9,12 +10,12 @@ import Verus from './Verus';
 import Solver from './Solver';
 import Solvers from './Solvers';
 import Payouts from './Payouts';
-import './App.css'
 import React, { useState } from 'react';
 
 import { IntlProvider } from 'react-intl';
 import messages from './messages';
 import Blocks from './Blocks';
+import GetStarted from './GetStrated';
 
 function App() {
 
@@ -33,15 +34,17 @@ function App() {
         <Header themeChange={themeChange} theme={isDarkMode} dir={messages[locale].dir} /*localeChange={this.localeChange}*/ />
         <Routes>
           <Route path="/">
+            <Route path="/get-started" element={<GetStarted/>}/>
+
             {/* <Route path="/" element={<Home />} /> */}
-            <Route path="/" element={<Navigate to="/verus/stats"/>} />
+            <Route path="/" element={<Navigate to="/sinovate/stats"/>} />
             <Route path=":coinPretty">
-              <Route path="stats" element={<Stats />} />
+              <Route path="stats" element={<Stats isDarkMode={isDarkMode} />} />
               <Route path="solvers" element={<Solvers />} />
               <Route path="payouts" element={<Payouts />} />
               <Route path="blocks" element={<Blocks />} />
               <Route path="solver">
-                <Route path=":address" element={<Solver />} />
+                <Route path=":address" element={<Solver isDarkMode={isDarkMode} />} />
               </Route>
             </Route>
           </Route>

@@ -1,24 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import './Stats.css'
-import { diffToText, hrToText, unixTimeToClockText } from './utils.js';
+import { toLatin, hrToText, unixTimeToClockText } from './utils';
 import reactDom from 'react-dom';
 import HistoryChart from './HistoryChart';
 import HashrateChart from './HashrateChart';
-import ToCoinSymbol from './ToCoinSymbol';
+import ToCoinSymbol from './CoinMap';
 import { useParams } from 'react-router-dom';
 
 const { REACT_APP_API_URL } = process.env;
 
 const primaryColor = [27, 121, 247];
 
-export default function Stats() {
+interface StatsProps {
+    isDarkMode: boolean;
+}
+
+export default function Stats(props: StatsProps) {
 
     const { coinPretty } = useParams();
-    const coin_symbol: string = coinPretty ? ToCoinSymbol(coinPretty) : 'unknown';
+    const coin_symbol: string = coinPretty ? ToCoinSymbol(coinPretty).symbol : 'unknown';
     
     const [tabIndex, setTabIndex] = useState(1);
 
-    const [poolStats, setPoolStats] = useState({ hashrate: 0, miners: 0, workers: 0, blocks: 0, effort: 0 });
+    const [poolStats, setPoolStats] = useState({ hashrate: 0, network_hashrate: 0, miners: 0, workers: 0 });
 
     const [hrHistory, setHrHistory] = useState([]);
     const [hrTs, setHrTs] = useState([]);
@@ -30,19 +34,14 @@ export default function Stats() {
     const period = 60 * 5;
 
     useEffect(() => {
-        Promise.all([
-            fetch(`${REACT_APP_API_URL}/pool/currentHashrate?coin=${coin_symbol}`),
-            fetch(`${REACT_APP_API_URL}/pool/minerCount?coin=${coin_symbol}`),
-            fetch(`${REACT_APP_API_URL}/pool/workerCount?coin=${coin_symbol}`),
-            fetch(`${REACT_APP_API_URL}/pool/currentEffort?coin=${coin_symbol}`),
-        ]).then(([hr, minerCount, workerCount, currentEffort]) => Promise.all([hr.json(), minerCount.json(), workerCount.json(), currentEffort.json()]))
-            .then(([hr, minerCount, workerCount, currentEffort]) => {
+        fetch(`${REACT_APP_API_URL}/pool/overview?coin=${coin_symbol}`)
+        .then((res) => res.json())
+            .then((res) => {
                 setPoolStats({
-                    hashrate: hr.result,
-                    miners: minerCount.result,
-                    workers: workerCount.result,
-                    blocks: 0,
-                    effort: currentEffort.result
+                    hashrate: res.result.poolHashrate,
+                    network_hashrate: res.result.networkHashrate,
+                    miners: res.result.minerCount,
+                    workers: res.result.workerCount,
                 });
             })
             .catch(err => {
@@ -51,7 +50,7 @@ export default function Stats() {
     }, []);
 
     useEffect(() => {
-        if (tabIndex == 1) {
+        if (tabIndex === 1) {
             fetch(`${REACT_APP_API_URL}/pool/hashrateHistory?coin=${coin_symbol}`)
                 .then(res => res.json())
                 .then((res) => {
@@ -96,35 +95,36 @@ export default function Stats() {
             <div className="stats-container">
                 <p className="stats-title">Proof-of-Work Statistics</p>
                 <div className="stats-card-holder">
-                    <div className={tabIndex == 1 ? "stats-card stats-card-active" : "stats-card"} onClick={() => {
+                    <div className={tabIndex === 1 ? "stats-card stats-card-active" : "stats-card"} onClick={() => {
                         setTabIndex(1);
                     }
                     }>
                         <h3>Pool Hashrate</h3>
-                        <p>{hrToText(hrHistory[hrHistory.length - 1])}</p>
+                        <p>{hrToText(poolStats.hashrate)}</p>
                     </div>
-                    <div className={tabIndex == -1 ? "stats-card stats-card-active" : "stats-card"} onClick={() => setTabIndex(3)}>
+                    <div className={tabIndex === -1 ? "stats-card stats-card-active" : "stats-card"} onClick={() => setTabIndex(3)}>
                         <h3>Network Hashrate</h3>
-                        <p>Soon</p>
+                        <p>{hrToText(poolStats.network_hashrate)}</p>
                     </div>
                     {/* <div className={tabIndex == 2 ? "stats-card stats-card-active" : "stats-card"} onClick={() => setTabIndex(2)}>
                         <h2>Miners</h2>                        <p>{poolStats.miners}/{poolStats.workers}</p>
                     </div> */}
-                    <div className={tabIndex == -1 ? "stats-card stats-card-active" : "stats-card"} onClick={() => setTabIndex(3)}>
+                    <div className={tabIndex === -1 ? "stats-card stats-card-active" : "stats-card"} onClick={() => setTabIndex(3)}>
                         <h3>Miners</h3>
-                        <p>Soon</p>
+                        <p>{poolStats.miners}</p>
                     </div>
-                    <div className={tabIndex == -1 ? "stats-card stats-card-active" : "stats-card"} onClick={() => setTabIndex(4)}>
+                    <div className={tabIndex === -1 ? "stats-card stats-card-active" : "stats-card"} onClick={() => setTabIndex(4)}>
                         <h3>Workers</h3>
                         {/* <p>{poolStats.effort.toFixed(2)}%</p> */}
-                        <p>Soon</p>
+                        <p>{poolStats.workers}</p>
+
                         {/* <div className="progress-bar-holder">
                         <div className="progress-bar-fill" style={{width: "65%"}}></div>
                     </div> */}
                     </div>
 
                 </div>
-                {tabIndex == 1 && <HashrateChart title="Pool Hashrate" data={hrChartData} error='' />}
+                {tabIndex === 1 && <HashrateChart type="line" isDarkMode={props.isDarkMode} title="Pool Hashrate" data={hrChartData} error='' toText={hrToText} />}
                 {/*<HistoryChart data={hrChartData} options={hrChartOptions} style={{ display: tabIndex == 2 ? 'block' : 'none' }} />
                 <HistoryChart data={effortChartData} options={effortChartOptions} url={`effortHistory?coin=${coin_symbol}`} style={{ display: tabIndex == 4 ? 'block' : 'none' }} /> */}
             </div>

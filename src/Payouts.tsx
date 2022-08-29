@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { Link, useParams } from 'react-router-dom';
 import SortableTable, { Column, TableResult, Sort, ApiTableResult } from "./SortableTable";
-import ToCoinSymbol from './ToCoinSymbol';
+import ToCoinSymbol from './CoinMap';
 import { timeToText, hrToText } from './utils';
 const { REACT_APP_API_URL } = process.env;
 
@@ -18,6 +18,10 @@ const COLUMNS: Column[] = [
         sortBy: 'worker-count'
     },
     {
+        header: 'Tx Fee',
+        // sortBy: 'join-time'
+    },
+    {
         header: 'Time',
         sortBy: 'join-time'
     }
@@ -26,31 +30,42 @@ const COLUMNS: Column[] = [
 interface Payout {
     txId: string;
     txFee: number;
-    amount: number;
+    paidAmount: number;
     payeeAmount: number;
+    timeMs: number;
 }
 
 export default function Payouts() {
     const { coinPretty } = useParams();
-
-    const coin_symbol: string = coinPretty ? ToCoinSymbol(coinPretty) : 'unknown';
-
-
     const columns = useMemo(() => COLUMNS, []);
 
-    function ShowEntry(payout: Payout) : JSX.Element{
+    if (!coinPretty) {
+        alert('No coin.');
+        return <div></div>;
+    }
+
+    const coinData = ToCoinSymbol(coinPretty);
+    const coin_symbol: string = coinPretty ? ToCoinSymbol(coinPretty).symbol : 'unknown';
+
+
+    function ShowEntry(payout: Payout): JSX.Element {
         return (
             <tr>
-                <td>{payout.txId}</td>
-                <td>{payout.amount}</td>
-                <td>{hrToText(payout.txFee)}</td>
+                <td>
+                    <a href={`${coinData.explorer_url}/tx/${payout.txId}`} target="_blank">
+                        {payout.txId}
+                    </a>
+                </td>
+                <td>{(payout.paidAmount / 1e8).toPrecision(3)} { coinData.symbol}</td>
                 <td>{payout.payeeAmount}</td>
+                <td>{payout.txFee}</td>
+                <td>{timeToText(Date.now() - payout.timeMs)} ago</td>
             </tr>
         )
     }
 
-    function LoadPayments(sort: Sort) : Promise<ApiTableResult<Payout>>{
-        return fetch(`${REACT_APP_API_URL}/pool/solvers?coin=${coin_symbol}&page=${sort.page}&limit=${sort.limit}&sortby=${sort.by}&sortdir=${sort.dir}`).
+    function LoadPayments(sort: Sort): Promise<ApiTableResult<Payout>> {
+        return fetch(`${REACT_APP_API_URL}/pool/payouts?coin=${coin_symbol}&page=${sort.page}&limit=${sort.limit}`).
             then(res => res.json());
     }
 
@@ -63,7 +78,7 @@ export default function Payouts() {
             </div>
             <div className="stats-container">
                 <p className="stats-title">Payouts Table</p>
-                <SortableTable id="payouts-table" columns={columns}  showEntry={ShowEntry} isPaginated={true} loadTable={LoadPayments} />
+                <SortableTable id="payouts-table" columns={columns} showEntry={ShowEntry} isPaginated={true} loadTable={LoadPayments} />
             </div>
         </div>
     );

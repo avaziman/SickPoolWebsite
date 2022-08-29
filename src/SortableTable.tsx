@@ -12,6 +12,7 @@ export interface TableConfig<Type> {
     columns: Column[];
     showEntry: ShowEntry<Type>;
     loadTable: LoadTable<Type>;
+    defaultSortBy?: string;
 }
 
 export interface ShowEntry<Type> {
@@ -42,7 +43,7 @@ export interface ApiTableResult<Type> {
 
 export default function SortableTable<Type>(props: TableConfig<Type>) {
 
-    let [sort, setSort] = useState<Sort>({ page: 0, limit: 10, by: props.columns[0].sortBy ? props.columns[0].sortBy : "", dir: "desc" });
+    let [sort, setSort] = useState<Sort>({ page: 0, limit: 10, by: props.defaultSortBy ? props.defaultSortBy : '', dir: "desc" });
     let [error, setError] = useState<string | undefined>(undefined);
     let [isLoading, setIsLoading] = useState<boolean>(false);
     let [result, setResult] = useState<TableResult<Type> | undefined>(undefined);

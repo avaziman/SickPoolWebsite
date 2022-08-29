@@ -12,11 +12,14 @@ import StatSvg from './components/Icon/Stats'
 import SearchSvg from './components/Icon/Search'
 import SvgCross from './components/Icon/Cross';
 import SvgBackArrow from './components/Icon/BackArrow';
+import { Close as SvgClose, MoonLight as SvgMoonLight, SunlightLight } from './components/Icon';
+import SvgBorgir from './components/Icon/Borgir';
+import SvgChart from './components/Icon/Chart';
+import SvgSolvers from './components/Icon/Solvers';
 
 const CoinOptions = [
     {
-        text: 'Verus',
-        value: 'verus',
+        value: 'sinovate',
         image: { src: "search.svg" }
     },
     // {
@@ -25,33 +28,6 @@ const CoinOptions = [
     //     image: { src: "search.svg" }
     // }
 ]
-
-const StyledBorgirNav = styled.nav`
-    height: 100%;
-    // background-color: red;
-    display: flex;
-    flex-direction: row;
-
-    @media (max-width: 1000px) {
-        flex-direction: column;
-
-        #main-links a{
-            padding: 1rem;
-        }
-
-        position: fixed;
-        top: 3.5rem;
-        inset-inline-end: 0%;
-
-        width: 100%;
-        max-width: 20rem;
-        
-        transition: transform 0.3s ease-in-out;
-        `;
-//TODO: think
-//         transform: ${({ open }) => open ? 'translateX(0)' : 'translateX(100%)'};
-//     }
-// `
 interface ThemeChange {
     (): void;
 }
@@ -77,7 +53,7 @@ function Header(props: Props) {
                     <h1>
                         <Link to="/" id="logo">SickPool</Link>
                     </h1>
-                    <StyledBorgirNav id="main-nav" /*open={isMenuOpen}*/>
+                    <div className={isMenuOpen ? 'main-nav-open main-nav' : 'main-nav'}>
                         <div id="main-links">
                             {/* <Link to="/hardware">
                                     <FormattedMessage id="hardware" />
@@ -98,13 +74,25 @@ function Header(props: Props) {
                             </select > */}
                         {/* <Dropdown id="coin-dropdown" options={CoinOptions} defaultValue={CoinOptions[0].value}
                                 onChange={(e, data) => console.log(data.value)} /> */}
-                        <button id="theme-change" onClick={() => props.themeChange()}>
-                            <p>{props.theme ? "Light" : "Dark"} Mode</p>
+                        <Link className='nav-item' to='/get-started' id="get-started" onClick={() => setIsMenuOpen(false)}>
+                            <p>Get Started</p>
+                            </Link>
+                        <button className='nav-item' id="theme-change" onClick={() => {
+                            props.themeChange();
+                            setIsMenuOpen(false);
+                        }
+                        }>
+                            {/* <p>{props.theme ? "Light" : "Dark"} Mode</p> */}
+                            {
+                                props.theme ? <SunlightLight className="theme-change-icon" /> : <SvgMoonLight className="theme-change-icon"/>
+                            }
                         </button>
-                    </StyledBorgirNav>
+                    </div>
                     <button id="borgir-menu" onClick={() => setIsMenuOpen(!isMenuOpen)}>
                         <svg viewBox="0 0 15 15">
-                            <use href={isMenuOpen ? "close.svg#icon" : "borgir.svg#icon"} />
+                            {
+                                isMenuOpen ? <SvgClose/> : <SvgBorgir/>
+                            }
                         </svg>
                     </button>
                 </div>
@@ -115,22 +103,34 @@ function Header(props: Props) {
                         <option value="tr">Raptoreum</option>
                     </select > */}
                 <nav id="pool-nav">
-                    {
-                        ['stats', 'solvers', 'blocks', 'payouts'].map((i: string) => {
-                            return (
-                                <Link className={'pool-nav-link'} key={i} to={`/${coin}/${i}`}
-                                    style={{ display: isSearchOpen ? "none" : "flex" }}>
-                                    <span>
-                                        <FormattedMessage id={i} />
-                                    </span>
-                                    {/* <use href="blocks.svg#icon"/> */}
-                                    {/* <use href={`${i}.svg#icon`} /> */}
-                                    <PayoutSvg className="pool-nav-icon" />
-                                    {/* <BlockSvg fill="currentColor" /> */}
-                                </Link>
-                            )
-                        })
-                    }
+                    <Link className={'pool-nav-link'} to={`/${coin}/${'stats'}`}
+                            style={{ display: isSearchOpen ? "none" : "flex" }}>
+                            <span>
+                                <FormattedMessage id="stats" />
+                            </span>
+                            <SvgChart className="pool-nav-icon" />
+                        </Link>
+                        <Link className={'pool-nav-link'} to={`/${coin}/${'solvers'}`}
+                                style={{ display: isSearchOpen ? "none" : "flex" }}>
+                                <span>
+                            <FormattedMessage id="solvers" />
+                                </span>
+                            <SvgSolvers className="pool-nav-icon" />
+                        </Link>
+                    <Link className={'pool-nav-link'} to={`/${coin}/blocks`}
+                        style={{ display: isSearchOpen ? "none" : "flex" }}>
+                        <span>
+                            <FormattedMessage id="blocks" />
+                        </span>
+                        <BlockSvg className="pool-nav-icon" />
+                    </Link>
+                            <Link className={'pool-nav-link'} to={`/${coin}/payouts`}
+                        style={{ display: isSearchOpen ? "none" : "flex" }}>
+                        <span>
+                            <FormattedMessage id="payouts" />
+                        </span>
+                        <PayoutSvg className="pool-nav-icon" />
+                    </Link>
                     <div id="search-field">
                         <SvgBackArrow id="close-search" onClick={() => setIsSearchOpen(false)} style={{ display: isSearchOpen ? "flex" : "none" }} />
                         <input type="text" id="search-input" placeholder={useIntl().formatMessage({ "id": "searchPlaceHolder" })} dir="ltr"
@@ -140,6 +140,7 @@ function Header(props: Props) {
                                     e.preventDefault();
                                     if (solverSearch !== '') {
                                         navigate(`${CoinOptions[0].value}/solver/${solverSearch}`);
+                                        setIsSearchOpen(false);
                                     }
                                 }
                             }}
@@ -149,7 +150,9 @@ function Header(props: Props) {
                             }} />
                         <button className={"search-button" + (isSearchOpen ? " search-button-open" : "")} onClick={() => {
                             if (isSearchOpen) {
-                                navigate(`${CoinOptions[0].value}/solver/${solverSearch}`);
+                                if (solverSearch !== '') {
+                                    navigate(`${CoinOptions[0].value}/solver/${solverSearch}`);
+                                }
                             }
 
                             setIsSearchOpen(!isSearchOpen);

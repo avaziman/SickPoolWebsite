@@ -10,3 +10,9 @@
 #community-links li, #community h3 {
     padding: 0.5rem 2rem;
 }
+
+#community-links li a {
+    color: var(--font-color);
+    opacity: 70;
+    text-decoration: none;
+}

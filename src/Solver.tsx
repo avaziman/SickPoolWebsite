@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { hrToText, unixTimeToClockText } from './utils.js';
+import { hrToText, toLatin, unixTimeToClockText } from './utils';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -23,7 +23,7 @@ import ChartFullSVG from './components/Icon/ChartFull'
 import HistoryChart from './HistoryChart';
 import SortableTable, { Column, Sort, TableResult, ApiTableResult } from './SortableTable';
 import { useMemo } from 'react';
-import ToCoinSymbol from './ToCoinSymbol';
+import ToCoinSymbol from './CoinMap';
 import HashrateChart from './HashrateChart';
 
 const { REACT_APP_API_URL, REACT_APP_ADDRESS_LEN } = process.env;
@@ -94,9 +94,13 @@ interface WorkersOverview {
     inactive: number;
 }
 
-export default function Solver() {
+interface SolverProps {
+    isDarkMode: boolean;
+}
+
+export default function Solver(props: SolverProps) {
     const { address, coinPretty } = useParams();
-    const coin_symbol: string = coinPretty ? ToCoinSymbol(coinPretty) : 'unknown';
+    const coin_symbol: string = coinPretty ? ToCoinSymbol(coinPretty).symbol : 'unknown';
 
     const isWorker = address && address.includes('.');
     const columns = useMemo(() => COLUMNS, []);
@@ -108,6 +112,7 @@ export default function Solver() {
             mature: 0
         }
     });
+    
     const [statsRes, setStatsRes] = useState<StatsHistory[]>([{
         averageHr: 0,
         currentHr: 0,
@@ -119,6 +124,8 @@ export default function Solver() {
     const [workerOverview, setWorkerOverview] = useState<WorkersOverview>({ active: 0, inactive: 0 });
 
     const [statsLabels, setStatsLabels] = useState<number[]>([1]);
+    const [statsHr, setStatsHr] = useState<number[]>([1]);
+    const [statsHrAvg, setStatsHrAvg] = useState<number[]>([1]);
     const [statsErr, setStatsErr] = useState<string | undefined>(undefined);
 
     // const [workerData, setWorkerData] = useState<WorkerHistory[] | undefined>(undefined);
@@ -154,7 +161,7 @@ export default function Solver() {
             x: {
                 stacked: true,
                 ticks: {
-                    callback: unixTimeToClockText,
+                    callback: unixTimeToClockText as any,
                     color: "white",
                     font: {
                         size: 18
@@ -187,8 +194,8 @@ export default function Solver() {
             .then(res => res.json())
             .then(res => {
                 if (res.result !== null) {
-                    setStatsRes(res.result);
                     setStatsLabels(res.result.map((a: StatsHistory) => a.time));
+                    setStatsRes(res.result);
                 } else if (res.error !== null) {
                     setStatsErr(`Failed to fetch stats: ${res.error}`);
                 }
@@ -242,24 +249,26 @@ export default function Solver() {
             {
                 type: 'line',
                 label: 'Hashrate',
-                data: statsRes.map(s => s.currentHr),
+                data: useMemo(() => statsRes.map(s => s.currentHr), [statsRes]),
                 borderColor: "rgb(27, 121, 247)",
                 backgroundColor: "rgba(27, 121, 247, 1)",
                 pointBorderColor: "#fff",
                 pointBorderWidth: 0,
                 pointRadius: 0,
-                tension: 0.35
+                tension: 0.35,
+                normalized: true
             },
             {
                 type: 'line',
                 label: 'Average 6h hashrate',
-                data: statsRes.map(s => s.averageHr),
-                borderColor: "#FFDB58",
-                backgroundColor: "#FFDB58",
+                data: useMemo(() => statsRes.map(s => s.averageHr), [statsRes]),
+                borderColor: "#21ff5c",
+                backgroundColor: "#21ff5c",
                 pointBorderColor: "#fff",
                 pointBorderWidth: 0,
                 pointRadius: 0,
-                tension: 0.35
+                tension: 0.35,
+                normalized: true
             }
         ],
     };
@@ -269,7 +278,7 @@ export default function Solver() {
         datasets: [
             {
                 label: 'Valid shares',
-                data: statsRes.map(s => s.validShares),
+                data: useMemo(() => statsRes.map(s => s.validShares), [statsRes]),
                 backgroundColor: "rgb(27, 121, 247)",
                 pointBorderColor: "#fff",
                 yAxisID: 'y',
@@ -278,7 +287,7 @@ export default function Solver() {
             },
             {
                 label: 'Stale shares',
-                data: statsRes.map(s => s.staleShares),
+                data: useMemo(() => statsRes.map(s => s.staleShares), [statsRes]),
                 color: "#ff8e00",
                 borderColor: "#ff8e00",
                 backgroundColor: "#ff8e00",
@@ -289,8 +298,9 @@ export default function Solver() {
                 yAxisID: 'y',
             },
             {
+
                 label: 'Invalid shares',
-                data: statsRes.map(s => s.invalidShares),
+                data: useMemo(() => statsRes.map(s => s.invalidShares), [statsRes]),
                 color: "#ff5003",
                 borderColor: "#ff5003",
                 backgroundColor: "#ff5003",
@@ -340,11 +350,11 @@ export default function Solver() {
                         <div className="stats-sub-card-holder">
                             <div className="stats-sub-card">
                                 <h4>Current</h4>
-                                <h3>{(statsRes && statsRes.length > 0) ? hrToText(statsRes.at(-1)?.currentHr) : "?"}</h3>
+                                <h3>{(statsRes && statsRes.length > 0) ? hrToText(statsRes[statsRes.length -1].currentHr) : "?"}</h3>
                             </div>
                             <div className="stats-sub-card">
                                 <h4>Average 6HR</h4>
-                                <h3>{(statsRes && statsRes.length > 0) ? hrToText(statsRes.at(-1)?.averageHr) : "?"}</h3>
+                                <h3>{(statsRes && statsRes.length > 0) ? hrToText(statsRes[statsRes.length - 1]?.averageHr) : "?"}</h3>
                             </div>
                         </div>
                     </div>
@@ -399,8 +409,8 @@ export default function Solver() {
                     </div>
 
                 </div>
-                <HashrateChart title="Hashrate (24h)" data={hrChartData} error={statsErr} />
-                <HistoryChart type="bar" title={(isWorker ? "Shares" : "Shares & Workers") + " (24h)"} data={sharesChartData} options={shareChartOptions} error={statsErr} />
+                <HashrateChart type="line" isDarkMode={props.isDarkMode} title="Hashrate (24h)" data={hrChartData} error={statsErr} toText={ hrToText} />
+                <HashrateChart type="bar" isDarkMode={props.isDarkMode} title={(isWorker ? "Shares" : "Shares & Workers") + " (24h)"} data={sharesChartData} toText={toLatin} error={statsErr} />
                 {/* <HistoryChart title="Balance" data={balanceChartData} options={shareChartOptions} err={balanceError} /> */}
                 <p className="stats-title">Worker list</p>
                 <SortableTable id="worker-table" columns={columns} showEntry={ShowEntry} loadTable={LoadWorkers} isPaginated={false} />

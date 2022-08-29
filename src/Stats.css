@@ -37,6 +37,7 @@
     border-top: solid 1px var(--primary-color);
     transition: border 0.3s ease-out;
 }
+
 .stats-card h3 {
     font-size: 1.25rem;
     font-weight: normal;

@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { Link, useParams } from 'react-router-dom';
 import SortableTable, { Column, Sort, TableResult, ApiTableResult } from "./SortableTable";
-import ToCoinSymbol from './ToCoinSymbol';
+import ToCoinSymbol from './CoinMap';
 import { timeToText, hrToText } from './utils';
 const { REACT_APP_API_URL } = process.env;
 
@@ -10,7 +10,7 @@ const COLUMNS: Column[] = [
         header: 'Address',
     },
     {
-        header: 'Staking/balance',
+        header: 'Balance',
         sortBy: 'mature-balance'
     },
     {
@@ -37,14 +37,14 @@ interface Solver {
 
 export default function Solvers() {
     const { coinPretty } = useParams();
-    const coin_symbol: string = coinPretty ? ToCoinSymbol(coinPretty) : 'unknown';
+    const coin_symbol: string = coinPretty ? ToCoinSymbol(coinPretty).symbol : 'unknown';
 
     const columns = useMemo(() => COLUMNS, []);
 
     function ShowEntry(solver: Solver) : JSX.Element {
         return (
             <tr>
-                <td><Link to={`/verus/solver/${solver.address}`}>{solver.address}</Link></td>
+                <td><Link to={`/${coinPretty}/solver/${solver.address}`}>{solver.address}</Link></td>
                 <td>{solver.balance}</td>
                 <td>{hrToText(solver.hashrate)}</td>
                 <td>{solver.worker_count}</td>
@@ -67,7 +67,7 @@ export default function Solvers() {
             </div>
             <div className="stats-container">
                 <p className="stats-title">Solvers table</p>
-                <SortableTable id="solver-table" columns={columns} loadTable={LoadSolvers} showEntry={ShowEntry} isPaginated={true} />
+                <SortableTable id="solver-table" columns={columns} loadTable={LoadSolvers} showEntry={ShowEntry} isPaginated={true} defaultSortBy="hashrate"/>
             </div>
         </div>
     );

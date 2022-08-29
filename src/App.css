@@ -1,17 +1,17 @@
 :root {
     --primary-color: #1b79f7;
+    --primary-color-light: #3084f1d8;
     --secondary-color: #0e0e10;
     --border: #242426;
     --font-color: white;
 }
 
 [theme="light"] {
-    --primary-color: #1b79f7;
+    --primary-color: #2d82f1;
     --secondary-color: rgb(240, 240, 240);
     --border: #242426;
     --font-color: black;
 }
-
 
 
 * {
@@ -21,7 +21,9 @@
     font-family: sans-serif;
 }
 
+
 body {
+    transition: background-color 1s ease;
     background-color: var(--secondary-color);
     color: var(--font-color);
 }
