@@ -1,3 +1,5 @@
+import './HistoryChart.css'
+import { useEffect, useState } from 'react'
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -7,15 +9,11 @@ import {
     Title,
     Tooltip,
     Legend,
-    Filler,
-    BarElement,
-    ChartOptions,
+    ChartTypeRegistry,
     ChartData,
-    ChartTypeRegistry
+    ChartOptions
 } from 'chart.js';
 import { Line, Bar, Chart } from 'react-chartjs-2';
-import './HistoryChart.css'
-import { useEffect, useState } from 'react'
 
 ChartJS.register(
     CategoryScale,
@@ -25,8 +23,6 @@ ChartJS.register(
     Title,
     Tooltip,
     Legend,
-    Filler,
-    BarElement
 );
 
 interface HistoryChartProp{
