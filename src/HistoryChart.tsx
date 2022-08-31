@@ -13,9 +13,10 @@ import {
     ChartData,
     ChartOptions,
     LineController,
-    ChartConfiguration
+    registerables as registerablesJS
 } from 'chart.js';
 import { Line, Bar, Chart } from 'react-chartjs-2';
+ChartJS.register(...registerablesJS);
 
 ChartJS.register(
     CategoryScale,

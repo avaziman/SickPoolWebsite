@@ -8,8 +8,10 @@ const SvgStats = (props) => (
     xmlns="http://www.w3.org/2000/svg"
     {...props}
   >
-    <path d="m17 9-3.044 4.566a1 1 0 0 1-1.727-.107l-.458-.918a1 1 0 0 0-1.727-.107L7 17" />
-    <rect x={3} y={3} width={18} height={18} rx={2} />
+    <path d="M8 10L8 16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M12 12V16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M16 8V16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
+    <rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" />
   </svg>
 );
 

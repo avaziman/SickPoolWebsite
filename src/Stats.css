@@ -1,6 +1,6 @@
 .stats-container {
     margin: 0.75rem;
-    max-width: 1350px;
+    max-width: min(1350px, 95%);
     margin: auto;
 }
 

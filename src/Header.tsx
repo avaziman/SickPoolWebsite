@@ -14,8 +14,8 @@ import SvgCross from './components/Icon/Cross';
 import SvgBackArrow from './components/Icon/BackArrow';
 import { Close as SvgClose, MoonLight as SvgMoonLight, SunlightLight } from './components/Icon';
 import SvgBorgir from './components/Icon/Borgir';
-import SvgChart from './components/Icon/Chart';
 import SvgSolvers from './components/Icon/Solvers';
+import SvgStats from './components/Icon/Stats';
 
 const CoinOptions = [
     {
@@ -76,7 +76,7 @@ function Header(props: Props) {
                                 onChange={(e, data) => console.log(data.value)} /> */}
                         <Link className='nav-item' to='/get-started' id="get-started" onClick={() => setIsMenuOpen(false)}>
                             <p>Get Started</p>
-                            </Link>
+                        </Link>
                         <button className='nav-item' id="theme-change" onClick={() => {
                             props.themeChange();
                             setIsMenuOpen(false);
@@ -84,14 +84,14 @@ function Header(props: Props) {
                         }>
                             {/* <p>{props.theme ? "Light" : "Dark"} Mode</p> */}
                             {
-                                props.theme ? <SunlightLight className="theme-change-icon" /> : <SvgMoonLight className="theme-change-icon"/>
+                                props.theme ? <SunlightLight className="theme-change-icon" /> : <SvgMoonLight className="theme-change-icon" />
                             }
                         </button>
                     </div>
                     <button id="borgir-menu" onClick={() => setIsMenuOpen(!isMenuOpen)}>
                         <svg viewBox="0 0 15 15">
                             {
-                                isMenuOpen ? <SvgClose/> : <SvgBorgir/>
+                                isMenuOpen ? <SvgClose /> : <SvgBorgir />
                             }
                         </svg>
                     </button>
@@ -104,19 +104,19 @@ function Header(props: Props) {
                     </select > */}
                 <nav id="pool-nav">
                     <Link className={'pool-nav-link'} to={`/${coin}/${'stats'}`}
-                            style={{ display: isSearchOpen ? "none" : "flex" }}>
-                            <span>
-                                <FormattedMessage id="stats" />
-                            </span>
-                            <SvgChart className="pool-nav-icon" />
-                        </Link>
-                        <Link className={'pool-nav-link'} to={`/${coin}/${'solvers'}`}
-                                style={{ display: isSearchOpen ? "none" : "flex" }}>
-                                <span>
+                        style={{ display: isSearchOpen ? "none" : "flex" }}>
+                        <span>
+                            <FormattedMessage id="stats" />
+                        </span>
+                        <SvgStats className="pool-nav-icon" />
+                    </Link>
+                    <Link className={'pool-nav-link'} to={`/${coin}/${'solvers'}`}
+                        style={{ display: isSearchOpen ? "none" : "flex" }}>
+                        <span>
                             <FormattedMessage id="solvers" />
-                                </span>
-                            <SvgSolvers className="pool-nav-icon" />
-                        </Link>
+                        </span>
+                        <SvgSolvers className="pool-nav-icon" />
+                    </Link>
                     <Link className={'pool-nav-link'} to={`/${coin}/blocks`}
                         style={{ display: isSearchOpen ? "none" : "flex" }}>
                         <span>
@@ -124,7 +124,7 @@ function Header(props: Props) {
                         </span>
                         <BlockSvg className="pool-nav-icon" />
                     </Link>
-                            <Link className={'pool-nav-link'} to={`/${coin}/payouts`}
+                    <Link className={'pool-nav-link'} to={`/${coin}/payouts`}
                         style={{ display: isSearchOpen ? "none" : "flex" }}>
                         <span>
                             <FormattedMessage id="payouts" />
@@ -134,8 +134,8 @@ function Header(props: Props) {
                     <div id="search-field">
                         <SvgBackArrow id="close-search" onClick={() => setIsSearchOpen(false)} style={{ display: isSearchOpen ? "flex" : "none" }} />
                         <input type="text" id="search-input" placeholder={useIntl().formatMessage({ "id": "searchPlaceHolder" })} dir="ltr"
-                            onKeyPress={(e) => {
-                                setSolverSearch((e.target as any).value);
+                            onChange={(e) => { setSolverSearch((e.target as any).value); }}
+                            onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
                                     e.preventDefault();
                                     if (solverSearch !== '') {

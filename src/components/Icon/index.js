@@ -1,3 +1,4 @@
+export { default as Chart } from "./Chart";
 export { default as BackArrow } from "./BackArrow";
 export { default as Blocks } from "./Blocks";
 export { default as Borgir } from "./Borgir";
