@@ -45,7 +45,7 @@ export default function Solvers() {
         return (
             <tr>
                 <td><Link to={`/${coinPretty}/solver/${solver.address}`}>{solver.address}</Link></td>
-                <td>{solver.balance}</td>
+                <td>{(solver.balance / 1e8).toPrecision(5)}</td>
                 <td>{hrToText(solver.hashrate)}</td>
                 <td>{solver.worker_count}</td>
                 <td>{timeToText(Date.now() - solver.joined * 1000)} ago</td>
