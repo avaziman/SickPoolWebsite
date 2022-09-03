@@ -72,7 +72,7 @@ export default function Blocks() {
 
     const { coinPretty } = useParams();
     let columns = useMemo(() => COLUMNS, []);
-    let [blockStats, setBlockStats] = useState({ effort: 0, start: 0 });
+    let [blockStats, setBlockStats] = useState({ effort: 0, start: Date.now() });
 
     useEffect(() => {
         fetch(`${REACT_APP_API_URL}/pool/roundOverview?coin=${coinSymbol}`).then(res => res.json()).then(res => {
