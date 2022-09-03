@@ -7,7 +7,7 @@ import SortableTable, { Column, Sort, TableResult, ApiTableResult } from './Sort
 import ToCoinSymbol from './CoinMap';
 import HashrateChart from './HashrateChart';
 import { ChartOptions, ChartData } from 'chart.js'
-// test
+
 const { REACT_APP_API_URL, REACT_APP_ADDRESS_LEN } = process.env;
 const COLUMNS: Column[] = [
     {
