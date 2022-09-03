@@ -9,9 +9,6 @@ on:
   pull_request:
     branches: [ "main" ]
 
-.env:
-  CI: false
-
 jobs:
   build:
 
@@ -29,6 +26,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+      run: CI=false
     - run: npm i
     - run: npm run build --if-present
     # - run: npm test
