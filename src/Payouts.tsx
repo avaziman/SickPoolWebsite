@@ -1,8 +1,8 @@
 import { useMemo } from 'react'
-import { Link, useParams } from 'react-router-dom';
-import SortableTable, { Column, TableResult, Sort, ApiTableResult } from "./SortableTable";
+import { useParams } from 'react-router-dom';
+import SortableTable, { Column, Sort, ApiTableResult } from "./SortableTable";
 import ToCoinSymbol from './CoinMap';
-import { timeToText, hrToText } from './utils';
+import { timeToText } from './utils';
 const { REACT_APP_API_URL } = process.env;
 
 const COLUMNS: Column[] = [

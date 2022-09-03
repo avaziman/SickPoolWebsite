@@ -1,30 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { hrToText, toLatin, unixTimeToClockText } from './utils';
-import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    Title,
-    Tooltip,
-    Legend,
-    Filler,
-    ChartData,
-    ChartOptions,
-    TooltipItem,
-    ChartDataset
-} from 'chart.js';
-import { Line } from 'react-chartjs-2';
 import { useParams } from 'react-router-dom';
 import './solver.css'
 import ChartSVG from './components/Icon/Chart'
-import ChartFullSVG from './components/Icon/ChartFull'
-import HistoryChart from './HistoryChart';
 import SortableTable, { Column, Sort, TableResult, ApiTableResult } from './SortableTable';
-import { useMemo } from 'react';
 import ToCoinSymbol from './CoinMap';
 import HashrateChart from './HashrateChart';
+import { ChartOptions, ChartData } from 'chart.js'
 
 const { REACT_APP_API_URL, REACT_APP_ADDRESS_LEN } = process.env;
 const COLUMNS: Column[] = [
@@ -124,14 +106,7 @@ export default function Solver(props: SolverProps) {
     const [workerOverview, setWorkerOverview] = useState<WorkersOverview>({ active: 0, inactive: 0 });
 
     const [statsLabels, setStatsLabels] = useState<number[]>([1]);
-    const [statsHr, setStatsHr] = useState<number[]>([1]);
-    const [statsHrAvg, setStatsHrAvg] = useState<number[]>([1]);
     const [statsErr, setStatsErr] = useState<string | undefined>(undefined);
-
-    // const [workerData, setWorkerData] = useState<WorkerHistory[] | undefined>(undefined);
-
-    // const [balanceLabels, setBalanceLabels] = useState([]);
-    // const [balanceError, setBalanceError] = useState(null);
 
     const shareChartOptions: ChartOptions = {
         plugins: { legend: { display: false } },
@@ -240,8 +215,6 @@ export default function Solver(props: SolverProps) {
             });
         }
     }
-
-    // let hashrate: number[] | undefined = useMemo(() => statsRes?.map(s => s.currentHr), []);
 
     const hrChartData: ChartData<"line"> = {
         labels: statsLabels,

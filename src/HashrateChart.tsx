@@ -1,5 +1,5 @@
 import { ChartOptions, ChartData, ChartTypeRegistry } from 'chart.js';
-import { hrToText, unixTimeToClockText } from './utils';
+import { unixTimeToClockText } from './utils';
 import HistoryChart from './HistoryChart';
 
 interface Props {

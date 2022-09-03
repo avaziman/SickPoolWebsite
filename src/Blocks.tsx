@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
-import { DropDownArrow, SortDown, SortUp } from './components/Icon';
 import SortableTable, { Sort, Column, ApiTableResult } from './SortableTable';
-import { toLatin, timeToText, unixTimeToClockText, truncateAddress } from './utils'
+import { toLatin, timeToText, truncateAddress } from './utils'
 import { Link, useParams } from 'react-router-dom';
 import ToCoinSymbol from './CoinMap';
 
@@ -97,13 +96,13 @@ export default function Blocks() {
     function ShowEntry(block: Block) {
         return (<tr>
             <td>
-                <a href={`${coinData.explorer_url}/block/${block.height}` } target="_blank">
+                <a href={`${coinData.explorer_url}/block/${block.height}`} target="_blank" rel="noreferrer">
                     {block.number}
                 </a>
             </td>
             <td>{block.confirmations}</td>
             <td>{block.chain} </td>
-            <td>{block.block_type == 1 ? "PoW" : "PoS"} </td>
+            <td>{block.block_type === 1 ? "PoW" : "PoS"} </td>
             <td>{block.height}</td>
             <td>{block.reward / 1e8}</td>
             <td><Link to={`/${coinPretty}/solver/${block.solver}`}>

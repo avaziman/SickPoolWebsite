@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import './Stats.css'
-import { toLatin, hrToText, unixTimeToClockText } from './utils';
-import reactDom from 'react-dom';
-import HistoryChart from './HistoryChart';
+import { hrToText } from './utils';
 import HashrateChart from './HashrateChart';
 import ToCoinSymbol from './CoinMap';
 import { useParams } from 'react-router-dom';

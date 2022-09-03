@@ -1,16 +1,11 @@
-import React, { useState } from 'react'
-// import { Dropdown } from 'semantic-ui-react'
-import { Link, useNavigate, Router } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { FormattedMessage, useIntl } from 'react-intl';
 import './Header.css'
-import styled from 'styled-components';
 
 import BlockSvg from './components/Icon/Blocks'
 import PayoutSvg from './components/Icon/Payouts'
-import SolverSvg from './components/Icon/Solvers'
-import StatSvg from './components/Icon/Stats'
 import SearchSvg from './components/Icon/Search'
-import SvgCross from './components/Icon/Cross';
 import SvgBackArrow from './components/Icon/BackArrow';
 import { Close as SvgClose, MoonLight as SvgMoonLight, SunlightLight } from './components/Icon';
 import SvgBorgir from './components/Icon/Borgir';

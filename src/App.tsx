@@ -1,16 +1,13 @@
 import './App.css'
-import { Link, Route, Routes, Navigate } from 'react-router-dom';
-import Home from './Home';
-import Calculator from './Calculator';
+import { Route, Routes, Navigate } from 'react-router-dom';
 import Stats from './Stats';
 import NotFound from './NotFound'
 import Header from './Header';
 import Footer from './Footer';
-import Verus from './Verus';
 import Solver from './Solver';
 import Solvers from './Solvers';
 import Payouts from './Payouts';
-import React, { useState } from 'react';
+import  { useState } from 'react';
 
 import { IntlProvider } from 'react-intl';
 import messages from './messages';

@@ -6,7 +6,7 @@ export default function Footer() {
             <div id="community">
                 <h3>Community</h3>
                 <ul id="community-links">
-                    <li><a href="https://discord.gg/SDpSXy2Sbq" target="_blank">Discord</a></li>
+                    <li><a href="https://discord.gg/SDpSXy2Sbq" target="_blank" rel="noreferrer">Discord</a></li>
                     {/* <li>Reddit</li> */}
                 </ul>
             </div>
