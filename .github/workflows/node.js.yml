@@ -11,7 +11,7 @@ on:
 
 env:
   CI: false
-  REACT_APP_API_URL: http://sickpool.io
+  REACT_APP_API_URL: http://sickpool.io/api
 
 jobs:
   build:
