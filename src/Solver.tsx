@@ -316,11 +316,11 @@ export default function Solver(props: SolverProps) {
                         <div className="stats-sub-card-holder">
                             <div className="stats-sub-card">
                                 <h4>Current</h4>
-                                <h3>{(statsRes && statsRes.length > 0) ? hrToText(statsRes[statsRes.length -1].currentHr) : "?"}</h3>
+                                <h3>{ hrToText(statsRes[statsRes.length -1]?.currentHr ?? 0)}</h3>
                             </div>
                             <div className="stats-sub-card">
                                 <h4>Average 6HR</h4>
-                                <h3>{(statsRes && statsRes.length > 0) ? hrToText(statsRes.at(-1)?.averageHr ?? 0) : "?"}</h3>
+                                <h3>{hrToText(statsRes[statsRes.length - 1]?.averageHr ?? 0)}</h3>
                             </div>
                         </div>
                     </div>
