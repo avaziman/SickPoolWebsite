@@ -56,7 +56,7 @@ export default function Payouts() {
                         {payout.txId}
                     </a>
                 </td>
-                <td>{(payout.paidAmount / 1e8).toPrecision(3)} { coinData.symbol}</td>
+                <td>{(payout.paidAmount / 1e8)} { coinData.symbol}</td>
                 <td>{payout.payeeAmount}</td>
                 <td>{payout.txFee}</td>
                 <td>{timeToText(Date.now() - payout.timeMs)} ago</td>

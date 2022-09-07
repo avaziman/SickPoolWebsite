@@ -28,7 +28,7 @@ function ShowEntry(server: Server) {
 let servers: Server[] = [
     {
         country: 'Germany',
-        endpoint: 'sickpool.io:4444'
+        endpoint: 'eu.sickpool.io:4444'
     }
 ];
 

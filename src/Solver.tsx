@@ -95,14 +95,7 @@ export default function Solver(props: SolverProps) {
         }
     });
     
-    const [statsRes, setStatsRes] = useState<StatsHistory[]>([{
-        averageHr: 0,
-        currentHr: 0,
-        invalidShares: 0,
-        staleShares: 0,
-        time: 0,
-        validShares: 0,
-    }]);
+    const [statsRes, setStatsRes] = useState<StatsHistory[]>([]);
     const [workerOverview, setWorkerOverview] = useState<WorkersOverview>({ active: 0, inactive: 0 });
 
     const [statsLabels, setStatsLabels] = useState<number[]>([1]);
@@ -327,7 +320,7 @@ export default function Solver(props: SolverProps) {
                             </div>
                             <div className="stats-sub-card">
                                 <h4>Average 6HR</h4>
-                                <h3>{(statsRes && statsRes.length > 0) ? hrToText(statsRes[statsRes.length - 1]?.averageHr) : "?"}</h3>
+                                <h3>{(statsRes && statsRes.length > 0) ? hrToText(statsRes.at(-1)?.averageHr ?? 0) : "?"}</h3>
                             </div>
                         </div>
                     </div>
@@ -368,15 +361,15 @@ export default function Solver(props: SolverProps) {
                         <div className="stats-sub-card-holder">
                             <div className="stats-sub-card">
                                 <h4>Accepted</h4>
-                                <h3>{statsRes[statsRes.length - 1].validShares}</h3>
+                                <h3>{statsRes.at(-1)?.validShares ?? 0}</h3>
                             </div>
                             <div className="stats-sub-card">
                                 <h4>Stale</h4>
-                                <h3>{statsRes[statsRes.length - 1].staleShares}</h3>
+                                <h3>{statsRes.at(-1)?.staleShares ?? 0}</h3>
                             </div>
                             <div className="stats-sub-card">
                                 <h4>Invalid</h4>
-                                <h3>{statsRes[statsRes.length - 1].invalidShares}</h3>
+                                <h3>{statsRes.at(-1)?.invalidShares ?? 0}</h3>
                             </div>
                         </div>
                     </div>
