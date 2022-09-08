@@ -28,9 +28,7 @@ export default function HashrateChart(props: Props) {
         } else if (width < 600) {
             setFontSize(12);
         } else {
-            if (fontSize != DEFAULT_FONT_SIZE) {
-                setFontSize(DEFAULT_FONT_SIZE);
-            }
+            setFontSize(DEFAULT_FONT_SIZE);
         }
     }
 
