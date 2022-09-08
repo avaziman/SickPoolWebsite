@@ -15,6 +15,7 @@ import {
     registerables as registerablesJS
 } from 'chart.js';
 import { Chart } from 'react-chartjs-2';
+import { useEffect, useState } from 'react';
 ChartJS.register(...registerablesJS);
 
 ChartJS.register(
@@ -28,7 +29,7 @@ ChartJS.register(
     LineController,
 );
 
-interface HistoryChartProp{
+interface HistoryChartProp {
     title: string;
     type: keyof ChartTypeRegistry;
     // type: keyof ChartTypeRegistry;
@@ -38,6 +39,7 @@ interface HistoryChartProp{
 }
 
 export default function HistoryChart(props: HistoryChartProp) {
+
     return (
 
         <div className="chart-container">

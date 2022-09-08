@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import './Stats.css'
-import { hrToText } from './utils';
+import { hrToText, timeToText, unixTimeToClockText } from './utils';
 import HashrateChart from './HashrateChart';
 import ToCoinSymbol from './CoinMap';
 import { useParams } from 'react-router-dom';
+import { ChartData } from 'chart.js';
 
 const { REACT_APP_API_URL } = process.env;
 
@@ -23,7 +24,7 @@ export default function Stats(props: StatsProps) {
     const [poolStats, setPoolStats] = useState({ hashrate: 0, network_hashrate: 0, miners: 0, workers: 0 });
 
     const [hrHistory, setHrHistory] = useState([]);
-    const [hrTs, setHrTs] = useState([]);
+    const [hrTs, setHrTs] = useState<Date[]>([]);
     const [effortHistory, setEffortHistory] = useState([]);
     const [effortTs, setEffortTs] = useState([]);
     const [netDiffHistory, setNetDiffHistory] = useState([]);
@@ -52,21 +53,23 @@ export default function Stats(props: StatsProps) {
             fetch(`${REACT_APP_API_URL}/pool/hashrateHistory?coin=${coin_symbol}`)
                 .then(res => res.json())
                 .then((res) => {
-                    setHrTs(res.result.map((i: number[]) => i[0]));
+                    setHrTs(res.result.map((i: number[]) => new Date(i[0] * 1000)));
                     setHrHistory(res.result.map((i: number[]) => i[1]));
                 }).catch(err => console.log("Failed to get stats!"));
         }
     }, [tabIndex])
 
-    let hrChartData = {
-        labels: hrTs,
+    let hrChartData: ChartData<'line'> = {
         datasets: [
             {
-                label: 'hashrate',
+                label: 'Hashrate',
                 borderColor: `rgb(${primaryColor})`,
-                data: hrHistory,
+                // pointBackgroundColor: `rgb(${primaryColor})`,
+                // pointBorderWidth: 0.5,
                 pointBorderWidth: 0,
-                tension: 0.35,
+                borderWidth: 3,
+                data: hrHistory,
+                tension: 0.15,
             },
         ],
     };
@@ -122,7 +125,7 @@ export default function Stats(props: StatsProps) {
                     </div>
 
                 </div>
-                {tabIndex === 1 && <HashrateChart type="line" isDarkMode={props.isDarkMode} title="Pool Hashrate" data={hrChartData} error='' toText={hrToText} />}
+                {tabIndex === 1 && <HashrateChart timestamps={hrTs} type="line" isDarkMode={props.isDarkMode} title="Pool Hashrate" data={hrChartData} error='' toText={hrToText} />}
                 {/*<HistoryChart data={hrChartData} options={hrChartOptions} style={{ display: tabIndex == 2 ? 'block' : 'none' }} />
                 <HistoryChart data={effortChartData} options={effortChartOptions} url={`effortHistory?coin=${coin_symbol}`} style={{ display: tabIndex == 4 ? 'block' : 'none' }} /> */}
             </div>

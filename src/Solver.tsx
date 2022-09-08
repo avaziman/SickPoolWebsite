@@ -98,7 +98,7 @@ export default function Solver(props: SolverProps) {
     const [statsRes, setStatsRes] = useState<StatsHistory[]>([]);
     const [workerOverview, setWorkerOverview] = useState<WorkersOverview>({ active: 0, inactive: 0 });
 
-    const [statsLabels, setStatsLabels] = useState<number[]>([1]);
+    const [statsLabels, setStatsLabels] = useState<Date[]>([]);
     const [statsErr, setStatsErr] = useState<string | undefined>(undefined);
 
     const shareChartOptions: ChartOptions = {
@@ -162,7 +162,7 @@ export default function Solver(props: SolverProps) {
             .then(res => res.json())
             .then(res => {
                 if (res.result !== null) {
-                    setStatsLabels(res.result.map((a: StatsHistory) => a.time));
+                    setStatsLabels(res.result.map((a: StatsHistory) => new Date(a.time * 1000)));
                     setStatsRes(res.result);
                 } else if (res.error !== null) {
                     setStatsErr(`Failed to fetch stats: ${res.error}`);
@@ -210,7 +210,6 @@ export default function Solver(props: SolverProps) {
     }
 
     const hrChartData: ChartData<"line"> = {
-        labels: statsLabels,
         datasets: [
             {
                 type: 'line',
@@ -221,7 +220,7 @@ export default function Solver(props: SolverProps) {
                 pointBorderColor: "#fff",
                 pointBorderWidth: 0,
                 pointRadius: 0,
-                tension: 0.35,
+                tension: 0.15,
                 normalized: true
             },
             {
@@ -233,7 +232,7 @@ export default function Solver(props: SolverProps) {
                 pointBorderColor: "#fff",
                 pointBorderWidth: 0,
                 pointRadius: 0,
-                tension: 0.35,
+                tension: 0.15,
                 normalized: true
             }
         ],
@@ -260,7 +259,6 @@ export default function Solver(props: SolverProps) {
                 pointBorderColor: "#fff",
                 pointBorderWidth: 2,
                 pointRadius: 4,
-                tension: 0.35,
                 yAxisID: 'y',
             },
             {
@@ -375,8 +373,8 @@ export default function Solver(props: SolverProps) {
                     </div>
 
                 </div>
-                <HashrateChart type="line" isDarkMode={props.isDarkMode} title="Hashrate (24h)" data={hrChartData} error={statsErr} toText={ hrToText} />
-                <HashrateChart type="bar" isDarkMode={props.isDarkMode} title={(isWorker ? "Shares" : "Shares & Workers") + " (24h)"} data={sharesChartData} toText={toLatin} error={statsErr} />
+                <HashrateChart timestamps={statsLabels} type="line" isDarkMode={props.isDarkMode} title="Hashrate (24h)" data={hrChartData} error={statsErr} toText={ hrToText} />
+                <HashrateChart timestamps={statsLabels} type="bar" isDarkMode={props.isDarkMode} title={(isWorker ? "Shares" : "Shares & Workers") + " (24h)"} data={sharesChartData} toText={toLatin} error={statsErr} />
                 {/* <HistoryChart title="Balance" data={balanceChartData} options={shareChartOptions} err={balanceError} /> */}
                 <p className="stats-title">Worker list</p>
                 <SortableTable id="worker-table" columns={columns} showEntry={ShowEntry} loadTable={LoadWorkers} isPaginated={false} />

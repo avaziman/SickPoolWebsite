@@ -5464,6 +5464,11 @@
   dependencies:
     "bser" "2.1.1"
 
+"fecha@^4.2.3":
+  "integrity" "sha512-OP2IUU6HeYKJi3i0z4A19kHMQoLVs4Hc+DPqqxI2h/DPZHTm/vjsfC6P0b4jCMy14XizLBqvndQ+UilD7707Jw=="
+  "resolved" "https://registry.npmjs.org/fecha/-/fecha-4.2.3.tgz"
+  "version" "4.2.3"
+
 "figgy-pudding@^3.5.1":
   "integrity" "sha512-0btnI/H8f2pavGMN8w40mlSKOfTK2SVJmBfBeVIj3kNw0swwgzyRq0d5TJVOwodFmtvpPeWPN/MCcfuWF0Ezbw=="
   "resolved" "https://registry.npmjs.org/figgy-pudding/-/figgy-pudding-3.5.2.tgz"

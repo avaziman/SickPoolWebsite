@@ -1,6 +1,7 @@
-import { ChartOptions, ChartData, ChartTypeRegistry } from 'chart.js';
-import { unixTimeToClockText } from './utils';
+import { ChartOptions, ChartData, ChartTypeRegistry, TooltipItem } from 'chart.js';
 import HistoryChart from './HistoryChart';
+import { useEffect, useMemo, useState } from 'react'
+import { format } from 'fecha'
 
 interface Props {
     title: string;
@@ -8,19 +9,51 @@ interface Props {
     error: string | undefined;
     isDarkMode: boolean;
     type: keyof ChartTypeRegistry;
+    timestamps: Date[];
     toText: (n: number) => string;
 }
 
 export default function HashrateChart(props: Props) {
+    props.data.labels = useMemo(() => props.timestamps.map(time => format(time, 'shortTime')), [props.timestamps]);
+
+    const DEFAULT_FONT_SIZE = 18;
+    const [fontSize, setFontSize] = useState(DEFAULT_FONT_SIZE);
+
+    function UpdateChartFontSize() {
+        let width = window.innerWidth;
+        // console.log('width', width)
+
+        if (width < 400) {
+            setFontSize(10);
+        } else if (width < 600) {
+            setFontSize(12);
+        } else {
+            if (fontSize != DEFAULT_FONT_SIZE) {
+                setFontSize(DEFAULT_FONT_SIZE);
+            }
+        }
+    }
+
+    useEffect(() => {
+        window.addEventListener('resize', UpdateChartFontSize);
+        UpdateChartFontSize();
+    }, []);
+
     const hrChartOptions: ChartOptions = {
+        responsive: true,
         plugins: {
-            legend: { display: false },
+            legend: {
+                display: false
+            },
             tooltip: {
                 intersect: false,
                 mode: 'index',
                 backgroundColor: 'black',
                 displayColors: true,
                 callbacks: {
+                    title: function (context) {
+                        return format(props.timestamps[context[0].parsed.x], 'MMM Do, HH:mm:ss');
+                    },
                     label: function (context) {
                         return context.dataset.label + ': ' + props.toText(context.parsed.y);
                     }
@@ -35,7 +68,7 @@ export default function HashrateChart(props: Props) {
                     callback: props.toText as any,
                     color: props.isDarkMode ? "white" : "black",
                     font: {
-                        size: 18
+                        size: fontSize
                     }
                 },
                 grid: {
@@ -43,12 +76,17 @@ export default function HashrateChart(props: Props) {
                 }
             },
             x: {
+                position: 'left',
+                beginAtZero: false,
                 stacked: true,
                 ticks: {
-                    callback: unixTimeToClockText as any,
+                    // callback:
+                    //     function (value, index, ticks) {
+                    //         return unixTimeToClockText(ticks[index].value);
+                    //     },
                     color: props.isDarkMode ? "white" : "black",
                     font: {
-                        size: 18
+                        size: fontSize
                     }
                 },
                 grid: {
@@ -63,6 +101,6 @@ export default function HashrateChart(props: Props) {
     };
 
     return (
-        <HistoryChart type={props.type} title={props.title} options={ hrChartOptions} data={props.data} error={props.error}/>
-    )    
+        <HistoryChart type={props.type} title={props.title} options={hrChartOptions} data={props.data} error={props.error} />
+    )
 }

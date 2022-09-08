@@ -1,3 +1,5 @@
+import { CoreScaleOptions, Scale, Tick } from "chart.js";
+
 // unary operator to remove trailing zeros
 export function hrToText(hr: number) {
     return toLatin(hr) + 'H/s';
@@ -15,10 +17,9 @@ export function toLatin(n: number) {
     }
 };
 
-export function unixTimeToClockText(i: number) {
-    let date = new Date(i);
+export function unixTimeToClockText(date: Date): string {
     let minutes: number = date.getMinutes();
-    let minutesStr: string= minutes.toString();
+    let minutesStr: string = minutes.toString();
 
     if (minutes < 10) minutesStr = "0" + minutesStr;
     return `${date.getHours()}:${minutesStr}`;
