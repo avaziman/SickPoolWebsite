@@ -307,7 +307,7 @@ export default function Solver(props: SolverProps) {
     return (
         <div>
             <div className="stats-container">
-                <p className="stats-title">Solver {overviewRes?.address} {overviewRes?.identity && `AKA ${overviewRes?.identity}`}</p>
+                <p className="stats-title">Solver - {overviewRes?.address} {overviewRes?.identity && `AKA ${overviewRes?.identity}`}</p>
                 <div className="stats-card-holder">
                     <div className="nested-card">
                         <h2>Hashrate<ChartSVG /></h2>

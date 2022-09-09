@@ -94,15 +94,23 @@ export default function Blocks() {
 
 
     function ShowEntry(block: Block) {
+
+        function GetBlockType(type: number) {
+            return <td></td>;
+        }
+
         return (<tr>
             <td>
-                <a href={`${coinData.explorer_url}/block/${block.height}`} target="_blank" rel="noreferrer">
+                <a href={`${coinData.explorer_url}/block/${block.hash}`} target="_blank" rel="noreferrer">
                     {block.number}
                 </a>
             </td>
             <td>{block.confirmations}</td>
             <td>{block.chain} </td>
-            <td>{block.block_type === 1 ? "PoW" : "PoS"} </td>
+            <td>
+                {(block.block_type & 0b1) > 0 && "PoW"}
+                {(block.block_type & 0b100) > 0 && " + Payment"}
+            </td> 
             <td>{block.height}</td>
             <td>{block.reward / 1e8}</td>
             <td><Link to={`/${coinPretty}/solver/${block.solver}`}>

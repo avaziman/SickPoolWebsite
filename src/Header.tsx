@@ -40,7 +40,6 @@ function Header(props: Props) {
     const [solverSearch, setSolverSearch] = useState<string>('');
     let navigate = useNavigate();
 
-
     return (
         <header>
             <div id="main-header" dir={props.dir}>
@@ -166,7 +165,3 @@ function Header(props: Props) {
 }
 
 export default Header;
-
-function useNagivate() {
-    throw new Error('Function not implemented.');
-}

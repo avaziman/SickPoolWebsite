@@ -2,6 +2,7 @@ import { ChartOptions, ChartData, ChartTypeRegistry, TooltipItem } from 'chart.j
 import HistoryChart from './HistoryChart';
 import { useEffect, useMemo, useState } from 'react'
 import { format } from 'fecha'
+import { createNamedExports } from 'typescript';
 
 interface Props {
     title: string;
@@ -80,7 +81,11 @@ export default function HashrateChart(props: Props) {
                 ticks: {
                     // callback:
                     //     function (value, index, ticks) {
-                    //         return unixTimeToClockText(ticks[index].value);
+                    //         if (index % 2 === 0) {
+                    //             return format(props.timestamps[index], 'shortTime');
+                    //         }
+                                
+                    //         return '';
                     //     },
                     color: props.isDarkMode ? "white" : "black",
                     font: {
