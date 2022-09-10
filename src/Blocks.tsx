@@ -72,12 +72,12 @@ export default function Blocks() {
 
     const { coinPretty } = useParams();
     let columns = useMemo(() => COLUMNS, []);
-    let [blockStats, setBlockStats] = useState({ effort: 0, start: Date.now() });
+    let [blockStats, setBlockStats] = useState({ effortPercent: 0, start: Date.now() });
 
     useEffect(() => {
         fetch(`${REACT_APP_API_URL}/pool/roundOverview?coin=${coinSymbol}`).then(res => res.json()).then(res => {
             setBlockStats({
-                effort: res.result.effort * 100,
+                effortPercent: res.result.effortPercent,
                 start: res.result.start,
             });
         }).catch(err => { });
@@ -136,7 +136,7 @@ export default function Blocks() {
                     {/* make selector of time */}
                     <div className="stats-card">
                         <h3>Round Effort</h3>
-                        <p>{blockStats.effort.toFixed(3)}%</p>
+                        <p>{blockStats.effortPercent.toFixed(3)}%</p>
                     </div>
                     <div className="stats-card">
                         <h3>Round Time</h3>

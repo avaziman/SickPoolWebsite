@@ -35,8 +35,8 @@ function App() {
           <Route path="/">
             <Route path="/get-started" element={<GetStarted/>}/>
 
-            <Route path="/" element={<Home />} />
-            {/* <Route path="/" element={<Navigate to="/sinovate/stats"/>}/> */}
+            {/* <Route path="/" element={<Home />} /> */}
+            <Route path="/" element={<Navigate to="/sinovate/stats"/>}/>
             <Route path=":coinPretty">
               <Route path="stats" element={<Stats isDarkMode={isDarkMode} />} />
               <Route path="solvers" element={<Solvers />} />
