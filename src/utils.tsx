@@ -6,15 +6,15 @@ export function hrToText(hr: number) {
 };
 
 export function toLatin(n: number) {
-    if (n < 1e3) {
-        return `${+(n).toPrecision(2)} `;
-    } else if (n < 1e6) {
-        return `${+(n / 1e3).toPrecision(2)} K`;
-    } else if (n < 1e9) {
-        return `${+(n / 1e6).toPrecision(3)} M`;
-    } else {
-        return `${+(n / 1e9).toPrecision(4)} G`;
+    let units = ['', 'K', 'M', 'G']
+
+    let i = 0;
+    while (n > 1000 && i < units.length) {
+        i++;
+        n /= 1000;
     }
+    
+    return `${+(n).toPrecision(i + 2)} ${units[i]}`;
 };
 
 export function unixTimeToClockText(date: Date): string {

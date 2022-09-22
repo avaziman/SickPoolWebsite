@@ -54,14 +54,14 @@ const COLUMNS: Column[] =
 
 interface Block {
     confirmations: number;
-    block_type: number;
+    blockType: number;
     reward: number;
     time: number;
     duration: number;
     height: number;
     number: number;
     difficulty: number;
-    effort_percent: number;
+    effortPercent: number;
     chain: string;
     solver: string;
     worker: string;
@@ -108,8 +108,8 @@ export default function Blocks() {
             <td>{block.confirmations}</td>
             <td>{block.chain} </td>
             <td>
-                {(block.block_type & 0b1) > 0 && "PoW"}
-                {(block.block_type & 0b100) > 0 && " + Payment"}
+                {(block.blockType & 0b1) > 0 && "PoW"}
+                {(block.blockType & 0b100) > 0 && " + Payment"}
             </td> 
             <td>{block.height}</td>
             <td>{block.reward / 1e8}</td>
@@ -117,7 +117,7 @@ export default function Blocks() {
                 {truncateAddress(block.solver)}</Link>
             </td>
             <td>{toLatin(block.difficulty)}</td>
-            <td>{block.effort_percent.toPrecision(4)} %</td>
+            <td>{block.effortPercent.toPrecision(4)} %</td>
             <td>{timeToText(block.duration)}</td>
             <td>{timeToText(Date.now() - block.time)} ago</td>
         </tr>)
@@ -136,7 +136,7 @@ export default function Blocks() {
                     {/* make selector of time */}
                     <div className="stats-card">
                         <h3>Round Effort</h3>
-                        <p>{blockStats.effortPercent.toFixed(3)}%</p>
+                        <p>{blockStats.effortPercent ? blockStats.effortPercent.toFixed(3) : "INF"}%</p>
                     </div>
                     <div className="stats-card">
                         <h3>Round Time</h3>
