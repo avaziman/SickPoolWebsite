@@ -1,27 +1,49 @@
 interface Coin {
     symbol: string,
-    explorer_url: string
+    name: string,
+    explorer_url: string,
+    multi_chain: boolean,
+    logo: string
 }
 
-const map: { [pretty: string]: Coin } = {
+export const CoinMap: { [pretty: string]: Coin } = {
     "verus": {
         symbol: "VRSC",
-        explorer_url: ''
+        name: "verus",
+        explorer_url: '',
+        multi_chain: true,
+        logo: 'zano.svg',
     },
     "verustest": {
         symbol: "VRSCTEST",
-        explorer_url: ''
+        name: "verus",
+        explorer_url: '',
+        multi_chain: false,
+        logo: 'zano.svg',
     },
     "verustestlocal": {
         symbol: "VRSCTESTLOCAL",
-        explorer_url: ''
+        name: "verus",
+        explorer_url: '',
+        multi_chain: false,
+        logo: 'zano.svg',
     },
     "sinovate": {
         symbol: "SIN",
-        explorer_url: 'https://book.sinovate.io'
+        name: "sinovate",
+        explorer_url: 'https://book.sinovate.io',
+        multi_chain: false,
+        logo: 'sin_white.svg',
+    },
+    "zano": {
+        symbol: "ZANO",
+        name: "zano",
+        explorer_url: 'https://book.sinovate.io',
+        multi_chain: false,
+        logo: 'zano.svg',
     }
 }
 
 export default function ToCoin(pretty: string){
-    return map[pretty];
+    return CoinMap[pretty];
 }

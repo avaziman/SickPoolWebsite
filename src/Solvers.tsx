@@ -1,8 +1,8 @@
 import { useMemo } from 'react'
 import { Link, useParams } from 'react-router-dom';
 import SortableTable, { Column, Sort, ApiTableResult } from "./SortableTable";
-import ToCoinSymbol from './CoinMap';
-import { timeToText, hrToText } from './utils';
+import ToCoin from './CoinMap';
+import { timeToText, hrToText, truncateAddress } from './utils';
 const { REACT_APP_API_URL } = process.env;
 
 const COLUMNS: Column[] = [
@@ -37,14 +37,14 @@ interface Solver {
 
 export default function Solvers() {
     const { coinPretty } = useParams();
-    const coin_symbol: string = coinPretty ? ToCoinSymbol(coinPretty).symbol : 'unknown';
+    const coin_symbol: string = coinPretty ? ToCoin(coinPretty).symbol : 'unknown';
 
     const columns = useMemo(() => COLUMNS, []);
 
     function ShowEntry(solver: Solver) : JSX.Element {
         return (
             <tr>
-                <td><Link to={`/${coinPretty}/solver/${solver.address}`}>{solver.address}</Link></td>
+                <td><Link to={`/${coinPretty}/solver/${solver.address}`}>{truncateAddress(solver.address)}</Link></td>
                 <td>{(solver.balance / 1e8).toPrecision(5)}</td>
                 <td>{hrToText(solver.hashrate)}</td>
                 <td>{solver.worker_count}</td>

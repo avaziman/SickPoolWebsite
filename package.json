@@ -24,12 +24,14 @@
     "web-vitals": "^1.0.1"
   },
   "scripts": {
-    "start": "set PORT=80 && react-scripts start",
+    "start": "set HOST=0.0.0.0 && set PORT=80 && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "optimize-svg": "svgo --config=./svgo.js -f ./public/assets/icons ./public/assets/icons/optimized",
-    "convert-svg": "svgr -d ./src/components/Icon ./public/assets/icons/optimized"
+    "convert-svg": "svgr -d ./src/components/Icon ./public/assets/icons/optimized",
+    "download-svg": "cd public/assets/icons && wget -O stats.svg https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsoutlined/analytics/wght500grad200/48px.svg && wget -O group.svg https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsoutlined/group/wght500grad200/48px.svg",
+    "svg": "npm run optimize-svg && npm run convert-svg"
   },
   "eslintConfig": {
     "extends": [

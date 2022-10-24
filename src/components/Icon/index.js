@@ -7,6 +7,7 @@ export { default as Close } from "./Close";
 export { default as Cross } from "./Cross";
 export { default as DropDownArrow } from "./DropDownArrow";
 export { default as DropUpArrow } from "./DropUpArrow";
+export { default as Group } from "./Group";
 export { default as LightningFill } from "./LightningFill";
 export { default as LightningLight } from "./LightningLight";
 export { default as MoonLight } from "./MoonLight";

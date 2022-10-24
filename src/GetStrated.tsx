@@ -46,6 +46,17 @@ export default function GetStarted() {
     const columns = useMemo(() => COLUMNS, []);
     return (
         <div className="stats-container">
+            <ol>
+                <li>
+                    Get your wallet address
+                </li>
+                <li>
+                    Choose a mining server
+                </li>
+                <li>
+                    Pick mining software
+                </li>
+            </ol>
             <p className="stats-title">Our stratum servers: </p>
             <SortableTable id="worker-table" columns={columns} showEntry={ShowEntry} loadTable={LoadWorkers} isPaginated={false} defaultSortBy=''/>
 

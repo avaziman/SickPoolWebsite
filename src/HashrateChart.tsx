@@ -2,23 +2,22 @@ import { ChartOptions, ChartData, ChartTypeRegistry, TooltipItem } from 'chart.j
 import HistoryChart from './HistoryChart';
 import { useEffect, useMemo, useState } from 'react'
 import { format } from 'fecha'
-import { createNamedExports } from 'typescript';
+import { Processed } from './LoadableChart';
 
 interface Props {
     title: string;
     data: ChartData<'line'>;
-    error: string | undefined;
     isDarkMode: boolean;
     type: keyof ChartTypeRegistry;
-    timestamps: Date[];
     toText: (n: number) => string;
+    data_fetcher: () => Promise<Processed[]>;
 }
 
 export default function HashrateChart(props: Props) {
-    props.data.labels = useMemo(() => props.timestamps.map(time => format(time, 'shortTime')), [props.timestamps]);
 
     const DEFAULT_FONT_SIZE = 18;
     const [fontSize, setFontSize] = useState(DEFAULT_FONT_SIZE);
+    const [error, setError] = useState<string>('');
 
     function UpdateChartFontSize() {
         let width = window.innerWidth;
@@ -38,6 +37,31 @@ export default function HashrateChart(props: Props) {
         UpdateChartFontSize();
     }, []);
 
+    const [processed, setProcessed] = useState<Processed[]>([]);
+
+    useEffect(() => {
+        props.data_fetcher().then((pr: Processed[]) => {
+            // console.log('pr', pr)
+            setProcessed(pr)
+        })
+        .catch((err: string) => {
+            // console.log('err', err)
+            setError(err)
+        })
+    }, [])
+
+    props.data.labels = useMemo(() => {
+        if (processed.length == 0) return;
+
+         return processed[0].timestamps.map((tt: number) => format(new Date(tt * 1000), 'shortTime'));
+    }, [processed])
+
+    props.data.datasets[0].data = useMemo(() => {
+        if (processed.length == 0) return [];
+
+        return processed[0].values;
+    }, [processed])
+
     const hrChartOptions: ChartOptions = {
         responsive: true,
         plugins: {
@@ -51,7 +75,7 @@ export default function HashrateChart(props: Props) {
                 displayColors: true,
                 callbacks: {
                     title: function (context) {
-                        return format(props.timestamps[context[0].parsed.x], 'MMM Do, HH:mm:ss');
+                        return format(new Date(processed[0].timestamps[context[0].parsed.x]), 'MMM Do, HH:mm:ss');
                     },
                     label: function (context) {
                         return context.dataset.label + ': ' + props.toText(context.parsed.y);
@@ -104,6 +128,6 @@ export default function HashrateChart(props: Props) {
     };
 
     return (
-        <HistoryChart type={props.type} title={props.title} options={hrChartOptions} data={props.data} error={props.error} />
+        <HistoryChart type={props.type} title={props.title} options={hrChartOptions} data={props.data} error={error} />
     )
 }

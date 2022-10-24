@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import './solver.css'
 import ChartSVG from './components/Icon/Chart'
 import SortableTable, { Column, Sort, TableResult, ApiTableResult } from './SortableTable';
-import ToCoinSymbol from './CoinMap';
+import ToCoin from './CoinMap';
 import HashrateChart from './HashrateChart';
 import { ChartOptions, ChartData } from 'chart.js'
 
@@ -82,7 +82,7 @@ interface SolverProps {
 
 export default function Solver(props: SolverProps) {
     const { address, coinPretty } = useParams();
-    const coin_symbol: string = coinPretty ? ToCoinSymbol(coinPretty).symbol : 'unknown';
+    const coin_symbol: string = coinPretty ? ToCoin(coinPretty).symbol : 'unknown';
 
     const isWorker = address && address.includes('.');
     const columns = useMemo(() => COLUMNS, []);
@@ -373,9 +373,9 @@ export default function Solver(props: SolverProps) {
                     </div>
 
                 </div>
-                <HashrateChart timestamps={statsLabels} type="line" isDarkMode={props.isDarkMode} title="Hashrate (24h)" data={hrChartData} error={statsErr} toText={ hrToText} />
+                {/* <HashrateChart timestamps={statsLabels} type="line" isDarkMode={props.isDarkMode} title="Hashrate (24h)" data={hrChartData} error={statsErr} toText={ hrToText} />
                 <HashrateChart timestamps={statsLabels} type="bar" isDarkMode={props.isDarkMode} title={(isWorker ? "Shares" : "Shares & Workers") + " (24h)"} data={sharesChartData} toText={toLatin} error={statsErr} />
-                {/* <HistoryChart title="Balance" data={balanceChartData} options={shareChartOptions} err={balanceError} /> */}
+                <HistoryChart title="Balance" data={balanceChartData} options={shareChartOptions} err={balanceError} /> */}
                 <p className="stats-title">Worker list</p>
                 <SortableTable id="worker-table" columns={columns} showEntry={ShowEntry} loadTable={LoadWorkers} isPaginated={false} />
             </div>

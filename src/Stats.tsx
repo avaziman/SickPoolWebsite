@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
 import './Stats.css'
-import { hrToText, timeToText, unixTimeToClockText } from './utils';
+import { hrToText, timeToText, toLatin, unixTimeToClockText } from './utils';
 import HashrateChart from './HashrateChart';
-import ToCoinSymbol from './CoinMap';
+import ToCoin from './CoinMap';
 import { useParams } from 'react-router-dom';
 import { ChartData } from 'chart.js';
+import { DataFetcher, Processed } from './LoadableChart';
 
 const { REACT_APP_API_URL } = process.env;
 
@@ -14,27 +15,50 @@ interface StatsProps {
     isDarkMode: boolean;
 }
 
+export let hrChartData: ChartData<'line'> = {
+    datasets: [
+        {
+            label: 'Hashrate',
+            borderColor: `rgb(${primaryColor})`,
+            // pointBackgroundColor: `rgb(${primaryColor})`,
+            // pointBorderWidth: 0.5,
+            pointBorderWidth: 0,
+            borderWidth: 3,
+            tension: 0.15,
+            data: [],
+        },
+    ],
+};
+
+export function basicFetcher(type: string, coin_symbol: string): Promise<Processed[]> {
+    return DataFetcher({
+        url: `${REACT_APP_API_URL}/pool/${type}?coin=${coin_symbol}`,
+        process_res: (res) => {
+            return new Promise((resolve, rej) => {
+                const processed: Processed = {
+                    timestamps: res.result.map((i: Number[]) => i[0]),
+                    values: res.result.map((i: Number[]) => i[1])
+                }
+                resolve([processed]);
+                // console.log('resolved', [processed])
+            })
+        }
+    });
+}
+
 export default function Stats(props: StatsProps) {
 
     const { coinPretty } = useParams();
-    const coin_symbol: string = coinPretty ? ToCoinSymbol(coinPretty).symbol : 'unknown';
-    
-    const [tabIndex, setTabIndex] = useState(1);
+    const coin_symbol: string = coinPretty ? ToCoin(coinPretty).symbol : 'unknown';
 
+    const [tabIndex, setTabIndex] = useState(0);
     const [poolStats, setPoolStats] = useState({ hashrate: 0, network_hashrate: 0, miners: 0, workers: 0 });
-
-    const [hrHistory, setHrHistory] = useState([]);
-    const [hrTs, setHrTs] = useState<Date[]>([]);
-    const [effortHistory, setEffortHistory] = useState([]);
-    const [effortTs, setEffortTs] = useState([]);
-    const [netDiffHistory, setNetDiffHistory] = useState([]);
-    const [netDiffTs, setNetDiffTs] = useState([]);
 
     const period = 60 * 5;
 
     useEffect(() => {
         fetch(`${REACT_APP_API_URL}/pool/overview?coin=${coin_symbol}`)
-        .then((res) => res.json())
+            .then((res) => res.json())
             .then((res) => {
                 setPoolStats({
                     hashrate: res.result.poolHashrate,
@@ -48,84 +72,58 @@ export default function Stats(props: StatsProps) {
             });
     }, []);
 
-    useEffect(() => {
-        if (tabIndex === 1) {
-            fetch(`${REACT_APP_API_URL}/pool/hashrateHistory?coin=${coin_symbol}`)
-                .then(res => res.json())
-                .then((res) => {
-                    setHrTs(res.result.map((i: number[]) => new Date(i[0] * 1000)));
-                    setHrHistory(res.result.map((i: number[]) => i[1]));
-                }).catch(err => console.log("Failed to get stats!"));
-        }
-    }, [tabIndex])
-
-    let hrChartData: ChartData<'line'> = {
-        datasets: [
-            {
-                label: 'Hashrate',
-                borderColor: `rgb(${primaryColor})`,
-                // pointBackgroundColor: `rgb(${primaryColor})`,
-                // pointBorderWidth: 0.5,
-                pointBorderWidth: 0,
-                borderWidth: 3,
-                data: hrHistory,
-                tension: 0.15,
-            },
-        ],
-    };
 
     // const effortSeparator = new Array(effortHistory.length).fill(100);
-
-    let effortChartData = {
-        labels: effortTs,
-        datasets: [
-            {
-                label: 'Effort history',
-                borderColor: `rgb(${primaryColor})`,
-                data: effortHistory,
-                pointBorderWidth: 0,
-                fill: true,
-                backgroundColor: `rgba(${primaryColor},0.3)`,
-                tension: 0.35,
-            },
-        ],
-    };
+    const tabs = [
+        {
+            "title": "Pool Hashrate",
+            "value": hrToText(poolStats.hashrate),
+            "src": `${REACT_APP_API_URL}/pool/charts/hashrateHistory.svg?coin=${coin_symbol}`,
+            "component":
+                <HashrateChart type="line" isDarkMode={props.isDarkMode} title="Pool Hashrate" data_fetcher={() => basicFetcher('hashrateHistory', coin_symbol)} data={hrChartData} toText={hrToText} key="0" />
+        },
+        {
+            "title": "Network Hashrate",
+            "value": hrToText(poolStats.network_hashrate),
+            "src": `${REACT_APP_API_URL}/pool/charts/networkHashrateHistory.svg?coin=${coin_symbol}`,
+            "component":
+                <HashrateChart type="line" isDarkMode={props.isDarkMode} title="Network Hashrate" data_fetcher={() => basicFetcher('networkHashrateHistory', coin_symbol)} data={hrChartData} toText={hrToText} key="1" />
+        },
+        {
+            "title": "Miners",
+            "value": poolStats.miners,
+            "src": `${REACT_APP_API_URL}/pool/charts/minerCountHistory.svg?coin=${coin_symbol}`,
+            "component":
+                <HashrateChart type="line" isDarkMode={props.isDarkMode} title="Miners Count History" data_fetcher={() => basicFetcher('minerCountHistory', coin_symbol)} data={hrChartData} toText={toLatin} key="2" />
+        },
+        {
+            "title": "Workers",
+            "value": poolStats.workers,
+            "src": `${REACT_APP_API_URL}/pool/charts/workerCountHistory.svg?coin=${coin_symbol}`,
+            "component":
+                <HashrateChart type="line" isDarkMode={props.isDarkMode} title="Workers Count History" data_fetcher={() => basicFetcher('workerCountHistory', coin_symbol)} data={hrChartData} toText={toLatin} key="3" />
+        },
+    ]
 
     return (
         <div id="stats">
             <div className="stats-container">
                 <p className="stats-title">Proof-of-Work Statistics</p>
                 <div className="stats-card-holder">
-                    <div className={tabIndex === 1 ? "stats-card stats-card-active" : "stats-card"} onClick={() => {
-                        setTabIndex(1);
-                    }
-                    }>
-                        <h3>Pool Hashrate</h3>
-                        <p>{hrToText(poolStats.hashrate)}</p>
-                    </div>
-                    <div className={tabIndex === -1 ? "stats-card stats-card-active" : "stats-card"} onClick={() => setTabIndex(3)}>
-                        <h3>Network Hashrate</h3>
-                        <p>{hrToText(poolStats.network_hashrate)}</p>
-                    </div>
-                    {/* <div className={tabIndex == 2 ? "stats-card stats-card-active" : "stats-card"} onClick={() => setTabIndex(2)}>
-                        <h2>Miners</h2>                        <p>{poolStats.miners}/{poolStats.workers}</p>
-                    </div> */}
-                    <div className={tabIndex === -1 ? "stats-card stats-card-active" : "stats-card"} onClick={() => setTabIndex(3)}>
-                        <h3>Miners</h3>
-                        <p>{poolStats.miners}</p>
-                    </div>
-                    <div className={tabIndex === -1 ? "stats-card stats-card-active" : "stats-card"} onClick={() => setTabIndex(4)}>
-                        <h3>Workers</h3>
-                        {/* <p>{poolStats.effort.toFixed(2)}%</p> */}
-                        <p>{poolStats.workers}</p>
-
-                        {/* <div className="progress-bar-holder">
-                        <div className="progress-bar-fill" style={{width: "65%"}}></div>
-                    </div> */}
-                    </div>
-
+                    {tabs.map((t, i) => {
+                        const title = `7d ${t.title} chart`;
+                        return (
+                            <div className={tabIndex === i ? "stats-card stats-card-active" : "stats-card"} onClick={() => setTabIndex(i)} key={i}>
+                                <div>
+                                    <h3>{t.title}</h3>
+                                    <p>{t.value}</p>
+                                </div>
+                                <img loading="lazy" alt={title} title={title} src={t.src}></img>
+                            </div>
+                        );
+                    })}
                 </div>
-                {tabIndex === 1 && <HashrateChart timestamps={hrTs} type="line" isDarkMode={props.isDarkMode} title="Pool Hashrate" data={hrChartData} error='' toText={hrToText} />}
+                {tabs[tabIndex].component}
                 {/*<HistoryChart data={hrChartData} options={hrChartOptions} style={{ display: tabIndex == 2 ? 'block' : 'none' }} />
                 <HistoryChart data={effortChartData} options={effortChartOptions} url={`effortHistory?coin=${coin_symbol}`} style={{ display: tabIndex == 4 ? 'block' : 'none' }} /> */}
             </div>

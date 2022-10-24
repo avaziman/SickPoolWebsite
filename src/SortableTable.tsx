@@ -117,9 +117,9 @@ export default function SortableTable<Type>(props: TableConfig<Type>) {
                 <table id={props.id} className="sortable-table">
                     <thead>
                         <tr>
-                            {props.columns.map(column => {
+                            {props.columns.map((column, i) => {
                                 return (
-                                    <th onClick={(e) => onTableHeaderClick(column.sortBy)}>
+                                    <th onClick={(e) => onTableHeaderClick(column.sortBy)} key={i}>
                                         {column.header} {sort.by && sort.by === column.sortBy && (sort.dir === "desc" ? "\u25be" : "\u25b4")}
                                     </th>
                                 )

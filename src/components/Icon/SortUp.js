@@ -2,10 +2,9 @@ import * as React from "react";
 
 const SvgSortUp = (props) => (
   <svg
-    width={24}
-    height={24}
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
     {...props}
   >
     <path d="M5 16h8m-8-4h6M5 8h4" stroke="#fff" strokeLinecap="round" />

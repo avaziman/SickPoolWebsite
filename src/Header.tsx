@@ -1,33 +1,18 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, NavLink, useNavigate, useParams } from 'react-router-dom'
 import { FormattedMessage, useIntl } from 'react-intl';
 import './Header.css'
 
-import BlockSvg from './components/Icon/Blocks'
-import PayoutSvg from './components/Icon/Payouts'
-import SearchSvg from './components/Icon/Search'
 import SvgBackArrow from './components/Icon/BackArrow';
-import { Close as SvgClose, MoonLight as SvgMoonLight, SunlightLight } from './components/Icon';
-import SvgBorgir from './components/Icon/Borgir';
-import SvgSolvers from './components/Icon/Solvers';
-import SvgStats from './components/Icon/Stats';
+import { MoonLight as SvgMoonLight, SunlightLight } from './components/Icon';
+import ToCoin, { CoinMap } from './CoinMap';
 
-const CoinOptions = [
-    {
-        value: 'sinovate',
-        image: { src: "search.svg" }
-    },
-    // {
-    //     text: 'Komodo',
-    //     value: 'KMD',
-    //     image: { src: "search.svg" }
-    // }
-]
 interface ThemeChange {
     (): void;
 }
 
 interface Props {
+    coinPretty: string;
     theme: boolean;
     dir: 'rtl' | 'ltr';
     themeChange: ThemeChange;
@@ -35,10 +20,92 @@ interface Props {
 
 function Header(props: Props) {
     const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [isCoinOpen, setIsCoinOpen] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [coin, setCoin] = useState(CoinOptions[0].value);
     const [solverSearch, setSolverSearch] = useState<string>('');
+
+    const coinPretty = props.coinPretty;
+    const coinData = ToCoin(coinPretty);
+
     let navigate = useNavigate();
+
+    let poolNav =
+        <>
+            {!isSearchOpen &&
+                <>
+                    {[['stats', 'analytics'], ['solvers', 'group'], ['blocks', 'grid_view'], ['payouts', 'payments']].map((s, i) => {
+                        return (
+                            <NavLink
+                                key={i}
+                                to={`/${coinPretty}/${s[0]}`}
+                                className={p => 'pool-nav-link' + (p.isActive ? ' pool-nav-link-active' : '')}
+                            >
+                                <span className="material-symbols-outlined pool-nav-icon">
+                                    {s[1]}
+                                </span>
+                                <span className='nav-link-text'>
+                                    <FormattedMessage id={s[0]} />
+                                </span>
+                            </NavLink>);
+                    })}
+                </>
+            }
+            <div id="search-field">
+                <SvgBackArrow id="close-search" onClick={() => setIsSearchOpen(false)} style={{ display: isSearchOpen ? "flex" : "none" }} />
+                <input type="text" id="search-input" placeholder={useIntl().formatMessage({ "id": "searchPlaceHolder" })} dir="ltr"
+                    onChange={(e) => { setSolverSearch((e.target as any).value); }}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            if (solverSearch !== '') {
+                                navigate(`${coinPretty}/solver/${solverSearch}`);
+                                setIsSearchOpen(false);
+                            }
+                        }
+                    }}
+                    style={{
+                        display: isSearchOpen ? "flex" : "none",
+                        width: isSearchOpen ? "100%" : 0
+                    }} />
+                <button className={"search-button" + (isSearchOpen ? ' pool-nav-link-active search-button-open' : '')} onClick={(e) => {
+                    if (isSearchOpen) {
+                        if (solverSearch !== '') {
+                            navigate(`${coinPretty}/solver/${solverSearch}`);
+                        }
+                    }
+
+                    setIsSearchOpen(!isSearchOpen);
+                }}>
+                    <span className="search-name-text">
+                        <FormattedMessage id="search" />
+                    </span>
+                    <span className="material-symbols-outlined pool-nav-icon search-button-icon">
+                        search
+                    </span>
+                </button>
+            </div>
+        </>
+
+    let coinSelector =
+        <>
+            {
+                Object.entries(CoinMap).map(([name, coin], i) =>
+                    // TODO: make this smoother than reload with hook
+                    <Link reloadDocument
+                        key={i}
+                        to={name + document.location.href.substring(document.location.href.lastIndexOf('/'))}
+                        className={'pool-nav-link'}
+                    >
+                        <span>
+                            <img src={"/assets/coins/" + coin.logo} className="coin-icon" />
+                        </span>
+                        <span className='nav-link-text'>
+                            {name}
+                        </span>
+                    </Link>
+                )
+            }
+        </>;
 
     return (
         <header>
@@ -47,6 +114,9 @@ function Header(props: Props) {
                     <h1>
                         <Link to="/" id="logo">SickPool</Link>
                     </h1>
+                    <button className='nav-item icon-change' onClick={() => setIsCoinOpen(!isCoinOpen)}>
+                        <img src={"/assets/coins/" + coinData.logo} className="coin-icon" />
+                    </button>
                     <div className={isMenuOpen ? 'main-nav-open main-nav' : 'main-nav'}>
                         <div id="main-links">
                             {/* <Link to="/hardware">
@@ -66,28 +136,29 @@ function Header(props: Props) {
                                 <option value="try">TRY</option>
                                 <option value="nis">NIS</option>
                             </select > */}
-                        {/* <Dropdown id="coin-dropdown" options={CoinOptions} defaultValue={CoinOptions[0].value}
+                        {/* <Dropdown id="coin-dropdown" options={CoinOptions} defaultValue={coinPretty}
                                 onChange={(e, data) => console.log(data.value)} /> */}
                         <Link className='nav-item' to='/get-started' id="get-started" onClick={() => setIsMenuOpen(false)}>
                             <p>Get Started</p>
                         </Link>
-                        <button className='nav-item' id="theme-change" onClick={() => {
+
+                        <button className='nav-item theme-change' onClick={() => {
                             props.themeChange();
                             setIsMenuOpen(false);
-                        }
-                        }>
+                        }}>
                             {/* <p>{props.theme ? "Light" : "Dark"} Mode</p> */}
                             {
                                 props.theme ? <SunlightLight className="theme-change-icon" /> : <SvgMoonLight className="theme-change-icon" />
                             }
                         </button>
+
                     </div>
                     <button id="borgir-menu" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-                        <svg viewBox="0 0 15 15">
+                        <span className="material-symbols-outlined">
                             {
-                                isMenuOpen ? <SvgClose /> : <SvgBorgir />
+                                !isMenuOpen ? "menu" : "close"
                             }
-                        </svg>
+                        </span>
                     </button>
                 </div>
             </div>
@@ -97,67 +168,9 @@ function Header(props: Props) {
                         <option value="tr">Raptoreum</option>
                     </select > */}
                 <nav id="pool-nav">
-                    <Link className={'pool-nav-link'} to={`/${coin}/${'stats'}`}
-                        style={{ display: isSearchOpen ? "none" : "flex" }}>
-                        <span>
-                            <FormattedMessage id="stats" />
-                        </span>
-                        <SvgStats className="pool-nav-icon" />
-                    </Link>
-                    <Link className={'pool-nav-link'} to={`/${coin}/${'solvers'}`}
-                        style={{ display: isSearchOpen ? "none" : "flex" }}>
-                        <span>
-                            <FormattedMessage id="solvers" />
-                        </span>
-                        <SvgSolvers className="pool-nav-icon" />
-                    </Link>
-                    <Link className={'pool-nav-link'} to={`/${coin}/blocks`}
-                        style={{ display: isSearchOpen ? "none" : "flex" }}>
-                        <span>
-                            <FormattedMessage id="blocks" />
-                        </span>
-                        <BlockSvg className="pool-nav-icon" />
-                    </Link>
-                    <Link className={'pool-nav-link'} to={`/${coin}/payouts`}
-                        style={{ display: isSearchOpen ? "none" : "flex" }}>
-                        <span>
-                            <FormattedMessage id="payouts" />
-                        </span>
-                        <PayoutSvg className="pool-nav-icon" />
-                    </Link>
-                    <div id="search-field">
-                        <SvgBackArrow id="close-search" onClick={() => setIsSearchOpen(false)} style={{ display: isSearchOpen ? "flex" : "none" }} />
-                        <input type="text" id="search-input" placeholder={useIntl().formatMessage({ "id": "searchPlaceHolder" })} dir="ltr"
-                            onChange={(e) => { setSolverSearch((e.target as any).value); }}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                    e.preventDefault();
-                                    if (solverSearch !== '') {
-                                        navigate(`${CoinOptions[0].value}/solver/${solverSearch}`);
-                                        setIsSearchOpen(false);
-                                    }
-                                }
-                            }}
-                            style={{
-                                display: isSearchOpen ? "flex" : "none",
-                                width: isSearchOpen ? "100%" : 0
-                            }} />
-                        <button className={"search-button" + (isSearchOpen ? " search-button-open" : "")} onClick={() => {
-                            if (isSearchOpen) {
-                                if (solverSearch !== '') {
-                                    navigate(`${CoinOptions[0].value}/solver/${solverSearch}`);
-                                }
-                            }
-
-                            setIsSearchOpen(!isSearchOpen);
-                        }}>
-                            <span >
-                                <FormattedMessage id="search" />
-                            </span>
-                            <SearchSvg className="pool-nav-icon" />
-                        </button>
-                    </div>
+                    {!isCoinOpen ? poolNav : coinSelector}
                 </nav>
+
                 {/* <button id="get-started">Get Started</button> */}
             </div >
         </header >

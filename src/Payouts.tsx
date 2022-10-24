@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useParams } from 'react-router-dom';
 import SortableTable, { Column, Sort, ApiTableResult } from "./SortableTable";
-import ToCoinSymbol from './CoinMap';
+import ToCoin from './CoinMap';
 import { timeToText } from './utils';
 const { REACT_APP_API_URL } = process.env;
 
@@ -44,8 +44,8 @@ export default function Payouts() {
         return <div></div>;
     }
 
-    const coinData = ToCoinSymbol(coinPretty);
-    const coin_symbol: string = coinPretty ? ToCoinSymbol(coinPretty).symbol : 'unknown';
+    const coinData = ToCoin(coinPretty);
+    const coin_symbol: string = coinPretty ? ToCoin(coinPretty).symbol : 'unknown';
 
 
     function ShowEntry(payout: Payout): JSX.Element {
@@ -77,6 +77,10 @@ export default function Payouts() {
                         </div> */}
             </div>
             <div className="stats-container">
+                {/* <section>
+                    <p className="stats-title">Payout Policy</p>
+
+                </section> */}
                 <p className="stats-title">Payouts Table</p>
                 <SortableTable id="payouts-table" columns={columns} showEntry={ShowEntry} isPaginated={true} loadTable={LoadPayments} />
             </div>

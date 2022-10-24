@@ -1,5 +1,5 @@
 import './App.css'
-import { Route, Routes, Navigate } from 'react-router-dom';
+import { Route, Routes, Navigate, useParams } from 'react-router-dom';
 import Stats from './Stats';
 import NotFound from './NotFound'
 import Header from './Header';
@@ -15,6 +15,7 @@ import { IntlProvider } from 'react-intl';
 import messages from './messages';
 import Blocks from './Blocks';
 import GetStarted from './GetStrated';
+import { CoinMap } from './CoinMap';
 
 function App() {
 
@@ -27,21 +28,25 @@ function App() {
     setIsDarkMode(!isDarkMode);
   }
 
+  let params = window.location.href.substring(window.location.origin.length);
+  let coin = params.substring(1, params.indexOf('/', 1)) ?? 'zano';
+  coin = CoinMap[coin] ? coin : 'zano';
+
   return (
     <IntlProvider locale={locale} messages={messages[locale]}>
       <div className="app">
-        <Header themeChange={themeChange} theme={isDarkMode} dir={messages[locale].dir} /*localeChange={this.localeChange}*/ />
+        <Header themeChange={themeChange} theme={isDarkMode} dir={messages[locale].dir} coinPretty={coin}/>
         <Routes>
           <Route path="/">
             <Route path="/get-started" element={<GetStarted/>}/>
 
             {/* <Route path="/" element={<Home />} /> */}
-            <Route path="/" element={<Navigate to="/sinovate/stats"/>}/>
+            <Route path="/" element={<Navigate to={`/${coin}/stats`} />}/>
             <Route path=":coinPretty">
               <Route path="stats" element={<Stats isDarkMode={isDarkMode} />} />
               <Route path="solvers" element={<Solvers />} />
               <Route path="payouts" element={<Payouts />} />
-              <Route path="blocks" element={<Blocks />} />
+              <Route path="blocks" element={<Blocks isDarkMode={isDarkMode} />} />
               <Route path="solver">
                 <Route path=":address" element={<Solver isDarkMode={isDarkMode} />} />
               </Route>
