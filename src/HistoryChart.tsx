@@ -15,7 +15,7 @@ import {
     registerables as registerablesJS
 } from 'chart.js';
 import { Chart } from 'react-chartjs-2';
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 ChartJS.register(...registerablesJS);
 
 ChartJS.register(
@@ -32,23 +32,32 @@ ChartJS.register(
 interface HistoryChartProp {
     title: string;
     type: keyof ChartTypeRegistry;
-    // type: keyof ChartTypeRegistry;
     data: ChartData;
     options: ChartOptions;
+    // loading: boolean;
     error: string | undefined;
 }
 
 export default function HistoryChart(props: HistoryChartProp) {
 
+    let body : JSX.Element = useMemo(() => {
+        if (props.error) {
+            return <div className="chart-error">{props.error}</div>
+        }
+        // else if (props.loading) {
+        //     return <p>Loading...</p>;
+        // }
+        else if (props.data) {
+            return <Chart type={props.type}/*type={props.type}*/ className="history-chart" data={props.data} options={props.options} height="100rem" />;
+        } else {
+            return <p>No data.</p>
+        }
+    }, [props]);
+    
     return (
-
         <div className="chart-container">
             <p className="chart-title">{props.title}</p>
-            {(!props.error && !props.data.datasets[0].data) && <p>Loading...</p>}
-            {(!props.error && props.data.datasets[0].data && props.data.datasets[0].data.length === 0) && <p>No data.</p>}
-            {props.error && <div className="chart-error">{props.error}</div>}
-            {(!props.error && props.data.labels && props.data.labels.length !== 0) &&
-                <Chart type={props.type}/*type={props.type}*/ className="history-chart" data={props.data} options={props.options} height="100rem" />}
+            {body}
         </div>
     );
 }

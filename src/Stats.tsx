@@ -1,55 +1,23 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import './Stats.css'
-import { hrToText, timeToText, toLatin, unixTimeToClockText } from './utils';
-import HashrateChart from './HashrateChart';
+import { hrToText, toLatin } from './utils';
 import ToCoin from './CoinMap';
-import { useParams } from 'react-router-dom';
-import { ChartData } from 'chart.js';
-import { DataFetcher, Processed } from './LoadableChart';
+import { DataFetcher, Processed, ProcessStats } from './LoadableChart';
+import SickChart from './SickChart';
 
 const { REACT_APP_API_URL } = process.env;
 
 const primaryColor = [27, 121, 247];
 
 interface StatsProps {
+    coinPretty: string,
     isDarkMode: boolean;
 }
 
-export let hrChartData: ChartData<'line'> = {
-    datasets: [
-        {
-            label: 'Hashrate',
-            borderColor: `rgb(${primaryColor})`,
-            // pointBackgroundColor: `rgb(${primaryColor})`,
-            // pointBorderWidth: 0.5,
-            pointBorderWidth: 0,
-            borderWidth: 3,
-            tension: 0.15,
-            data: [],
-        },
-    ],
-};
-
-export function basicFetcher(type: string, coin_symbol: string): Promise<Processed[]> {
-    return DataFetcher({
-        url: `${REACT_APP_API_URL}/pool/${type}?coin=${coin_symbol}`,
-        process_res: (res) => {
-            return new Promise((resolve, rej) => {
-                const processed: Processed = {
-                    timestamps: res.result.map((i: Number[]) => i[0]),
-                    values: res.result.map((i: Number[]) => i[1])
-                }
-                resolve([processed]);
-                // console.log('resolved', [processed])
-            })
-        }
-    });
-}
 
 export default function Stats(props: StatsProps) {
 
-    const { coinPretty } = useParams();
-    const coin_symbol: string = coinPretty ? ToCoin(coinPretty).symbol : 'unknown';
+    const coin_symbol = ToCoin(props.coinPretty).symbol;
 
     const [tabIndex, setTabIndex] = useState(0);
     const [poolStats, setPoolStats] = useState({ hashrate: 0, network_hashrate: 0, miners: 0, workers: 0 });
@@ -72,36 +40,61 @@ export default function Stats(props: StatsProps) {
             });
     }, []);
 
+    const [processedData, setProcessedData] = useState<Processed>({ timestamps: [], datasets: [] });
+    const [error, setError] = useState<string>();
 
+    useEffect(() => {
+        setError(undefined);
+        tabs[tabIndex].data_fetcher().then((r: Processed) => { setProcessedData(r); }).catch((e) => setError(e));
+    }, [tabIndex]);
+
+    function StatChart(title: string, toText: (n: number) => string) {
+        return <SickChart type="line" isDarkMode={props.isDarkMode} title={title}
+            processedData={processedData} error={error} toText={(n: any) => toText(n)} />;
+    }
     // const effortSeparator = new Array(effortHistory.length).fill(100);
     const tabs = [
         {
             "title": "Pool Hashrate",
             "value": hrToText(poolStats.hashrate),
             "src": `${REACT_APP_API_URL}/pool/charts/hashrateHistory.svg?coin=${coin_symbol}`,
-            "component":
-                <HashrateChart type="line" isDarkMode={props.isDarkMode} title="Pool Hashrate" data_fetcher={() => basicFetcher('hashrateHistory', coin_symbol)} data={hrChartData} toText={hrToText} key="0" />
+            "component": StatChart('Pool Hashrate', hrToText),
+            "data_fetcher": () => DataFetcher({
+                url: `${REACT_APP_API_URL}/pool/hashrateHistory?coin=${coin_symbol}`,
+                process_res: (r) => ProcessStats(r, 'Hashrate')
+            })
         },
         {
             "title": "Network Hashrate",
             "value": hrToText(poolStats.network_hashrate),
             "src": `${REACT_APP_API_URL}/pool/charts/networkHashrateHistory.svg?coin=${coin_symbol}`,
-            "component":
-                <HashrateChart type="line" isDarkMode={props.isDarkMode} title="Network Hashrate" data_fetcher={() => basicFetcher('networkHashrateHistory', coin_symbol)} data={hrChartData} toText={hrToText} key="1" />
+            "component": StatChart('Network Hashrate', hrToText),
+            "data_fetcher": () => DataFetcher({
+                url: `${REACT_APP_API_URL}/pool/networkHashrateHistory?coin=${coin_symbol}`,
+                process_res: (r) => ProcessStats(r, 'Hashrate')
+            })
         },
         {
             "title": "Miners",
             "value": poolStats.miners,
             "src": `${REACT_APP_API_URL}/pool/charts/minerCountHistory.svg?coin=${coin_symbol}`,
             "component":
-                <HashrateChart type="line" isDarkMode={props.isDarkMode} title="Miners Count History" data_fetcher={() => basicFetcher('minerCountHistory', coin_symbol)} data={hrChartData} toText={toLatin} key="2" />
+                StatChart('Miner Count', toLatin),
+            "data_fetcher": () => DataFetcher({
+                url: `${REACT_APP_API_URL}/pool/minerCountHistory?coin=${coin_symbol}`,
+                process_res: (r) => ProcessStats(r, 'Miners')
+            })
         },
         {
             "title": "Workers",
             "value": poolStats.workers,
             "src": `${REACT_APP_API_URL}/pool/charts/workerCountHistory.svg?coin=${coin_symbol}`,
             "component":
-                <HashrateChart type="line" isDarkMode={props.isDarkMode} title="Workers Count History" data_fetcher={() => basicFetcher('workerCountHistory', coin_symbol)} data={hrChartData} toText={toLatin} key="3" />
+                StatChart('Worker Count', toLatin),
+            "data_fetcher": () => DataFetcher({
+                url: `${REACT_APP_API_URL}/pool/workerCountHistory?coin=${coin_symbol}`,
+                process_res: (r) => ProcessStats(r, 'Workers')
+            })
         },
     ]
 
@@ -118,7 +111,7 @@ export default function Stats(props: StatsProps) {
                                     <h3>{t.title}</h3>
                                     <p>{t.value}</p>
                                 </div>
-                                <img loading="lazy" alt={title} title={title} src={t.src}></img>
+                                <img loading="lazy" alt={title} title={title} src={t.src} onError={(e) => (e.target as HTMLElement).style.display = 'none'}></img>
                             </div>
                         );
                     })}

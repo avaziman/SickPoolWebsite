@@ -1,22 +1,22 @@
 import { useState, useEffect, useMemo } from 'react';
 import SortableTable, { Sort, Column, ApiTableResult } from './SortableTable';
-import { toLatin, timeToText, truncateAddress } from './utils'
+import { toLatin, timeToText, truncateAddress, toDiff } from './utils'
 import { Link, useParams } from 'react-router-dom';
 import ToCoin from './CoinMap';
-import HashrateChart from './HashrateChart';
-import { basicFetcher, hrChartData } from './Stats';
+import SickChart from './SickChart';
 import { hrToText } from './utils';
+import { DataFetcher, Processed, ProcessStats } from './LoadableChart';
 
 const { REACT_APP_API_URL } = process.env;
 
 
 require('./Blocks.css')
 
-const COLUMNS: Column[] =
-    [
+function GetColumns(multi_chain: boolean): Column[] {
+    let arr = [
         {
             header: 'No.',
-            sortBy: 'number'
+            sortBy: 'id'
         },
         {
             header: 'Depth',
@@ -43,26 +43,30 @@ const COLUMNS: Column[] =
         },
         {
             header: 'Effort',
-            sortBy: 'effort'
+            sortBy: 'effort_percent'
         },
         {
             header: 'Duration',
-            sortBy: 'duration'
+            sortBy: 'duration_ms'
         },
         {
             header: 'Date',
             //same order as number
-        },
+        }
     ];
 
+    multi_chain || arr.splice(2, 1);
+    return arr;
+}
+
 interface Block {
+    id: number;
     confirmations: number;
     blockType: number;
     reward: number;
-    time: number;
-    duration: number;
+    timeMs: number;
+    durationMs: number;
     height: number;
-    number: number;
     difficulty: number;
     effortPercent: number;
     chain: string;
@@ -80,16 +84,16 @@ export default function Blocks(props: Props) {
     const { coinPretty } = useParams();
     const coinData = ToCoin(coinPretty ?? '');
     const coinSymbol: string = coinData.symbol;
-    
-    // remove chain column if there is only one chain...
-    !coinData.multi_chain && COLUMNS.splice(2, 1);
-    
-    let columns = useMemo(() => COLUMNS, []);
-    // let columns = useMemo(() => coinData.multi_chain ? COLUMNS : COLUMNS, []);
+
+    let columns = useMemo(() => GetColumns(coinData.multi_chain), []);
     let [blockStats, setBlockStats] = useState({ effortPercent: 0, start: Date.now() });
     const [tabIndex, setTabIndex] = useState(0);
 
     useEffect(() => {
+        // remove chain column if there is only one chain...
+
+
+
         fetch(`${REACT_APP_API_URL}/pool/roundOverview?coin=${coinSymbol}`).then(res => res.json()).then(res => {
             setBlockStats({
                 effortPercent: res.result.effortPercent,
@@ -100,7 +104,7 @@ export default function Blocks(props: Props) {
     }, []);
 
 
-    
+
     function ShowEntry(block: Block) {
 
         function GetBlockType(type: number) {
@@ -110,31 +114,50 @@ export default function Blocks(props: Props) {
         return (<tr>
             <td>
                 <a href={`${coinData.explorer_url}/block/${block.hash}`} target="_blank" rel="noreferrer">
-                    {block.number}
+                    {block.id}
                 </a>
             </td>
             <td>{block.confirmations}</td>
-            
-            { coinData.multi_chain && <td>{block.chain} </td>}
+
+            {coinData.multi_chain && <td>{block.chain} </td>}
             <td>
                 {(block.blockType & 0b1) > 0 && "PoW"}
                 {(block.blockType & 0b100) > 0 && " + Payment"}
             </td>
             <td>{block.height}</td>
             <td>{block.reward / 1e8}</td>
-            <td><Link to={`/${coinPretty}/solver/${block.solver}`}>
+            <td><Link to={`/${coinPretty}/miner/${block.solver}`}>
                 {truncateAddress(block.solver)}</Link>
             </td>
             <td>{toLatin(block.difficulty)}</td>
             <td>{block.effortPercent.toPrecision(4)} %</td>
-            <td>{timeToText(block.duration)}</td>
-            <td>{timeToText(Date.now() - block.time)} ago</td>
+            <td>{timeToText(block.durationMs)}</td>
+            <td>{timeToText(Date.now() - block.timeMs)} ago</td>
         </tr>)
     }
 
     function LoadBlocks(sort: Sort): Promise<ApiTableResult<Block>> {
         return fetch(`${REACT_APP_API_URL}/pool/blocks?coin=${coinSymbol}&page=${sort.page}&limit=${sort.limit}&sortby=${sort.by}&sortdir=${sort.dir}`)
             .then(res => res.json());
+    }
+
+    function svg(alt: string, loc: string) {
+        return (<img loading="lazy" alt={alt} src={`${REACT_APP_API_URL}${loc}?coin=${coinSymbol}`} onError={(e) => (e.target as HTMLElement).style.display = 'none'} />)
+    }
+
+
+    const [processedData, setProcessedData] = useState<Processed>({ timestamps: [], datasets: [] });
+    const [error, setError] = useState<string>();
+
+    useEffect(() => {
+        setError(undefined);
+        tabs[tabIndex].data_fetcher().then((r: Processed) => setProcessedData(r)).catch((e) => setError(e));
+
+    }, [tabIndex]);
+
+    function StatChart(title: string, toText: (n: number) => string) {
+        return <SickChart type="line" isDarkMode={props.isDarkMode} title={title}
+            processedData={processedData} error={error} toText={(n: any) => toText(n)} />;
     }
 
     const tabs = [
@@ -152,31 +175,44 @@ export default function Blocks(props: Props) {
                             <p>Chain: </p>
                         </div> */}
                     </div>
-                    <SortableTable id="block-table" columns={columns} showEntry={ShowEntry} defaultSortBy='number' isPaginated={true} loadTable={LoadBlocks} />
-                </div>)
+                    <SortableTable id="block-table" columns={columns} showEntry={ShowEntry} defaultSortBy='id' isPaginated={true} loadTable={LoadBlocks} />
+                </div>),
+            "data_fetcher": (): Promise<Processed> => new Promise<Processed>(() => { })
         },
         {
             "title": "Difficulty",
-            "value": toLatin(1),
+            "value": toDiff(1),
             "img":
-                (<img loading="lazy" alt={`Difficulty chart`} src={`${REACT_APP_API_URL}/pool/charts/difficultyHistory.svg?coin=${coinSymbol}`} />),
-            "component": <HashrateChart type="line" isDarkMode={props.isDarkMode} title="Difficulty History" data_fetcher={() => basicFetcher('difficultyHistory', coinSymbol)} data={hrChartData} toText={(n) => toLatin(n) + "H"} key="1" />
+                svg('Difficulty chart', '/pool/charts/difficultyHistory.svg'),
+            "component": StatChart("Difficulty History", (n: number) => toLatin(n) + "H"),
+            "data_fetcher": () => DataFetcher({
+                url: `${REACT_APP_API_URL}/pool/difficultyHistory?coin=${coinData.symbol}`,
+                process_res: (r) => ProcessStats(r, 'Difficulty')
+            })
         },
         {
             "title": "Blocks mined",
             "value": "Soon",
             "img":
-                (<img loading="lazy" alt={`Difficulty chart`} src={`${REACT_APP_API_URL}/pool/charts/blockCountHistory.svg?coin=${coinSymbol}`} />),
+                svg('Blocks mined chart', '/pool/charts/blocksMinedHistory.svg'),
             "component":
-                <HashrateChart type="line" isDarkMode={props.isDarkMode} title="Mined Blocks History" data_fetcher={() => basicFetcher('blockCountHistory', coinSymbol)} data={hrChartData} toText={(n) => toLatin(n)} key="2" />
+                StatChart("Mined Blocks History", (n: number) => toLatin(n)),
+            "data_fetcher": () => DataFetcher({
+                url: `${REACT_APP_API_URL}/blocksMinedHistory?coin=${coinData.symbol}`,
+                process_res: (r) => ProcessStats(r, 'Block count')
+            })
         },
         {
-            "title": "Round Effort",
-            "value": blockStats.effortPercent.toFixed(3),
+            "title": "Round Effort / Duration",
+            "value": blockStats.effortPercent.toFixed(3) + '%',
             "img":
-                (<img loading="lazy" alt={`Block effort chart`} src={`${REACT_APP_API_URL}/pool/charts/blockEffortHistory.svg?coin=${coinSymbol}`} />),
+                svg('Block effort chart', '/pool/charts/blockEffortHistory.svg'),
             "component":
-                <HashrateChart type="line" isDarkMode={props.isDarkMode} title="Blcok Effort History" data_fetcher={() => basicFetcher('blockEffortHistory', coinSymbol)} data={hrChartData} toText={(n) => n + '%'} key="3" />
+                StatChart("Block Effort History", (n: number) => toLatin(n)),
+            "data_fetcher": () => DataFetcher({
+                url: `${REACT_APP_API_URL}/blockEffortHistory?coin=${coinData.symbol}`,
+                process_res: (r) => ProcessStats(r, 'Block effort')
+            })
         },
     ]
 

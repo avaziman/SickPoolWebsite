@@ -5,8 +5,9 @@ import './solver.css'
 import ChartSVG from './components/Icon/Chart'
 import SortableTable, { Column, Sort, TableResult, ApiTableResult } from './SortableTable';
 import ToCoin from './CoinMap';
-import HashrateChart from './HashrateChart';
 import { ChartOptions, ChartData } from 'chart.js'
+import { Processed, DataFetcher, ProcessStats } from './LoadableChart';
+import SickChart from './SickChart';
 
 const { REACT_APP_API_URL, REACT_APP_ADDRESS_LEN } = process.env;
 const COLUMNS: Column[] = [
@@ -52,7 +53,7 @@ interface SolverOverview {
     identity?: string;
 }
 
-interface StatsHistory {
+export interface StatsHistory {
     averageHr: number;
     currentHr: number;
     invalidShares: number;
@@ -86,7 +87,8 @@ export default function Solver(props: SolverProps) {
 
     const isWorker = address && address.includes('.');
     const columns = useMemo(() => COLUMNS, []);
-
+    console.log(address);
+    
     const [overviewRes, setOverviewRes] = useState<SolverOverview>({
         address: address ? address : "unknown",
         balance: {
@@ -96,10 +98,8 @@ export default function Solver(props: SolverProps) {
     });
     
     const [statsRes, setStatsRes] = useState<StatsHistory[]>([]);
+    const [error, setError] = useState<string>();
     const [workerOverview, setWorkerOverview] = useState<WorkersOverview>({ active: 0, inactive: 0 });
-
-    const [statsLabels, setStatsLabels] = useState<Date[]>([]);
-    const [statsErr, setStatsErr] = useState<string | undefined>(undefined);
 
     const shareChartOptions: ChartOptions = {
         plugins: { legend: { display: false } },
@@ -147,7 +147,24 @@ export default function Solver(props: SolverProps) {
 
 
     useEffect(() => {
+        setOverviewRes({
+            address: address ? address : "unknown",
+            balance: {
+                immature: 0,
+                mature: 0
+            }
+        });
 
+        fetch(`${REACT_APP_API_URL}/miner/statsHistory?coin=${coin_symbol}&address=${address}`)
+            .then(res => res.json())
+            .then(res => {
+                if (res.result !== null) {
+                    setStatsRes(res.result as StatsHistory[]);
+                }
+            }).catch(err => {
+                setError('Failed to load chart');
+            });
+            
         fetch(`${REACT_APP_API_URL}/solver/overview?coin=${coin_symbol}&address=${address}`)
             .then(res => res.json())
             .then(res => {
@@ -157,21 +174,7 @@ export default function Solver(props: SolverProps) {
             }).catch(err => {
 
             });
-
-        fetch(`${REACT_APP_API_URL}/miner/statsHistory?coin=${coin_symbol}&address=${address}`)
-            .then(res => res.json())
-            .then(res => {
-                if (res.result !== null) {
-                    setStatsLabels(res.result.map((a: StatsHistory) => new Date(a.time * 1000)));
-                    setStatsRes(res.result);
-                } else if (res.error !== null) {
-                    setStatsErr(`Failed to fetch stats: ${res.error}`);
-                }
-            })
-            .catch(err => {
-                // setHrErr("Failed to load chart :(");
-            });
-    }, []);
+    }, [address, coin_symbol]);
 
     // useEffect(() => {
     //     fetch(`${REACT_APP_API_URL}/miner/workerHistory?coin=${coin_symbol}&address=${address}`)
@@ -209,105 +212,15 @@ export default function Solver(props: SolverProps) {
         }
     }
 
-    const hrChartData: ChartData<"line"> = {
-        datasets: [
-            {
-                type: 'line',
-                label: 'Hashrate',
-                data: useMemo(() => statsRes.map(s => s.currentHr), [statsRes]),
-                borderColor: "rgb(27, 121, 247)",
-                backgroundColor: "rgba(27, 121, 247, 1)",
-                pointBorderColor: "#fff",
-                pointBorderWidth: 0,
-                pointRadius: 0,
-                tension: 0.15,
-                normalized: true
-            },
-            {
-                type: 'line',
-                label: 'Average 6h hashrate',
-                data: useMemo(() => statsRes.map(s => s.averageHr), [statsRes]),
-                borderColor: "#21ff5c",
-                backgroundColor: "#21ff5c",
-                pointBorderColor: "#fff",
-                pointBorderWidth: 0,
-                pointRadius: 0,
-                tension: 0.15,
-                normalized: true
-            }
-        ],
-    };
-
-    const sharesChartData /*: ChartData<>*/ = {
-        labels: statsLabels,
-        datasets: [
-            {
-                label: 'Valid shares',
-                data: useMemo(() => statsRes.map(s => s.validShares), [statsRes]),
-                backgroundColor: "rgb(27, 121, 247)",
-                pointBorderColor: "#fff",
-                yAxisID: 'y',
-                order: 3,
-
-            },
-            {
-                label: 'Stale shares',
-                data: useMemo(() => statsRes.map(s => s.staleShares), [statsRes]),
-                color: "#ff8e00",
-                borderColor: "#ff8e00",
-                backgroundColor: "#ff8e00",
-                pointBorderColor: "#fff",
-                pointBorderWidth: 2,
-                pointRadius: 4,
-                yAxisID: 'y',
-            },
-            {
-
-                label: 'Invalid shares',
-                data: useMemo(() => statsRes.map(s => s.invalidShares), [statsRes]),
-                color: "#ff5003",
-                borderColor: "#ff5003",
-                backgroundColor: "#ff5003",
-                pointBorderColor: "#fff",
-                yAxisID: 'y',
-            }
-            // {
-            //     type: 'line',
-            //     label: 'Worker count',
-            //     data: workerData,
-            //     color: "#FFDB58",
-            //     borderColor: "#FFDB58",
-            //     backgroundColor: "#FFDB58",
-            //     pointBorderColor: "#fff",
-            //     pointBorderWidth: 0,
-            //     pointRadius: 0,
-            //     tension: 0,
-            //     yAxisID: 'y1',
-            //     order: 2,
-            // }
-        ],
-    };
-
-    // const balanceChartData = {
-    //     labels: balanceLabels,
-    //     datasets: [
-    //         {
-    //             label: 'Hashrate',
-    //             data: balanceData,
-    //             color: "rgba(27, 121, 247, 0.55)",
-    //             borderColor: "rgb(27, 121, 247)",
-    //             backgroundColor: "rgba(27, 121, 247, 1)",
-    //             pointBorderColor: "#fff",
-    //             pointBorderWidth: 0,
-    //             pointRadius: 0,
-    //             tension: 0.35
-    //         },
-    //     ],
-    // };
     return (
         <div>
             <div className="stats-container">
-                <p className="stats-title">Solver - {overviewRes?.address} {overviewRes?.identity && `AKA ${overviewRes?.identity}`}</p>
+                <p className="stats-title miner-title">
+                    <p>Miner Dashboard</p>
+                </p>
+                <p className="stats-title address-title">
+                    <p>{overviewRes?.address} {overviewRes?.identity && `AKA ${overviewRes?.identity}`}</p>
+                </p>
                 <div className="stats-card-holder">
                     <div className="nested-card">
                         <h2>Hashrate<ChartSVG /></h2>
@@ -318,7 +231,7 @@ export default function Solver(props: SolverProps) {
                             </div>
                             <div className="stats-sub-card">
                                 <h4>Average 6HR</h4>
-                                <h3>{hrToText(statsRes[statsRes.length - 1]?.averageHr ?? 0)}</h3>
+                                <h3>{ hrToText(statsRes[statsRes.length - 1]?.averageHr ?? 0)}</h3>
                             </div>
                         </div>
                     </div>
@@ -373,10 +286,25 @@ export default function Solver(props: SolverProps) {
                     </div>
 
                 </div>
-                {/* <HashrateChart timestamps={statsLabels} type="line" isDarkMode={props.isDarkMode} title="Hashrate (24h)" data={hrChartData} error={statsErr} toText={ hrToText} />
-                <HashrateChart timestamps={statsLabels} type="bar" isDarkMode={props.isDarkMode} title={(isWorker ? "Shares" : "Shares & Workers") + " (24h)"} data={sharesChartData} toText={toLatin} error={statsErr} />
-                <HistoryChart title="Balance" data={balanceChartData} options={shareChartOptions} err={balanceError} /> */}
-                <p className="stats-title">Worker list</p>
+                <SickChart type="line" isDarkMode={props.isDarkMode} title="Hashrate (24h)"
+                    processedData={{
+                        timestamps: statsRes.map(i => i.time),
+                        datasets: [
+                            { name: 'Hashrate', borderColor: 'rgb(27, 121, 247)', values: statsRes.map(i => i.currentHr) },
+                            { name: 'Average Hashrate', borderColor: '#21ff5c', values: statsRes.map(i => i.averageHr) }
+                        ]
+                    }} error={error} toText={hrToText} />
+                <SickChart type="bar" isDarkMode={props.isDarkMode} title="Shares (24h)"
+                    processedData={{
+                        timestamps: statsRes.map(i => i.time),
+                        datasets: [
+                            { name: 'Valid Shares', borderColor: 'rgb(27, 121, 247)', values: statsRes.map(i => i.validShares) },
+                            { name: 'Stale Shares', borderColor: '#ff8e00', values: statsRes.map(i => i.staleShares) },
+                            { name: 'Invalid Shares', borderColor: '#FFDB58', values: statsRes.map(i => i.invalidShares) }
+                        ]
+                    }} error={error} toText={toLatin} />
+                
+                <p className="stats-title">Worker List</p>
                 <SortableTable id="worker-table" columns={columns} showEntry={ShowEntry} loadTable={LoadWorkers} isPaginated={false} />
             </div>
         </div>

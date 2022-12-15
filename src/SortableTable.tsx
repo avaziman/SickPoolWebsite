@@ -50,7 +50,8 @@ export default function SortableTable<Type>(props: TableConfig<Type>) {
 
     useEffect(() => {
         setIsLoading(true);
-        props.loadTable(sort, result).then((res: ApiTableResult<Type>) => {
+        props.loadTable(sort, result)
+        .then((res: ApiTableResult<Type>) => {
             if (res.error !== null) {
                 setError(res.error);
             }
@@ -58,7 +59,6 @@ export default function SortableTable<Type>(props: TableConfig<Type>) {
             if (res.result !== null) {
                 setResult(res.result);
             }
-
             setIsLoading(false);
 
         }).catch((err: string) => {
@@ -128,7 +128,7 @@ export default function SortableTable<Type>(props: TableConfig<Type>) {
                     </thead>
                     <tbody>
                         {isLoading === true && <tr><td className="loading" colSpan={props.columns.length}>Loading...</td></tr>}
-                        {(result && result.entries.length == 0)
+                        {(result && result.entries.length === 0)
                             && <tr><td className="loading" colSpan={props.columns.length}>
                                 No entries found!</td></tr>}
                         {error && <tr><td className="error" colSpan={props.columns.length}>{error} :(</td></tr>}

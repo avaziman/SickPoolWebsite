@@ -33,7 +33,7 @@ function Header(props: Props) {
         <>
             {!isSearchOpen &&
                 <>
-                    {[['stats', 'analytics'], ['solvers', 'group'], ['blocks', 'grid_view'], ['payouts', 'payments']].map((s, i) => {
+                    {[['stats', 'analytics'], ['miners', 'group'], ['blocks', 'grid_view'], ['payouts', 'payments']].map((s, i) => {
                         return (
                             <NavLink
                                 key={i}
@@ -52,13 +52,13 @@ function Header(props: Props) {
             }
             <div id="search-field">
                 <SvgBackArrow id="close-search" onClick={() => setIsSearchOpen(false)} style={{ display: isSearchOpen ? "flex" : "none" }} />
-                <input type="text" id="search-input" placeholder={useIntl().formatMessage({ "id": "searchPlaceHolder" })} dir="ltr"
+                <input type="text" className="search-input" placeholder={useIntl().formatMessage({ "id": "searchPlaceHolder" })} dir="ltr"
                     onChange={(e) => { setSolverSearch((e.target as any).value); }}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                             e.preventDefault();
                             if (solverSearch !== '') {
-                                navigate(`${coinPretty}/solver/${solverSearch}`);
+                                navigate(`${coinPretty}/miner/${solverSearch}`);
                                 setIsSearchOpen(false);
                             }
                         }
@@ -70,7 +70,7 @@ function Header(props: Props) {
                 <button className={"search-button" + (isSearchOpen ? ' pool-nav-link-active search-button-open' : '')} onClick={(e) => {
                     if (isSearchOpen) {
                         if (solverSearch !== '') {
-                            navigate(`${coinPretty}/solver/${solverSearch}`);
+                            navigate(`${coinPretty}/miner/${solverSearch}`);
                         }
                     }
 
@@ -90,17 +90,17 @@ function Header(props: Props) {
         <>
             {
                 Object.entries(CoinMap).map(([name, coin], i) =>
-                    // TODO: make this smoother than reload with hook
-                    <Link reloadDocument
+                    <Link 
                         key={i}
                         to={name + document.location.href.substring(document.location.href.lastIndexOf('/'))}
+                        onClick={ () => setIsCoinOpen(false)}
                         className={'pool-nav-link'}
                     >
                         <span>
-                            <img src={"/assets/coins/" + coin.logo} className="coin-icon" />
+                            <img src={"/assets/coins/" + coin.logo} className="coin-icon" alt={`Coin logo ${coin.name}`} />
                         </span>
                         <span className='nav-link-text'>
-                            {name}
+                            {coin.name}
                         </span>
                     </Link>
                 )
@@ -115,7 +115,7 @@ function Header(props: Props) {
                         <Link to="/" id="logo">SickPool</Link>
                     </h1>
                     <button className='nav-item icon-change' onClick={() => setIsCoinOpen(!isCoinOpen)}>
-                        <img src={"/assets/coins/" + coinData.logo} className="coin-icon" />
+                        <img src={"/assets/coins/" + coinData.logo} className="coin-icon" alt="Coin logo" />
                     </button>
                     <div className={isMenuOpen ? 'main-nav-open main-nav' : 'main-nav'}>
                         <div id="main-links">

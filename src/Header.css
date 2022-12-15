@@ -110,11 +110,15 @@ header {
 .search-button-open {
     min-width: 2rem;
     max-width: 20%;
+    border-radius: 0 10px 10px 0;
+    height: 90%;
+    background-color: var(--primary-color);
+    margin-right: 6px;
 }
 
-#search-input {
+.search-input {
+    border-radius: 10px 0 0 10px;
     display: none;
-    width: 0;
     transition: width 1s;
     height: 80%;
     /* margin-inline-start: 0.3rem; */
@@ -122,12 +126,12 @@ header {
     font-weight: bold;
     font-size: 1rem;
     outline: none;
-    padding-inline-start: 5px;
+    padding-inline-start: 10px;
 }
 
-/* .search-button {
+.search-button {
     padding-left: 1rem;
-} */
+}
 
 .search-button-icon {
     display: inline;
@@ -260,6 +264,7 @@ header {
     height: 3rem;
     border-radius: 5px 0 0 5px;
     cursor: pointer;
+    margin-left: 6px;
 }
 
 @media (max-width: 800px) {

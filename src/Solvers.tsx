@@ -17,9 +17,13 @@ const COLUMNS: Column[] = [
         header: 'Hashrate',
         sortBy: 'hashrate'
     },
+    // {
+    //     header: 'Workers',
+    //     sortBy: 'worker-count'
+    // },
     {
-        header: 'Workers',
-        sortBy: 'worker-count'
+        header: 'Round Effort',
+        sortBy: 'round-effort'
     },
     {
         header: 'Joined',
@@ -30,7 +34,8 @@ const COLUMNS: Column[] = [
 interface Solver {
     address: string;
     hashrate: number;
-    worker_count: number;
+    // worker_count: number;
+    round_effort: number;
     balance: number;
     joined: number;
 }
@@ -44,11 +49,11 @@ export default function Solvers() {
     function ShowEntry(solver: Solver) : JSX.Element {
         return (
             <tr>
-                <td><Link to={`/${coinPretty}/solver/${solver.address}`}>{truncateAddress(solver.address)}</Link></td>
+                <td><Link to={`/${coinPretty}/miner/${solver.address}`}>{truncateAddress(solver.address)}</Link></td>
                 <td>{(solver.balance / 1e8).toPrecision(5)}</td>
                 <td>{hrToText(solver.hashrate)}</td>
-                <td>{solver.worker_count}</td>
-                <td>{timeToText(Date.now() - solver.joined * 1000)} ago</td>
+                <td>{(solver.round_effort * 100).toPrecision(4)}%</td>
+                <td>{timeToText(Date.now() - (solver.joined))} ago</td>
             </tr>
         )
     }
@@ -66,7 +71,7 @@ export default function Solvers() {
                         </div> */}
             </div>
             <div className="stats-container">
-                <p className="stats-title">Solvers table</p>
+                <p className="stats-title">Miners Table</p>
                 <SortableTable id="solver-table" columns={columns} loadTable={LoadSolvers} showEntry={ShowEntry} isPaginated={true} defaultSortBy="hashrate"/>
             </div>
         </div>

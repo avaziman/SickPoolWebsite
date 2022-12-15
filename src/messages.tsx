@@ -5,6 +5,7 @@ const messages : any = {
         calculator: 'Calculator',
         stats: 'Stats',
         solvers: 'Solvers',
+        miners: 'Miners',
         blocks: 'Blocks',
         payouts: 'Payouts',
         search: 'Search',

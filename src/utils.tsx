@@ -1,19 +1,20 @@
-import { CoreScaleOptions, Scale, Tick } from "chart.js";
-
 // unary operator to remove trailing zeros
 export function hrToText(hr: number) {
-    return toLatin(hr) + 'H/s';
+    return toDiff(hr) + '/s';
 };
+
+export function toDiff(hr: number) {
+    return toLatin(hr) + 'h';
+}
 
 export function toLatin(n: number) {
     let units = ['', 'K', 'M', 'G']
 
-    let i = 0;
-    while (n > 1000 && i < units.length) {
-        i++;
-        n /= 1000;
+    let i = Math.max(0, Math.min(Math.floor(Math.log10(n) / 3), units.length - 1));
+    if (i !== 0) {
+        n /= Math.pow(10, i * 3);
     }
-    
+        
     return `${+(n).toPrecision(i + 2)} ${units[i]}`;
 };
 

@@ -1,7 +1,7 @@
 .stats-container {
     margin: 0.75rem;
     max-width: min(1350px, 95%);
-    margin: auto;
+    margin: 0 auto 2rem auto;
 }
 
 .stats-title {
@@ -58,6 +58,7 @@
 }
 
 .stats-card h3 {
+    text-transform: capitalize;
     font-size: 1.25rem;
     font-weight: normal;
     opacity: 0.9;

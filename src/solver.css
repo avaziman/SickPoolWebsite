@@ -59,3 +59,11 @@
     float: right;
     opacity: 0.8;
 }
+
+.miner-title {
+    padding-bottom: 0;
+}
+
+.address-title {
+    font-size: 1.35rem;
+}

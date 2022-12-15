@@ -2,15 +2,21 @@ import { useState, useMemo } from "react";
 
 export interface Fetcher {
     url: string,
-    process_res(p: any): Promise<Processed[]>;
+    process_res(p: any): Promise<Processed>;
 }
 
 export interface Processed {
     timestamps: number[];
-    values: number[];
+    datasets: ChartDataSet[]; // possible multiple datasets
 }
 
-export function DataFetcher(props: Fetcher): Promise<Processed[]> {
+export interface ChartDataSet{
+    name: string,
+    borderColor: string,
+    values: number[]
+}
+
+export function DataFetcher(props: Fetcher): Promise<Processed> {
     return new Promise((resolve, rej) => {
         fetch(props.url)
             .then((res: Response) => {
@@ -24,7 +30,7 @@ export function DataFetcher(props: Fetcher): Promise<Processed[]> {
                 if (!res) return;
                 if (res.error) { rej(res.err); }
                 else {
-                    resolve(props.process_res(res))
+                    resolve(props.process_res(res));
                 }
             })
             .catch(err => {
@@ -32,4 +38,19 @@ export function DataFetcher(props: Fetcher): Promise<Processed[]> {
                 rej(err.message)
             });
     });
+}
+
+export function ProcessStats(res: any, title: string): Promise<Processed> {
+    return new Promise((resolve, rej) => {
+        const processed: Processed = {
+            timestamps: res.result.map((i: number[]) => i[0]),
+            datasets: [
+                {
+                    name: title,
+                    borderColor: 'rgb(27, 121, 247)',
+                    values: res.result.map((i: number[]) => i[1])
+                }]
+        }
+        resolve(processed);
+    })
 }
