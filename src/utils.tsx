@@ -7,7 +7,7 @@ export function toDiff(hr: number) {
     return toLatin(hr) + 'h';
 }
 
-export function toLatin(n: number) {
+export function toLatin(n: number) : string {
     let units = ['', 'K', 'M', 'G']
 
     let i = Math.max(0, Math.min(Math.floor(Math.log10(n) / 3), units.length - 1));
@@ -18,6 +18,10 @@ export function toLatin(n: number) {
     return `${+(n).toPrecision(i + 2)} ${units[i]}`;
 };
 
+export function toLatinInt(n: number) {
+    return Number.isInteger(n) ? toLatin(n) : "";
+}
+
 export function unixTimeToClockText(date: Date): string {
     let minutes: number = date.getMinutes();
     let minutesStr: string = minutes.toString();
@@ -26,17 +30,17 @@ export function unixTimeToClockText(date: Date): string {
     return `${date.getHours()}:${minutesStr}`;
 }
 
-export function timeToText(diff: number) {
-    if (diff < 1000 * 60) {
-        return `${Math.floor(diff / 1000)}s`;
-    } else if (diff < 1000 * 60 * 60) {
-        return `${Math.floor(diff / 1000 / 60)}m`;
+export function timeToText(ms: number) {
+    if (ms < 1000 * 60) {
+        return `${Math.floor(ms / 1000)}s`;
+    } else if (ms < 1000 * 60 * 60) {
+        return `${Math.floor(ms / 1000 / 60)}m`;
     }
-    else if (diff < 1000 * 60 * 60 * 24) {
-        return `${Math.floor(diff / 1000 / 60 / 60)}h`;
+    else if (ms < 1000 * 60 * 60 * 24) {
+        return `${Math.floor(ms / 1000 / 60 / 60)}h`;
     }
 
-    return `${Math.floor(diff / 1000 / 60 / 60 / 24)}d`;
+    return `${Math.floor(ms / 1000 / 60 / 60 / 24)}d`;
 }
 
 export function truncateAddress(address: string) {

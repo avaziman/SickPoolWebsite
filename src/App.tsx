@@ -43,15 +43,15 @@ function App() {
         <Header themeChange={themeChange} theme={isDarkMode} dir={messages[locale].dir} coinPretty={coin}/>
         <Routes>
           <Route path="/">
-            <Route path="/get-started" element={<GetStarted coinPretty={coin} />}/>
 
             {/* <Route path="/" element={<Home />} /> */}
             <Route path="/" element={<Navigate to={`/${coin}/stats`} />}/>
             <Route path=":coinPretty">
+              <Route path="get-started" element={<GetStarted coinPretty={coin} />}/>
               <Route path="stats" element={<Stats coinPretty={coin} isDarkMode={isDarkMode} />} />
-              <Route path="miners" element={<Solvers />} />
+              <Route path="miners" element={<Solvers coinPretty={coin} />} />
               <Route path="payouts" element={<Payouts coinPretty={coin} />} />
-              <Route path="blocks" element={<Blocks isDarkMode={isDarkMode} />} />
+              <Route path="blocks" element={<Blocks isDarkMode={isDarkMode} coinPretty={ coin} />} />
               <Route path="miner">
                 <Route path=":address" element={<Solver isDarkMode={isDarkMode} />} />
               </Route>

@@ -1,4 +1,4 @@
-interface Coin {
+export interface Coin {
     symbol: string,
     name: string,
     explorer_url: string,
@@ -43,7 +43,7 @@ export const CoinMap: { [pretty: string]: Coin } = {
     "zano": {
         symbol: "ZANO",
         name: "Zano",
-        explorer_url: 'https://book.sinovate.io',
+        explorer_url: 'https://testnet-explorer.zano.org',
         multi_chain: false,
         logo: 'zano.svg',
         algo: 'progpow',

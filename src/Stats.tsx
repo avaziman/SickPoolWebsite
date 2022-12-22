@@ -60,7 +60,7 @@ export default function Stats(props: StatsProps) {
             "src": `${REACT_APP_API_URL}/pool/charts/hashrateHistory.svg?coin=${coin_symbol}`,
             "component": StatChart('Pool Hashrate', hrToText),
             "data_fetcher": () => DataFetcher({
-                url: `${REACT_APP_API_URL}/pool/hashrateHistory?coin=${coin_symbol}`,
+                url: `${REACT_APP_API_URL}/pool/history/hashrate?coin=${coin_symbol}`,
                 process_res: (r) => ProcessStats(r, 'Hashrate')
             })
         },
@@ -70,7 +70,7 @@ export default function Stats(props: StatsProps) {
             "src": `${REACT_APP_API_URL}/pool/charts/networkHashrateHistory.svg?coin=${coin_symbol}`,
             "component": StatChart('Network Hashrate', hrToText),
             "data_fetcher": () => DataFetcher({
-                url: `${REACT_APP_API_URL}/pool/networkHashrateHistory?coin=${coin_symbol}`,
+                url: `${REACT_APP_API_URL}/network/history/hashrate?coin=${coin_symbol}`,
                 process_res: (r) => ProcessStats(r, 'Hashrate')
             })
         },
@@ -79,9 +79,9 @@ export default function Stats(props: StatsProps) {
             "value": poolStats.miners,
             "src": `${REACT_APP_API_URL}/pool/charts/minerCountHistory.svg?coin=${coin_symbol}`,
             "component":
-                StatChart('Miner Count', toLatin),
+                StatChart('Miner Count', (n: number) => Number.isInteger(n) ? toLatin(n) : ""),
             "data_fetcher": () => DataFetcher({
-                url: `${REACT_APP_API_URL}/pool/minerCountHistory?coin=${coin_symbol}`,
+                url: `${REACT_APP_API_URL}/pool/history/miner-count?coin=${coin_symbol}`,
                 process_res: (r) => ProcessStats(r, 'Miners')
             })
         },
@@ -90,9 +90,9 @@ export default function Stats(props: StatsProps) {
             "value": poolStats.workers,
             "src": `${REACT_APP_API_URL}/pool/charts/workerCountHistory.svg?coin=${coin_symbol}`,
             "component":
-                StatChart('Worker Count', toLatin),
+                StatChart('Worker Count', (n: number) => Number.isInteger(n) ? toLatin(n) : ""),
             "data_fetcher": () => DataFetcher({
-                url: `${REACT_APP_API_URL}/pool/workerCountHistory?coin=${coin_symbol}`,
+                url: `${REACT_APP_API_URL}/pool/history/worker-count?coin=${coin_symbol}`,
                 process_res: (r) => ProcessStats(r, 'Workers')
             })
         },

@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
-import { useParams } from 'react-router-dom';
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import SortableTable, { Column, Sort, ApiTableResult } from "./SortableTable";
-import ToCoin from './CoinMap';
-import { timeToText, toLatin } from './utils';
+import ToCoin, { Coin } from './CoinMap';
+import { timeToText } from './utils';
+import { format } from 'fecha'
 const { REACT_APP_API_URL } = process.env;
 
 const COLUMNS: Column[] = [
@@ -44,13 +44,34 @@ interface PayoutOverview {
     total_payouts: number;
 }
 
+function ShowEntry(payout: Payout, coinData: Coin): JSX.Element {
+    return (
+        <tr>
+            <td>
+                <a href={`${coinData.explorer_url}/tx/${payout.txId}`} target="_blank" rel="noreferrer">
+                    {payout.txId}
+                </a>
+            </td>
+            <td>{(payout.paidAmount / 1e8)} {coinData.symbol}</td>
+            <td>{payout.payeeAmount}</td>
+            <td>{payout.txFee}</td>
+            <td>{timeToText(Date.now() - payout.timeMs)} ago</td>
+        </tr>
+    )
+}
+
+function LoadPayments(sort: Sort, coin_symbol: string): Promise<ApiTableResult<Payout>> {
+    return fetch(`${REACT_APP_API_URL}/pool/payouts?coin=${coin_symbol}&page=${sort.page}&limit=${sort.limit}`)
+        .then(res => res.json());
+}
+
 interface Props {
     coinPretty: string;
 }
 
 export default function Payouts(props: Props) {
     const coinPretty = props.coinPretty;
-    
+
     const coinData = ToCoin(coinPretty);
     const coin_symbol: string = coinData.symbol;
 
@@ -73,45 +94,10 @@ export default function Payouts(props: Props) {
             .catch(() => { })
     }, [coinData]);
 
-    function ShowEntry(payout: Payout): JSX.Element {
-        return (
-            <tr>
-                <td>
-                    <a href={`${coinData.explorer_url}/tx/${payout.txId}`} target="_blank" rel="noreferrer">
-                        {payout.txId}
-                    </a>
-                </td>
-                <td>{(payout.paidAmount / 1e8)} { coinData.symbol}</td>
-                <td>{payout.payeeAmount}</td>
-                <td>{payout.txFee}</td>
-                <td>{timeToText(Date.now() - payout.timeMs)} ago</td>
-            </tr>
-        )
-    }
+    const ShowPayout = useCallback((payout: Payout) => ShowEntry(payout, coinData), [coinData]);
+    const LoadPayoutsCb = useCallback((sort: Sort) => LoadPayments(sort, coin_symbol), [coin_symbol]);
 
-    function LoadPayments(sort: Sort): Promise<ApiTableResult<Payout>> {
-        return fetch(`${REACT_APP_API_URL}/pool/payouts?coin=${coin_symbol}&page=${sort.page}&limit=${sort.limit}`).
-            then(res => res.json());
-    }
-    
-    const tabs = [
-        {
-            "title": "Payout Scheme / Pool Fee",
-            "value": `${payoutOverview.scheme} / ${payoutOverview.fee * 100}%`,
-        },
-        {
-            "title": "Minimum Payout Threshold",
-            "value": `${payoutOverview.minimum_threshold} ${coinData.symbol}`,
-        },
-        {
-            "title": "Total paid",
-            "value": `${toLatin(payoutOverview.total_paid)} ${coinData.symbol} / ${payoutOverview.total_payouts} Payouts`,
-        },
-        {
-            "title": "Next Payment",
-            "value": `in ${timeToText(payoutOverview.next_payout - Date.now())}`,
-        },
-    ]
+    const next_payout = payoutOverview.next_payout === -1 ? 'pending...' : `in ${timeToText(payoutOverview.next_payout - Date.now())} (${format(new Date(payoutOverview.next_payout * 1000), 'shortTime')})`;
 
     return (
         <div id="table-section">
@@ -126,20 +112,14 @@ export default function Payouts(props: Props) {
 
                 </section> */}
                 <p className="stats-title">Payouts Table</p>
-                <div className="stats-card-holder">
-                    {/* make selector of time */}
-                    {tabs.map((t, i) => {
-                        return (
-                            <div className={/*tabIndex === i ? "stats-card stats-card-active" :*/ "stats-card"} onClick={() => { }/*setTabIndex(i)*/} key={i}>
-                                <div>
-                                    <h3>{t.title}</h3>
-                                    <p>{t.value}</p>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-                <SortableTable id="payouts-table" columns={columns} showEntry={ShowEntry} isPaginated={true} loadTable={LoadPayments} />
+                <div className="stats-card stats-list">
+                    <span>Payout Scheme: {payoutOverview.scheme}, Fee: {(payoutOverview.fee * 100).toPrecision(3) + '%'}</span>
+                    <span>Minimum Payout Threshold: {payoutOverview.minimum_threshold}</span>
+                    <span>Next Payout:  {next_payout}
+                    </span>
+                    <span>Total Paid: {payoutOverview.total_paid}</span>
+            </div>
+                <SortableTable id="payouts-table" columns={columns} showEntry={ShowPayout} isPaginated={true} loadTable={LoadPayoutsCb} />
             </div>
         </div>
     );

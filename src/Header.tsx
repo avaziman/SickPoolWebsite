@@ -138,7 +138,7 @@ function Header(props: Props) {
                             </select > */}
                         {/* <Dropdown id="coin-dropdown" options={CoinOptions} defaultValue={coinPretty}
                                 onChange={(e, data) => console.log(data.value)} /> */}
-                        <Link className='nav-item' to='/get-started' id="get-started" onClick={() => setIsMenuOpen(false)}>
+                        <Link className='nav-item' to={`/${coinPretty}/get-started`} id="get-started" onClick={() => setIsMenuOpen(false)}>
                             <p>Get Started</p>
                         </Link>
 

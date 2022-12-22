@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import SortableTable, { ApiTableResult, Column, Sort } from "./SortableTable"
+import { ApiTableResult, Column, Sort } from "./SortableTable"
 import './GetStarted.css'
 import ToCoin from "./CoinMap";
 
@@ -17,32 +17,12 @@ const COLUMNS: Column[] = [
     },
 ]
 
-function ShowEntry(server: Server) {
-
-    return (
-        <tr>
-            <td>{server.country}</td>
-            <td>{server.endpoint}</td>
-        </tr>
-    )
-}
-
 let servers: Server[] = [
     {
         country: 'Germany',
         endpoint: 'eu.sickpool.io:4444'
     }
 ];
-
-function LoadWorkers(_sort: Sort): Promise<ApiTableResult<Server>> {
-    return Promise.resolve({
-        result: {
-            total: servers.length,
-            entries: servers
-        },
-        error: null
-    });
-}
 
 interface Miner {
     name: string;
@@ -69,9 +49,8 @@ interface Props {
 }
 
 export default function GetStarted(props: Props) {
-    const columns = useMemo(() => COLUMNS, []);
-    const coin = props.coinPretty.charAt(0).toUpperCase() + props.coinPretty.slice(1);
     const coinData = ToCoin(props.coinPretty);
+    const coin = coinData.name;
     const default_addr = 'ADDRESS';
     const default_worker = 'WORKER1';
     const [url, setUrl] = useState(servers[0].endpoint);
@@ -90,7 +69,7 @@ export default function GetStarted(props: Props) {
                         Download the official <a href="https://github.com/hyle-team/zano/releases" target="_blank" rel="noopener noreferrer">Zano wallet</a> and follow the <a href="https://docs.zano.org/docs/getting-started-1#download-and-install-zano-app" target="_blank" rel="noopener noreferrer">instructions</a> to install it.
                     </p>
 
-                    <p className="step-desc">This is the address to which we will send your payouts.</p>
+                    <p className="step-desc">This address will be used to send your payouts and to acceses your statistics dashboard.</p>
                     <p className="step-desc">Wallet Address: </p>
                     <input className="wallet-address" type="text" placeholder={default_addr} onChange={(e) => setAddr(e.target.value)} />
                 </li>
@@ -106,7 +85,7 @@ export default function GetStarted(props: Props) {
                     
                     <p className="step-desc">Choose the mining server closest to your worker for the best latency. </p>
                     <p className="step-desc">Stratum Server:</p>
-                    <select className="server-select">
+                    <select className="server-select" onChange={(e) => setUrl(e.target.value)}>
                         {servers.map(s => {
                             return <option value={s.endpoint}>{`${s.country} (${s.endpoint})`}</option>
                         })}

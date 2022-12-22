@@ -35,20 +35,21 @@
     justify-content: space-evenly;
 }
 
-.stats-card-holder {
+.stats-card-holder, .stats-list{
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-gap: 0.5rem 1rem;
+
 }
 
 @media (max-width: 1000px) {
-    .stats-card-holder {
+    .stats-card-holder, .stats-list{
         grid-template-columns: repeat(2, 2fr);
     }
 }
 
 @media (max-width: 550px) {
-    .stats-card-holder {
+    .stats-card-holder, .stats-list {
         grid-template-columns: repeat(1, 1fr);
     }
 }

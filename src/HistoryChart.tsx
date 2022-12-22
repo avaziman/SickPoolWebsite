@@ -42,7 +42,7 @@ export default function HistoryChart(props: HistoryChartProp) {
 
     let body : JSX.Element = useMemo(() => {
         if (props.error) {
-            return <div className="chart-error">{props.error}</div>
+            return <div className="chart-error">{props.error} :/</div>
         }
         // else if (props.loading) {
         //     return <p>Loading...</p>;

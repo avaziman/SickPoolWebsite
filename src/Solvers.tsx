@@ -1,5 +1,5 @@
-import { useMemo } from 'react'
-import { Link, useParams } from 'react-router-dom';
+import { useCallback, useMemo } from 'react'
+import { Link } from 'react-router-dom';
 import SortableTable, { Column, Sort, ApiTableResult } from "./SortableTable";
 import ToCoin from './CoinMap';
 import { timeToText, hrToText, truncateAddress } from './utils';
@@ -7,7 +7,7 @@ const { REACT_APP_API_URL } = process.env;
 
 const COLUMNS: Column[] = [
     {
-        header: 'Address',
+        header: 'Address hash',
     },
     {
         header: 'Balance',
@@ -40,39 +40,46 @@ interface Solver {
     joined: number;
 }
 
-export default function Solvers() {
-    const { coinPretty } = useParams();
-    const coin_symbol: string = coinPretty ? ToCoin(coinPretty).symbol : 'unknown';
+
+interface Props { 
+    coinPretty: string;
+}
+
+function ShowEntry(solver: Solver, coinPretty: string): JSX.Element {
+    return (
+        <tr>
+            <td className="primary-color">{/* <Link to={`/${coinPretty}/miner/${solver.address}`}>{truncateAddress(solver.address)}</Link> */}{ solver.address}</td>
+            <td>{(solver.balance / 1e8).toPrecision(5)}</td>
+            <td>{hrToText(solver.hashrate)}</td>
+            <td>{(solver.round_effort * 100).toPrecision(4)}%</td>
+            <td>{timeToText(Date.now() - (solver.joined))} ago</td>
+        </tr>
+    )
+}
+function LoadSolvers(sort: Sort, coin_symbol: string): Promise<ApiTableResult<Solver>> {
+    return fetch(`${REACT_APP_API_URL}/pool/miners?coin=${coin_symbol}&page=${sort.page}&limit=${sort.limit}&sortby=${sort.by}&sortdir=${sort.dir}`)
+        .then(res => res.json());
+}
+
+
+export default function Solvers(props: Props) {
+    const coin_symbol: string = ToCoin(props.coinPretty).symbol;
 
     const columns = useMemo(() => COLUMNS, []);
 
-    function ShowEntry(solver: Solver) : JSX.Element {
-        return (
-            <tr>
-                <td><Link to={`/${coinPretty}/miner/${solver.address}`}>{truncateAddress(solver.address)}</Link></td>
-                <td>{(solver.balance / 1e8).toPrecision(5)}</td>
-                <td>{hrToText(solver.hashrate)}</td>
-                <td>{(solver.round_effort * 100).toPrecision(4)}%</td>
-                <td>{timeToText(Date.now() - (solver.joined))} ago</td>
-            </tr>
-        )
-    }
 
-    function LoadSolvers(sort: Sort): Promise<ApiTableResult<Solver>> {
-        return fetch(`${REACT_APP_API_URL}/pool/solvers?coin=${coin_symbol}&page=${sort.page}&limit=${sort.limit}&sortby=${sort.by}&sortdir=${sort.dir}`)
-            .then(res => res.json());
-    }
+
+    const ShowSolver = useCallback((s: Solver) => ShowEntry(s, props.coinPretty), [props]);
+    const LoadSolversCb = useCallback((s: Sort) => LoadSolvers(s, coin_symbol), [coin_symbol]);
 
     return (
         <div id="table-section">
-            <div id="filter">
-                {/* <div id="chain-selection">
-                            <p>Chain: </p>
-                        </div> */}
-            </div>
             <div className="stats-container">
                 <p className="stats-title">Miners Table</p>
-                <SortableTable id="solver-table" columns={columns} loadTable={LoadSolvers} showEntry={ShowEntry} isPaginated={true} defaultSortBy="hashrate"/>
+                <p>
+                    Only hashes of the addresses, (which can't be reversed to identify the miner addresses) are shown, to respect and prolong Zano's confidential nature.
+                </p>
+                <SortableTable id="solver-table" columns={columns} loadTable={LoadSolversCb} showEntry={ShowSolver} isPaginated={true} defaultSortBy="hashrate"/>
             </div>
         </div>
     );

@@ -1,9 +1,8 @@
-import { ChartDataset, ChartOptions, ChartData, ChartTypeRegistry, TooltipItem } from 'chart.js';
+import { ChartOptions, ChartData, ChartTypeRegistry } from 'chart.js';
 import HistoryChart from './HistoryChart';
 import { useEffect, useMemo, useState } from 'react'
 import { format } from 'fecha'
 import { ChartDataSet, Processed } from './LoadableChart';
-import { hrToText } from './utils';
 
 interface Props {
     title: string;
@@ -106,7 +105,8 @@ export default function SickChart(props: Props) {
                             }
                         },
                         grid: {
-                            color: props.isDarkMode ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.3)",
+                            display: false,
+                            // color: props.isDarkMode ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.3)",
                         },
                     }
                 },

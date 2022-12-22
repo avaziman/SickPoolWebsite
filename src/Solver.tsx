@@ -1,15 +1,13 @@
-import { useEffect, useState, useMemo } from 'react';
-import { hrToText, toLatin, unixTimeToClockText } from './utils';
+import { useEffect, useState, useMemo, useCallback } from 'react';
+import { hrToText, toLatin } from './utils';
 import { useParams } from 'react-router-dom';
 import './solver.css'
 import ChartSVG from './components/Icon/Chart'
 import SortableTable, { Column, Sort, TableResult, ApiTableResult } from './SortableTable';
 import ToCoin from './CoinMap';
-import { ChartOptions, ChartData } from 'chart.js'
-import { Processed, DataFetcher, ProcessStats } from './LoadableChart';
 import SickChart from './SickChart';
 
-const { REACT_APP_API_URL, REACT_APP_ADDRESS_LEN } = process.env;
+const { REACT_APP_API_URL } = process.env;
 const COLUMNS: Column[] = [
     {
         header: 'name',
@@ -81,6 +79,28 @@ interface SolverProps {
     isDarkMode: boolean;
 }
 
+function LoadWorkers(coin_symbol: string, address: string, setWorkerOverview: any, sort: Sort, oldData?: TableResult<WorkerStats>): Promise<ApiTableResult<WorkerStats>> {
+    if (!oldData) {
+        return fetch(`${REACT_APP_API_URL}/miner/workers?coin=${coin_symbol}&address=${address}`)
+            .then(res => res.json()).then(res => {
+                let result = res.result as TableResult<WorkerStats>;
+                let active: number = result.entries.filter(i => i.stats.currentHr > 0).length;
+
+                setWorkerOverview({ active: active, inactive: result.entries.length - active })
+
+                return res;
+            });
+    } else {
+        return Promise.resolve({
+            result: {
+                total: oldData.total,
+                entries: [...oldData.entries].sort((a: any, b: any) => (a[sort.by] > b[sort.by]) ? 1 : -1)
+            },
+            error: null
+        });
+    }
+}
+
 export default function Solver(props: SolverProps) {
     const { address, coinPretty } = useParams();
     const coin_symbol: string = coinPretty ? ToCoin(coinPretty).symbol : 'unknown';
@@ -88,7 +108,7 @@ export default function Solver(props: SolverProps) {
     const isWorker = address && address.includes('.');
     const columns = useMemo(() => COLUMNS, []);
     console.log(address);
-    
+
     const [overviewRes, setOverviewRes] = useState<SolverOverview>({
         address: address ? address : "unknown",
         balance: {
@@ -96,55 +116,12 @@ export default function Solver(props: SolverProps) {
             mature: 0
         }
     });
-    
+
     const [statsRes, setStatsRes] = useState<StatsHistory[]>([]);
     const [error, setError] = useState<string>();
     const [workerOverview, setWorkerOverview] = useState<WorkersOverview>({ active: 0, inactive: 0 });
-
-    const shareChartOptions: ChartOptions = {
-        plugins: { legend: { display: false } },
-        layout: { padding: {} },
-        scales: {
-            y: {
-                ticks: {
-                    // callback: hrToText,
-                    color: "white",
-                    font: {
-                        size: 18
-                    }
-                },
-                grid: {
-                    color: "rgba(255, 255, 255, 0.1)",
-                }
-            },
-            y1: {
-                beginAtZero: true,
-                min: 0,
-                max: workerOverview.active * 2,
-                type: 'linear',
-                display: true,
-                position: 'right',
-
-            },
-            x: {
-                stacked: true,
-                ticks: {
-                    callback: unixTimeToClockText as any,
-                    color: "white",
-                    font: {
-                        size: 18
-                    }
-                }, grid: {
-                    color: "rgba(255, 255, 255, 0.1)",
-                }
-            }
-        },
-        interaction: {
-            intersect: false,
-            mode: 'index',
-        },
-    };
-
+    const LoadWorkersCb =
+        useCallback((sort: Sort, oldData?: TableResult<WorkerStats>) => LoadWorkers(coin_symbol, address ?? '', setWorkerOverview, sort, oldData), [coin_symbol, address]);
 
     useEffect(() => {
         setOverviewRes({
@@ -164,7 +141,7 @@ export default function Solver(props: SolverProps) {
             }).catch(err => {
                 setError('Failed to load chart');
             });
-            
+
         fetch(`${REACT_APP_API_URL}/solver/overview?coin=${coin_symbol}&address=${address}`)
             .then(res => res.json())
             .then(res => {
@@ -190,28 +167,6 @@ export default function Solver(props: SolverProps) {
     //         });
     // }, [statsLabels]);
 
-    function LoadWorkers(sort: Sort, oldData?: TableResult<WorkerStats>): Promise<ApiTableResult<WorkerStats>> {
-        if (!oldData) {
-            return fetch(`${REACT_APP_API_URL}/miner/workers?coin=${coin_symbol}&address=${address}`)
-                .then(res => res.json()).then(res => {
-                    let result = res.result as TableResult<WorkerStats>;
-                    let active: number = result.entries.filter(i => i.stats.currentHr > 0).length;
-
-                    setWorkerOverview({ active: active, inactive: result.entries.length - active })
-
-                    return res;
-                });
-        } else {
-            return Promise.resolve({
-                result: {
-                    total: oldData.total,
-                    entries: oldData.entries.sort((a: any, b: any) => (a[sort.by] > b[sort.by]) ? 1 : -1)
-                },
-                error: null
-            });
-        }
-    }
-
     return (
         <div>
             <div className="stats-container">
@@ -227,11 +182,11 @@ export default function Solver(props: SolverProps) {
                         <div className="stats-sub-card-holder">
                             <div className="stats-sub-card">
                                 <h4>Current</h4>
-                                <h3>{ hrToText(statsRes[statsRes.length -1]?.currentHr ?? 0)}</h3>
+                                <h3>{hrToText(statsRes.at(-1)?.currentHr ?? 0)}</h3>
                             </div>
                             <div className="stats-sub-card">
                                 <h4>Average 6HR</h4>
-                                <h3>{ hrToText(statsRes[statsRes.length - 1]?.averageHr ?? 0)}</h3>
+                                <h3>{hrToText(statsRes.at(-1)?.averageHr ?? 0)}</h3>
                             </div>
                         </div>
                     </div>
@@ -242,12 +197,12 @@ export default function Solver(props: SolverProps) {
                                 <div className="stats-sub-card">
                                     <h4>Immature</h4>
                                     <h3>{overviewRes ?
-                                        (overviewRes.balance.immature / 1e8).toPrecision(5) : '?'}</h3>
+                                        (overviewRes.balance.immature / 1e8).toLocaleString(undefined, { maximumFractionDigits: 5 }) : 0}</h3>
                                 </div>
                                 <div className="stats-sub-card">
                                     <h4>Mature</h4>
                                     <h3>{overviewRes ?
-                                        (overviewRes.balance.mature / 1e8).toPrecision(5) : '?'}</h3>
+                                        (overviewRes.balance.mature / 1e8).toLocaleString(undefined, { maximumFractionDigits: 5 }) : 0}</h3>
                                 </div>
                             </div>
                         </div>
@@ -303,9 +258,9 @@ export default function Solver(props: SolverProps) {
                             { name: 'Invalid Shares', borderColor: '#FFDB58', values: statsRes.map(i => i.invalidShares) }
                         ]
                     }} error={error} toText={toLatin} />
-                
+
                 <p className="stats-title">Worker List</p>
-                <SortableTable id="worker-table" columns={columns} showEntry={ShowEntry} loadTable={LoadWorkers} isPaginated={false} />
+                <SortableTable id="worker-table" columns={columns} showEntry={ShowEntry} loadTable={LoadWorkersCb} isPaginated={false} />
             </div>
         </div>
     );
@@ -321,8 +276,7 @@ function ShowEntry(worker: WorkerStats) {
             <td>{worker.stats.validShares}</td>
             <td>{worker.stats.staleShares}</td>
             <td>{worker.stats.invalidShares}</td>
-            {/* <td>{hrToText(solver.hashrate)}</td>
-            <td>{solver.worker_count}</td>
+            {/* <td>{solver.worker_count}</td>
             <td>{timeToText(Date.now() - solver.joined * 1000)} ago</td> */}
         </tr>
     )
