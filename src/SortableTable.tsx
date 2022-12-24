@@ -141,30 +141,32 @@ export default function SortableTable<Type>(props: TableConfig<Type>) {
                 </table>
             </div>
             <div className="table-navigator">
-                {props.isPaginated === true && <div className="table-navigator-left">
-                    <span>Entries per page: </span>
-                    <select value={sort.limit} onChange={(e) => { onLimitChange(parseInt(e.target.value)); }}>
-                        <option value="5">5</option>
-                        <option value="10">10</option>
-                        <option value="20">20</option>
-                    </select>
-                </div>
+                {props.isPaginated === true &&
+                    <div className="table-navigator-left">
+                        <span>Per page: </span>
+                        <select value={sort.limit} onChange={(e) => { onLimitChange(parseInt(e.target.value)); }}>
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                        </select>
+                    </div>
                 }
-                {props.isPaginated === true && <div className="table-navigator-center">
-                    <span>Page: </span>
-                    <select value={sort.page} onChange={(e) => { onPageChange(parseInt(e.target.value)); }}>
-                        {
-                            (result && result.entries.length > 0) ?
-                                //todo: check
-                                Array.from(Array(Math.ceil(result.total / sort.limit)).keys())
-                                    .map((pageIndex) => { return <option value={pageIndex} key={ pageIndex}>{pageIndex + 1}</option>; })
-                                : <option value="0">0</option>
-                        }
-                    </select>
-                </div>
+                {props.isPaginated === true &&
+                    <div className="table-navigator-center">
+                        <span>Page: </span>
+                        <select value={sort.page} onChange={(e) => { onPageChange(parseInt(e.target.value)); }}>
+                            {
+                                (result && result.entries.length > 0) ?
+                                    //todo: check
+                                    Array.from(Array(Math.ceil(result.total / sort.limit)).keys())
+                                        .map((pageIndex) => { return <option value={pageIndex} key={ pageIndex}>{pageIndex + 1}</option>; })
+                                    : <option value="0">0</option>
+                            }
+                        </select>
+                    </div>
                 }
                 <div className="table-navigator-right">
-                    <span>Showing {sort.limit * sort.page}-{Math.min(sort.limit * (+sort.page + 1), result ? result.total : 0)} of {result ? result.total : 0} entries</span>
+                    <span>Showing {sort.limit * sort.page}-{Math.min(sort.limit * (+sort.page + 1), result ? result.total : 0)} of {result ? result.total : 0}</span>
                 </div>
             </div>
         </div>

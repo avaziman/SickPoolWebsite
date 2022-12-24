@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo, useCallback } from 'react';
 import { hrToText, toLatin } from './utils';
 import { useParams } from 'react-router-dom';
 import './solver.css'
-import ChartSVG from './components/Icon/Chart'
+import ChartSVG from './components/Icon/ChartFull'
 import SortableTable, { Column, Sort, TableResult, ApiTableResult } from './SortableTable';
 import ToCoin from './CoinMap';
 import SickChart from './SickChart';

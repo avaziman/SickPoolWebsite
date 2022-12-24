@@ -8,7 +8,7 @@ import Solver from './Solver';
 import Solvers from './Solvers';
 import Payouts from './Payouts';
 import { useEffect, useState } from 'react';
-import Home from './Home'
+// import Home from './Home'
 import { Chart } from 'chart.js'
 
 import { IntlProvider } from 'react-intl';
