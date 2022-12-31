@@ -78,6 +78,7 @@ export default function SickChart(props: Props) {
                         ticks: {
                             callback: props.toText as any,
                             color: props.isDarkMode ? "white" : "black",
+                            
                             font: {
                                 size: fontSize
                             }

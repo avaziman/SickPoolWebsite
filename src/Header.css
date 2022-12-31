@@ -246,7 +246,7 @@ header {
     height: 100%; */
 }
 
-#get-started {
+.get-started {
     display: flex;
     background-color: var(--primary-color);
     color: var(--font-color);

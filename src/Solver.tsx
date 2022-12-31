@@ -107,7 +107,6 @@ export default function Solver(props: SolverProps) {
 
     const isWorker = address && address.includes('.');
     const columns = useMemo(() => COLUMNS, []);
-    console.log(address);
 
     const [overviewRes, setOverviewRes] = useState<SolverOverview>({
         address: address ? address : "unknown",

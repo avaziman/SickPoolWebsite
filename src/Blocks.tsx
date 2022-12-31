@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import ToCoin, { Coin } from './CoinMap';
 import SickChart from './SickChart';
 import { DataFetcher, Processed, ProcessStats } from './LoadableChart';
+import { toCoinStr } from './Payouts';
 
 const { REACT_APP_API_URL } = process.env;
 
@@ -126,7 +127,7 @@ function ShowEntry(block: Block, coinData: Coin) {
                 {(block.blockType & 0b100) > 0 && " + Payment"}
             </td> */}
         <td>{block.height.toLocaleString()}</td>
-        <td>{(block.reward / 1e8).toLocaleString()}</td>
+        <td>{toCoinStr(block.reward, coinData)}</td>
         <td className='primary-color'>
             {/* <Link to={`/${coinData.name}/miner/${block.solver}`}>
                 {truncateAddress(block.solver)}

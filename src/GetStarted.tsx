@@ -98,7 +98,7 @@ export default function GetStarted(props: Props) {
 
                     {
                         [trexMiner].map(miner => {
-                            return <div className="mining-software">
+                            return <div className="mining-software" key={miner.name}>
                                 <h4>{miner.name}</h4>
                                 <p>
                                     {miner.getConfig(addr, url, worker, coinData.algo)}

@@ -77,7 +77,7 @@ export default function Solvers(props: Props) {
             <div className="stats-container">
                 <p className="stats-title">Miners Table</p>
                 <p>
-                    Only hashes of the addresses, (which can't be reversed to identify the miner addresses) are shown, to respect and prolong Zano's confidential nature.
+                    Hashes of miner addresses are shown, to respect and prolong Zano's confidential nature by keeping mining addresses private.
                 </p>
                 <SortableTable id="solver-table" columns={columns} loadTable={LoadSolversCb} showEntry={ShowSolver} isPaginated={true} defaultSortBy="hashrate"/>
             </div>

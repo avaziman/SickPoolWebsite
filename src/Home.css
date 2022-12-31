@@ -1,49 +1,43 @@
-#introduction {
-    text-align: center;
-    padding-top: 2rem;
+.features p {
+    font-size: 1.15rem;
 }
 
-#features {
-    padding: 0 2rem;
-    padding-top: 2rem;
-    display: flex;
-    flex-direction: row;
+.feature-icon {
+    font-size: 2rem;
+    font-weight: bold;
+    font-variation-settings: 'wght' 500;
 }
 
-#features p {
-    width: 100%;
-    border-left: 1px solid var(--border);
+.home-title {
+    font-size: 1.8rem;
+    font-weight: 00;
+}
+.coin-logo-preview {
+    width: 3rem;
+    height: 3rem;
 }
 
-#coins-preview-container {
+.coins-preview-container {
     display: flex;
     justify-content: center;
-    padding: 2rem;
     gap: 2rem;
 }
 
 .coin-preview {
-    width: 100%;
     border: solid 2px var(--border);
     border-radius: 1rem;
     padding: 1rem 2rem;
-    max-width: 1000px;
 }
 
-.coin-preview-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.coin-preview-header span {
-    font-size: 0.9rem;
+.coin-preview-header p {
+    margin: 0.4rem 0;
 }
 
 .coin-preview h2 {
     text-align: left;
     font-size: 1.75rem;
-    display: inline;
+    display: flex;
+    align-items: center;
 }
 
 .coin-icon {
@@ -66,13 +60,9 @@
 }
 
 .start-button {
-    cursor: pointer;
     margin-top: 1rem;
     padding: 0.5rem 0.85rem;
-    color: inherit;
-    background-color: var(--primary-color);
-    border: 1px solid black;
-    border-radius: 0.5rem;
+    max-width: fit-content;
 }
 
 @media (max-width: 1200px) {

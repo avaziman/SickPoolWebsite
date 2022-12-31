@@ -119,7 +119,7 @@ export default function SortableTable<Type>(props: TableConfig<Type>) {
                         <tr>
                             {props.columns.map((column, i) => {
                                 return (
-                                    <th onClick={(e) => onTableHeaderClick(column.sortBy)} style={{width: column.width}} key={i}>
+                                    <th onClick={(e) => onTableHeaderClick(column.sortBy)} style={{width: column.width}} key={column.header}>
                                         {column.header} {sort.by && sort.by === column.sortBy && (sort.dir === "desc" ? "\u25be" : "\u25b4")}
                                     </th>
                                 )

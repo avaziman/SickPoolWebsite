@@ -18,6 +18,10 @@ interface Props {
     themeChange: ThemeChange;
 }
 
+function IsNavActive(p: { isActive: boolean } ) {
+    return 'pool-nav-link' + (p.isActive ? ' pool-nav-link-active' : '')
+}
+
 function Header(props: Props) {
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [isCoinOpen, setIsCoinOpen] = useState(false);
@@ -38,7 +42,7 @@ function Header(props: Props) {
                             <NavLink
                                 key={i}
                                 to={`/${coinPretty}/${s[0]}`}
-                                className={p => 'pool-nav-link' + (p.isActive ? ' pool-nav-link-active' : '')}
+                                className={IsNavActive }
                             >
                                 <span className="material-symbols-outlined pool-nav-icon">
                                     {s[1]}
@@ -138,7 +142,7 @@ function Header(props: Props) {
                             </select > */}
                         {/* <Dropdown id="coin-dropdown" options={CoinOptions} defaultValue={coinPretty}
                                 onChange={(e, data) => console.log(data.value)} /> */}
-                        <Link className='nav-item' to={`/${coinPretty}/get-started`} id="get-started" onClick={() => setIsMenuOpen(false)}>
+                        <Link className='nav-item get-started' to={`/${coinPretty}/get-started`} onClick={() => setIsMenuOpen(false)}>
                             <p>Get Started</p>
                         </Link>
 
@@ -151,7 +155,6 @@ function Header(props: Props) {
                                 props.theme ? <SunlightLight className="theme-change-icon" /> : <SvgMoonLight className="theme-change-icon" />
                             }
                         </button>
-
                     </div>
                     <button id="borgir-menu" onClick={() => setIsMenuOpen(!isMenuOpen)}>
                         <span className="material-symbols-outlined">
@@ -170,8 +173,6 @@ function Header(props: Props) {
                 <nav id="pool-nav">
                     {!isCoinOpen ? poolNav : coinSelector}
                 </nav>
-
-                {/* <button id="get-started">Get Started</button> */}
             </div >
         </header >
     );

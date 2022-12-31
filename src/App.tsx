@@ -1,5 +1,6 @@
 import './App.css'
-import { Route, Routes, Navigate, useParams, useLocation } from 'react-router-dom';
+import { Route, Routes, Navigate, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import Stats from './Stats';
 import NotFound from './NotFound'
 import Header from './Header';
@@ -7,9 +8,7 @@ import Footer from './Footer';
 import Solver from './Solver';
 import Solvers from './Solvers';
 import Payouts from './Payouts';
-import { useEffect, useState } from 'react';
-// import Home from './Home'
-import { Chart } from 'chart.js'
+import Home from './Home'
 
 import { IntlProvider } from 'react-intl';
 import messages from './messages';
@@ -20,18 +19,23 @@ import { CoinMap } from './CoinMap';
 function App() {
 
   const [locale, setLocale] = useState<'en'>('en');
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(localStorage.getItem("theme") !== "light");
 
+  function setTheme(dark: boolean) {
+    const theme = dark ? 'dark' : 'light';
+    document.documentElement.setAttribute('theme', theme);
+    localStorage.setItem('theme', theme);
+    setIsDarkMode(dark);
+  }
   let themeChange = () => {
-    document.documentElement.setAttribute('theme', !isDarkMode ?
-      'dark' : 'light');
-    setIsDarkMode(!isDarkMode);
+    setTheme(!isDarkMode);
   }
 
   let location = useLocation();
 
   const [coin, setCoin] = useState<string>('zano');
   useEffect(() => {
+    setTheme(isDarkMode);
     let temp = location.pathname.substring(1, location.pathname.indexOf('/', 1));
     if (temp && CoinMap[temp])
       setCoin(temp);
@@ -44,7 +48,7 @@ function App() {
         <Routes>
           <Route path="/">
 
-            {/* <Route path="/" element={<Home />} /> */}
+            <Route path="/" element={<Home />} />
             <Route path="/" element={<Navigate to={`/${coin}/stats`} />}/>
             <Route path=":coinPretty">
               <Route path="get-started" element={<GetStarted coinPretty={coin} />}/>

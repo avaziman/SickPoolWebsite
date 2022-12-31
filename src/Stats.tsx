@@ -14,13 +14,19 @@ interface StatsProps {
     isDarkMode: boolean;
 }
 
+interface Stats {
+    poolHashrate: number;
+    networkHashrate: number;
+    minerCount: number;
+    workerCount: number
+}
 
 export default function Stats(props: StatsProps) {
 
     const coin_symbol = ToCoin(props.coinPretty).symbol;
 
     const [tabIndex, setTabIndex] = useState(0);
-    const [poolStats, setPoolStats] = useState({ hashrate: 0, network_hashrate: 0, miners: 0, workers: 0 });
+    const [poolStats, setPoolStats] = useState({ poolHashrate: 0, networkHashrate: 0, minerCount: 0, workerCount: 0 });
 
     const period = 60 * 5;
 
@@ -28,12 +34,7 @@ export default function Stats(props: StatsProps) {
         fetch(`${REACT_APP_API_URL}/pool/overview?coin=${coin_symbol}`)
             .then((res) => res.json())
             .then((res) => {
-                setPoolStats({
-                    hashrate: res.result.poolHashrate,
-                    network_hashrate: res.result.networkHashrate,
-                    miners: res.result.minerCount,
-                    workers: res.result.workerCount,
-                });
+                setPoolStats(res.result as Stats);
             })
             .catch(err => {
                 // console.log("Failed to fetch!")
@@ -52,7 +53,7 @@ export default function Stats(props: StatsProps) {
     const tabs = [
         {
             "title": "Pool Hashrate",
-            "value": hrToText(poolStats.hashrate),
+            "value": hrToText(poolStats.poolHashrate),
             "src": `${REACT_APP_API_URL}/pool/charts/hashrateHistory.svg?coin=${coin_symbol}`,
             "component": <SickChart type="line" isDarkMode={props.isDarkMode} title='Pool Hashrate'
                 processedData={processedData} error={error} toText={hrToText} />,
@@ -63,7 +64,7 @@ export default function Stats(props: StatsProps) {
         },
         {
             "title": "Network Hashrate",
-            "value": hrToText(poolStats.network_hashrate),
+            "value": hrToText(poolStats.networkHashrate),
             "src": `${REACT_APP_API_URL}/pool/charts/networkHashrateHistory.svg?coin=${coin_symbol}`,
             "component": <SickChart type="line" isDarkMode={props.isDarkMode} title='Network Hashrate'
                 processedData={processedData} error={error} toText={hrToText} />,
@@ -74,7 +75,7 @@ export default function Stats(props: StatsProps) {
         },
         {
             "title": "Miners",
-            "value": poolStats.miners,
+            "value": poolStats.minerCount,
             "src": `${REACT_APP_API_URL}/pool/charts/minerCountHistory.svg?coin=${coin_symbol}`,
             "component":
                 <SickChart type="line" isDarkMode={props.isDarkMode} title='Miner Count'
@@ -86,7 +87,7 @@ export default function Stats(props: StatsProps) {
         },
         {
             "title": "Workers",
-            "value": poolStats.workers,
+            "value": poolStats.workerCount,
             "src": `${REACT_APP_API_URL}/pool/charts/workerCountHistory.svg?coin=${coin_symbol}`,
             "component":
                 <SickChart type="line" isDarkMode={props.isDarkMode} title='Worker Count'
@@ -116,7 +117,7 @@ export default function Stats(props: StatsProps) {
                         );
                     })}
                 </div>
-                
+
                 {tabs[tabIndex].component}
                 {/*<HistoryChart data={hrChartData} options={hrChartOptions} style={{ display: tabIndex == 2 ? 'block' : 'none' }} />
                 <HistoryChart data={effortChartData} options={effortChartOptions} url={`effortHistory?coin=${coin_symbol}`} style={{ display: tabIndex == 4 ? 'block' : 'none' }} /> */}

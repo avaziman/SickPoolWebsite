@@ -2,9 +2,11 @@ export interface Coin {
     symbol: string,
     name: string,
     explorer_url: string,
+    explorer_tx_prefix: string,
     multi_chain: boolean,
     logo: string,
     algo: string,
+    satoshis: number
 }
 
 export const CoinMap: { [pretty: string]: Coin } = {
@@ -44,9 +46,11 @@ export const CoinMap: { [pretty: string]: Coin } = {
         symbol: "ZANO",
         name: "Zano",
         explorer_url: 'https://testnet-explorer.zano.org',
+        explorer_tx_prefix: 'transaction',
         multi_chain: false,
         logo: 'zano.svg',
         algo: 'progpow',
+        satoshis: 1e10,
     }
 }
 
