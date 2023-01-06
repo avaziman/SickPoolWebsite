@@ -44,7 +44,7 @@ function Header(props: Props) {
                                 to={`/${coinPretty}/${s[0]}`}
                                 className={IsNavActive }
                             >
-                                <span className="material-symbols-outlined pool-nav-icon">
+                                <span className="material-symbols-outlined notranslate pool-nav-icon">
                                     {s[1]}
                                 </span>
                                 <span className='nav-link-text'>
@@ -83,7 +83,7 @@ function Header(props: Props) {
                     <span className="search-name-text">
                         <FormattedMessage id="search" />
                     </span>
-                    <span className="material-symbols-outlined pool-nav-icon search-button-icon">
+                    <span className="material-symbols-outlined notranslate pool-nav-icon search-button-icon">
                         search
                     </span>
                 </button>
@@ -116,7 +116,7 @@ function Header(props: Props) {
             <div id="main-header" dir={props.dir}>
                 <div id="main-header-wrapper">
                     <h1>
-                        <Link to="/" id="logo">SickPool</Link>
+                        <Link to="/" id="logo" className="notranslate">SickPool</Link>
                     </h1>
                     <button className='nav-item icon-change' onClick={() => setIsCoinOpen(!isCoinOpen)}>
                         <img src={"/coins/" + coinData.logo} className="coin-icon" alt="Coin logo" />
@@ -157,7 +157,7 @@ function Header(props: Props) {
                         </button>
                     </div>
                     <button id="borgir-menu" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-                        <span className="material-symbols-outlined">
+                        <span className="material-symbols-outlined notranslate">
                             {
                                 !isMenuOpen ? "menu" : "close"
                             }

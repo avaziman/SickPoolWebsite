@@ -23,25 +23,25 @@ export default function Home() {
 
         <div className="stats-card-holder features">
           <div className="stats-card">
-            <span className="material-symbols-outlined feature-icon">
+            <span className="material-symbols-outlined notranslate feature-icon">
               bolt
             </span>
             <p>Highly efficient mining software written in house</p>
           </div>
           <div className="stats-card">
-            <span className="material-symbols-outlined feature-icon">
+            <span className="material-symbols-outlined notranslate feature-icon">
               dns
             </span>
             <p>Robust servers in EU ready to handle your rig</p>
           </div>
           <div className="stats-card">
-            <span className="material-symbols-outlined feature-icon">
+            <span className="material-symbols-outlined notranslate feature-icon">
               monitoring
             </span>
             <p>Elaborate statistics on a friendly interface for desktop/mobile</p>
           </div>
           <div className="stats-card">
-            <span className="material-symbols-outlined feature-icon">
+            <span className="material-symbols-outlined notranslate feature-icon">
               support
             </span>
             <p>Support with mining related inquiries on our Discord</p>

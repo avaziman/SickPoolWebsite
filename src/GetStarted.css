@@ -16,9 +16,12 @@
 
 .wallet-address {
     display: inline;
+    padding: 3px 12px;
+    border-radius: 10px;
+    font-weight: bold;
 }
 .wallet-address, .server-select, .mining-software {
-    font-size: 1rem;
+    font-size: 1.1rem;
     width: min(500px, 100%);
 }
 

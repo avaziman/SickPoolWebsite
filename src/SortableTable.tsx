@@ -69,7 +69,7 @@ export default function SortableTable<Type>(props: TableConfig<Type>) {
 
 
 
-    }, [sort, props])
+    }, [sort])
 
     function onTableHeaderClick(sortby?: string) {
         if (!sortby) return;

@@ -45,12 +45,14 @@ export const CoinMap: { [pretty: string]: Coin } = {
     "zano": {
         symbol: "ZANO",
         name: "Zano",
-        explorer_url: 'https://testnet-explorer.zano.org',
+        // explorer_url: 'https://testnet-explorer.zano.org',
+        explorer_url: 'https://explorer.zano.org',
         explorer_tx_prefix: 'transaction',
         multi_chain: false,
         logo: 'zano.svg',
-        algo: 'progpow',
-        satoshis: 1e10,
+        algo: 'progpowz',
+        satoshis: 1e12,
+        // satoshis: 1e10,
     }
 }
 

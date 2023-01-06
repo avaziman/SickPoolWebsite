@@ -116,7 +116,7 @@ function ShowEntry(block: Block, coinData: Coin) {
 
         {coinData.multi_chain && <td>{block.chain} </td>}
         <td>
-            <span className="material-symbols-outlined">
+            <span className="material-symbols-outlined notranslate">
                 {block.status === 0b1 && 'hourglass_empty'}  {/* pending */}
                 {(block.status & 0b10) > 0 && 'done'}        {/* confirmed */}
                 {(block.status & 0b100) > 0 && 'error'}      {/* orphaned */}
@@ -201,7 +201,7 @@ export default function Blocks(props: Props) {
                 "title": "Block",
                 "value": "Lifetime history",
                 "img":
-                    (<span className="material-symbols-outlined stats-card-preview" style={{ opacity: "0.85" }}>
+                    (<span className="material-symbols-outlined notranslate stats-card-preview" style={{ opacity: "0.85" }}>
                         history
                     </span>),
                 "component": (

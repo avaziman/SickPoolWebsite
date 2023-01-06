@@ -87,7 +87,7 @@ export default function GetStarted(props: Props) {
                     <p className="step-desc">Stratum Server:</p>
                     <select className="server-select" onChange={(e) => setUrl(e.target.value)}>
                         {servers.map(s => {
-                            return <option value={s.endpoint}>{`${s.country} (${s.endpoint})`}</option>
+                            return <option key={s.endpoint } value={s.endpoint}>{`${s.country} (${s.endpoint})`}</option>
                         })}
                     </select>
                 </li>
