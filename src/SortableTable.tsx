@@ -53,10 +53,12 @@ export default function SortableTable<Type>(props: TableConfig<Type>) {
         props.loadTable(sort, result)
         .then((res: ApiTableResult<Type>) => {
             if (res.error !== null) {
+                setResult(undefined);
                 setError(res.error);
             }
 
             if (res.result !== null) {
+                setError(undefined)
                 setResult(res.result);
             }
             setIsLoading(false);
@@ -129,7 +131,7 @@ export default function SortableTable<Type>(props: TableConfig<Type>) {
                     </thead>
                     <tbody>
                         {isLoading === true && <tr><td className="loading" colSpan={props.columns.length}>Loading...</td></tr>}
-                        {(!error && result && result.entries.length === 0)
+                        { (result && result.entries.length === 0)
                             && <tr><td className="loading" colSpan={props.columns.length}>
                                 No entries found :/</td></tr>}
                         {error && <tr><td className="error" colSpan={props.columns.length}>{error} :(</td></tr>}
@@ -167,7 +169,7 @@ export default function SortableTable<Type>(props: TableConfig<Type>) {
                     </div>
                 }
                 <div className="table-navigator-right">
-                    <span>Showing {sort.limit * sort.page}-{Math.min(sort.limit * (+sort.page + 1), result ? result.total : 0)} of {result ? result.total : 0}</span>
+                    <span>Showing {sort.limit * sort.page + 1}-{Math.min(sort.limit * (+sort.page + 1), result ? result.total : 0)} of {result ? result.total : 0}</span>
                 </div>
             </div>
         </div>
