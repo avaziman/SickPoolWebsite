@@ -112,7 +112,6 @@ export default function SortableTable<Type>(props: TableConfig<Type>) {
             by: sort.by
         });
     }
-     console.log(error) 
 
     return (
         <div>

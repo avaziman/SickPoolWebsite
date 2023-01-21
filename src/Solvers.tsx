@@ -11,7 +11,7 @@ const COLUMNS: Column[] = [
     },
     {
         header: 'Balance',
-        sortBy: 'mature-balance'
+        sortBy: 'mature_balance'
     },
     {
         header: 'Hashrate',
@@ -27,7 +27,7 @@ const COLUMNS: Column[] = [
     },
     {
         header: 'Joined',
-        sortBy: 'join-time'
+        sortBy: 'join_time'
     }
 ]
 
@@ -35,8 +35,8 @@ interface Solver {
     address: string;
     hashrate: number;
     // worker_count: number;
-    round_effort: number;
-    balance: number;
+    roundEffort: number;
+    matureBalance: number;
     joined: number;
 }
 
@@ -47,11 +47,11 @@ interface Props {
 
 function ShowEntry(solver: Solver, coinPretty: string): JSX.Element {
     return (
-        <tr>
+        <tr key={solver.address}>
             <td className="primary-color">{/* <Link to={`/${coinPretty}/miner/${solver.address}`}>{truncateAddress(solver.address)}</Link> */}{ solver.address}</td>
-            <td>{(solver.balance / 1e8).toPrecision(5)}</td>
+            <td>{(solver.matureBalance / 1e8).toPrecision(5)}</td>
             <td>{hrToText(solver.hashrate)}</td>
-            <td>{(solver.round_effort * 100).toPrecision(4)}%</td>
+            <td>{(solver.roundEffort * 100).toPrecision(4)}%</td>
             <td>{timeToText(Date.now() - (solver.joined))} ago</td>
         </tr>
     )

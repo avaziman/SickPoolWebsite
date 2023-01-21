@@ -268,7 +268,7 @@ export default function Solver(props: SolverProps) {
 
 function ShowEntry(worker: WorkerStats) {
     return (
-        <tr>
+        <tr key={worker.worker}>
             <td>{worker.worker}</td>
             <td>{hrToText(worker.stats.currentHr)}</td>
             <td>{hrToText(worker.stats.averageHr)}</td>

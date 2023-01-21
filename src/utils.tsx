@@ -8,7 +8,7 @@ export function toDiff(hr: number) {
 }
 
 export function toLatin(n: number) : string {
-    let units = ['', 'K', 'M', 'G']
+    let units = ['', 'K', 'M', 'G', 'T', 'P']
 
     let i = Math.max(0, Math.min(Math.floor(Math.log10(n) / 3), units.length - 1));
     if (i !== 0) {

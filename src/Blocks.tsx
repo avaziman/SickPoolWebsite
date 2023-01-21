@@ -107,41 +107,42 @@ interface BlocksOverview {
 }
 
 function ShowEntry(block: Block, coinData: Coin) {
-    return (<tr>
-        <td>
-            <a href={`${coinData.explorer_url}/block/${block.hash}`} target="_blank" rel="noreferrer">
-                {block.id}
-            </a>
-        </td>
+    return (
+        <tr key={block.hash}>
+            <td>
+                <a href={`${coinData.explorer_url}/block/${block.hash}`} target="_blank" rel="noreferrer">
+                    {block.id}
+                </a>
+            </td>
 
-        {coinData.multi_chain && <td>{block.chain} </td>}
-        <td>
-            <span className="material-symbols-outlined notranslate">
-                {block.status === 0b1 && 'hourglass_empty'}  {/* pending */}
-                {(block.status & 0b10) > 0 && 'done'}        {/* confirmed */}
-                {(block.status & 0b100) > 0 && 'error'}      {/* orphaned */}
-            </span>
-        </td>
-        {/* <td>
+            {coinData.multi_chain && <td>{block.chain} </td>}
+            <td>
+                <span className="material-symbols-outlined notranslate">
+                    {block.status === 0b1 && 'hourglass_empty'}  {/* pending */}
+                    {(block.status & 0b10) > 0 && 'done'}        {/* confirmed */}
+                    {(block.status & 0b100) > 0 && 'error'}      {/* orphaned */}
+                </span>
+            </td>
+            {/* <td>
                 {(block.blockType & 0b1) > 0 && "PoW"}
                 {(block.blockType & 0b100) > 0 && " + Payment"}
             </td> */}
-        <td>{block.height.toLocaleString()}</td>
-        <td>{toCoinStr(block.reward, coinData)}</td>
-        <td className='primary-color'>
-            {/* <Link to={`/${coinData.name}/miner/${block.solver}`}>
+            <td>{block.height.toLocaleString()}</td>
+            <td>{toCoinStr(block.reward, coinData)}</td>
+            <td className='primary-color'>
+                {/* <Link to={`/${coinData.name}/miner/${block.solver}`}>
                 {truncateAddress(block.solver)}
             </Link> */}
-            {block.solver}
-        </td>
-        <td>{toLatin(block.difficulty)}</td>
-        <td>{block.effortPercent.toLocaleString(undefined, { maximumFractionDigits: 2 })} %</td>
-        <td>{timeToText(block.durationMs)}</td>
-        <td>{timeToText(Date.now() - block.timeMs)} ago</td>
-    </tr>)
+                {block.solver}
+            </td>
+            <td>{toLatin(block.difficulty)}</td>
+            <td>{block.effortPercent.toLocaleString(undefined, { maximumFractionDigits: 2 })} %</td>
+            <td>{timeToText(block.durationMs)}</td>
+            <td>{timeToText(Date.now() - block.timeMs)} ago</td>
+        </tr>)
 }
 
-function toLatinPercent(n: number){
+function toLatinPercent(n: number) {
     return toLatin(n) + '%';
 }
 
@@ -247,7 +248,7 @@ export default function Blocks(props: Props) {
                     svg('Block effort chart', '/pool/charts/blockEffortHistory.svg'),
                 "component":
                     <SickChart type={'bar'} isDarkMode={props.isDarkMode} title='Block Effort History'
-                        processedData={processedData} error={error} toText={toLatinPercent}/>,
+                        processedData={processedData} error={error} toText={toLatinPercent} />,
                 "data_fetcher": () => DataFetcher({
                     url: `${REACT_APP_API_URL}/pool/history/round-effort?coin=${coinData.symbol}`,
                     process_res: (r) => ProcessStats(r, 'Block effort')
@@ -279,7 +280,7 @@ export default function Blocks(props: Props) {
                         (blockStats.orphans / (blockStats.mined === 0 ? 1 : blockStats.mined) * 100)
                             .toLocaleString(undefined, { maximumFractionDigits: 3 })
                     }%)</span>
-                    <span>Average block effort: {blockStats.averageEffort.toLocaleString(undefined, {maximumFractionDigits: 2})}%</span>
+                    <span>Average block effort: {blockStats.averageEffort.toLocaleString(undefined, { maximumFractionDigits: 2 })}%</span>
                     <span>Average round duration: {timeToText(blockStats.averageDuration)}</span>
                 </div>
                 <div className="stats-card-holder">
