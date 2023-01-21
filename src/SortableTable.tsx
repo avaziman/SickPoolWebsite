@@ -110,6 +110,7 @@ export default function SortableTable<Type>(props: TableConfig<Type>) {
             by: sort.by
         });
     }
+     console.log(error) 
 
     return (
         <div>
@@ -128,7 +129,7 @@ export default function SortableTable<Type>(props: TableConfig<Type>) {
                     </thead>
                     <tbody>
                         {isLoading === true && <tr><td className="loading" colSpan={props.columns.length}>Loading...</td></tr>}
-                        {(result && result.entries.length === 0)
+                        {(!error && result && result.entries.length === 0)
                             && <tr><td className="loading" colSpan={props.columns.length}>
                                 No entries found :/</td></tr>}
                         {error && <tr><td className="error" colSpan={props.columns.length}>{error} :(</td></tr>}
