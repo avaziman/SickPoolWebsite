@@ -1,5 +1,4 @@
 import { useCallback, useMemo } from 'react'
-import { Link } from 'react-router-dom';
 import SortableTable, { Column, Sort, ApiTableResult } from "./SortableTable";
 import ToCoin from './CoinMap';
 import { timeToText, hrToText, truncateAddress } from './utils';

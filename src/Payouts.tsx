@@ -125,6 +125,6 @@ export default function Payouts(props: Props) {
     );
 }
 
-export function toCoinStr(n: number, coin: Coin) {
-    return `${(n / coin.satoshis).toLocaleString(undefined, { maximumFractionDigits: 2 })} ${coin.symbol}`;
+export function toCoinStr(n: number, coin: Coin, fractions: number = 2) {
+    return `${(n / coin.satoshis).toLocaleString(undefined, { maximumFractionDigits: fractions })} ${coin.symbol}`;
 }

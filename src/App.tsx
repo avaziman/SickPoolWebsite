@@ -15,11 +15,14 @@ import messages from './messages';
 import Blocks from './Blocks';
 import GetStarted from './GetStarted';
 import { CoinMap } from './CoinMap';
+export const LAST_SEARCHED_KEY = "last_searched_addresses";
 
 function App() {
 
   const [locale, setLocale] = useState<'en'>('en');
   const [isDarkMode, setIsDarkMode] = useState<boolean>(localStorage.getItem("theme") !== "light");
+  const [lastSearched, setLastSearched] = useState<string[]>([]);
+  const [coin, setCoin] = useState<string>('zano');
 
   function setTheme(dark: boolean) {
     const theme = dark ? 'dark' : 'light';
@@ -33,7 +36,16 @@ function App() {
 
   let location = useLocation();
 
-  const [coin, setCoin] = useState<string>('zano');
+  useEffect(() => {
+    setLastSearched(JSON.parse(localStorage.getItem(LAST_SEARCHED_KEY) ?? '[]'));
+    console.log('Loaded last searched: ', lastSearched)
+  }, [])
+
+  useEffect(() => {
+    localStorage.setItem(LAST_SEARCHED_KEY, JSON.stringify(lastSearched))
+    console.log('Last searched saved:', lastSearched)
+  }, [lastSearched]);
+
   useEffect(() => {
     setTheme(isDarkMode);
     let temp = location.pathname.substring(1, location.pathname.indexOf('/', 1));
@@ -44,7 +56,8 @@ function App() {
   return (
     <IntlProvider locale={locale} messages={messages[locale]}>
       <div className="app">
-        <Header themeChange={themeChange} theme={isDarkMode} dir={messages[locale].dir} coinPretty={coin}/>
+        <Header themeChange={themeChange} theme={isDarkMode} dir={messages[locale].dir} coinPretty={coin}
+          lastSearched={lastSearched} setLastSearched={setLastSearched} />
         <Routes>
           <Route path="/">
 
@@ -57,7 +70,7 @@ function App() {
               <Route path="payouts" element={<Payouts coinPretty={coin} />} />
               <Route path="blocks" element={<Blocks isDarkMode={isDarkMode} coinPretty={ coin} />} />
               <Route path="miner">
-                <Route path=":address" element={<Solver isDarkMode={isDarkMode} />} />
+                <Route path=":address" element={<Solver isDarkMode={isDarkMode} lastSearched={lastSearched} setLastSearched={setLastSearched} />} />
               </Route>
             </Route>
           </Route>

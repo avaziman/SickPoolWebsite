@@ -35,8 +35,8 @@ export default function CoinPreview(props: Props) {
                 </h2>
                 <p>Payout Scheme: {payoutOverview.scheme} </p>
                 <p>Pool fee: {(payoutOverview.fee * 100).toPrecision(3) + '%'}</p>
-                <p>Algo: {props.coinData.algo}</p>
-                <p>Min. payout: {toCoinStr(payoutOverview.minimumThreshold, props.coinData)}</p>
+                <p>Algorithm: {props.coinData.algo}</p>
+                <p>Min. payout: {toCoinStr(payoutOverview.minimumThreshold, props.coinData, 4)}</p>
             </div>
             <Link className='get-started start-button' to={`/${props.coinData.name}/get-started`}>
                 <p>Start Mining</p>

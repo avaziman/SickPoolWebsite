@@ -16,9 +16,11 @@ interface Props {
     theme: boolean;
     dir: 'rtl' | 'ltr';
     themeChange: ThemeChange;
+    lastSearched: string[];
+    setLastSearched: (a: string[]) => void;
 }
 
-function IsNavActive(p: { isActive: boolean } ) {
+function IsNavActive(p: { isActive: boolean }) {
     return 'pool-nav-link' + (p.isActive ? ' pool-nav-link-active' : '')
 }
 
@@ -33,6 +35,24 @@ function Header(props: Props) {
 
     let navigate = useNavigate();
 
+
+    function SearchOnClick(e: any) {
+        if (isSearchOpen) {
+            if (solverSearch !== '') {
+                navigate(`${coinPretty}/miner/${solverSearch}`);
+            }
+        }
+
+        setIsSearchOpen(!isSearchOpen);
+    }
+
+    function SearchAddress() {
+        if (solverSearch !== '') {
+            navigate(`${coinPretty}/miner/${solverSearch}`);
+            setIsSearchOpen(false);
+        }
+    }
+
     let poolNav =
         <>
             {!isSearchOpen &&
@@ -42,7 +62,7 @@ function Header(props: Props) {
                             <NavLink
                                 key={i}
                                 to={`/${coinPretty}/${s[0]}`}
-                                className={IsNavActive }
+                                className={IsNavActive}
                             >
                                 <span className="material-symbols-outlined notranslate pool-nav-icon">
                                     {s[1]}
@@ -54,39 +74,47 @@ function Header(props: Props) {
                     })}
                 </>
             }
-            <div id="search-field">
-                <SvgBackArrow id="close-search" onClick={() => setIsSearchOpen(false)} style={{ display: isSearchOpen ? "flex" : "none" }} />
-                <input type="text" className="search-input" placeholder={useIntl().formatMessage({ "id": "searchPlaceHolder" })} dir="ltr"
-                    onChange={(e) => { setSolverSearch((e.target as any).value); }}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                            e.preventDefault();
-                            if (solverSearch !== '') {
-                                navigate(`${coinPretty}/miner/${solverSearch}`);
-                                setIsSearchOpen(false);
+            <div className={isSearchOpen ? "search-holder-open" : "pool-nav-link"}>
+                <div className="search-field">
+                    <SvgBackArrow id="close-search" onClick={() => setIsSearchOpen(false)} style={{ display: isSearchOpen ? "flex" : "none" }} />
+                    <input
+                        className="search-input"
+                        type="text"
+                        placeholder={useIntl().formatMessage({ "id": "searchPlaceHolder" })} dir="ltr"
+                        onChange={(e) => { setSolverSearch((e.target as any).value); }}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                SearchAddress();
                             }
-                        }
-                    }}
-                    style={{
-                        display: isSearchOpen ? "flex" : "none",
-                        width: isSearchOpen ? "100%" : 0
-                    }} />
-                <button className={"search-button" + (isSearchOpen ? ' pool-nav-link-active search-button-open' : '')} onClick={(e) => {
-                    if (isSearchOpen) {
-                        if (solverSearch !== '') {
-                            navigate(`${coinPretty}/miner/${solverSearch}`);
-                        }
+                        }} />
+                    <button
+                        className={"search-button" + (isSearchOpen ? ' pool-nav-link-active search-button-open' : '')}
+                        onClick={SearchOnClick}>
+                        <span className="search-name-text">
+                            <FormattedMessage id="search" />
+                        </span>
+                        <span className="material-symbols-outlined notranslate pool-nav-icon search-button-icon">
+                            search
+                        </span>
+                    </button>
+                </div>
+                <div className="address-list">
+                    {
+                        props.lastSearched.map((addr, i) => {
+                            return (<p key={addr}>
+                                <span className="addr-span"
+                                    onClick={() => { setSolverSearch(addr); SearchAddress(); }}>
+                                    {addr}
+                                </span>
+                                <span className="material-symbols-outlined notranslate addr-close"
+                                    onClick={() => { props.setLastSearched(props.lastSearched.filter(i => i !== addr)) }}>
+                                    close
+                                </span>
+                            </p>)
+                        })
                     }
-
-                    setIsSearchOpen(!isSearchOpen);
-                }}>
-                    <span className="search-name-text">
-                        <FormattedMessage id="search" />
-                    </span>
-                    <span className="material-symbols-outlined notranslate pool-nav-icon search-button-icon">
-                        search
-                    </span>
-                </button>
+                </div>
             </div>
         </>
 
@@ -94,10 +122,10 @@ function Header(props: Props) {
         <>
             {
                 Object.entries(CoinMap).map(([name, coin], i) =>
-                    <Link 
+                    <Link
                         key={name}
                         to={name + document.location.href.substring(document.location.href.lastIndexOf('/'))}
-                        onClick={ () => setIsCoinOpen(false)}
+                        onClick={() => setIsCoinOpen(false)}
                         className={'pool-nav-link'}
                     >
                         <span>
@@ -173,8 +201,8 @@ function Header(props: Props) {
                 <nav id="pool-nav">
                     {!isCoinOpen ? poolNav : coinSelector}
                 </nav>
-            </div >
-        </header >
+            </div>
+        </header>
     );
 }
 

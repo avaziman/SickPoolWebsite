@@ -66,10 +66,6 @@ header {
     flex-wrap: nowrap;
 }
 
-#main-links a {
-    color: inherit;
-}
-
 #languages {
     display: flex;
 }
@@ -88,13 +84,13 @@ header {
     width: 100%;
     max-width: 600px;
     display: inline-flex;
-    /* justify-content: space-between; */
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
 }
 
-.pool-nav-link, .search-button, #search-field {
-    color: inherit;
+.pool-nav-link, .search-button, .search-field {
+    /* no visited color */
+    color: inherit; 
     background-color: transparent;
     border: none;
     width: 100%;
@@ -107,6 +103,62 @@ header {
     justify-content: center;
 }
 
+
+.search-holder-open {
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: rgb(100, 100, 100);
+    width: 100%;
+    height: auto;
+
+    border-radius: 10px;
+}
+
+
+.address-list {
+    display: none;
+}
+
+.search-holder-open .address-list {
+    display: block;
+    width: 100%;
+}
+
+.address-list p {
+    cursor: pointer;
+    padding: 0.35rem 1rem ;
+    /* padding-left: 1rem; */
+    word-wrap:break-word;
+    font-size: 1.1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 10px;
+
+}
+
+.address-list p:hover
+{
+    background-color: rgb(55, 55, 55);
+}
+
+.addr-span {
+    height: 100%;
+    display: block;
+    word-wrap: break-word;
+    width: 90%;
+
+}
+
+.addr-close {
+    border-radius: 5px;
+}
+
+.addr-close:hover {
+    background-color: red;
+}
+
 .search-button-open {
     min-width: 2rem;
     max-width: 20%;
@@ -117,20 +169,26 @@ header {
 }
 
 .search-input {
-    border-radius: 10px 0 0 10px;
     display: none;
-    transition: width 1s;
-    height: 80%;
-    /* margin-inline-start: 0.3rem; */
-    margin-left: auto;
+    border-radius: 10px 0 0 10px;
+    height: 2.2rem;
     font-weight: bold;
     font-size: 1rem;
     outline: none;
     padding-inline-start: 10px;
+    box-sizing: border-box;
+
+}
+
+.search-holder-open .search-input {
+    display: flex;
+    width: 100%;
 }
 
 .search-button {
+    width: 100%;
     padding-left: 1rem;
+    height: 2.2rem;
 }
 
 .search-button-icon {
@@ -226,7 +284,7 @@ header {
         background-color: gray;
     }
 
-    .pool-nav-link:hover, .search-button:hover {
+    .pool-nav-link:hover {
         cursor: pointer;
         transition: background-color none;
         /* background-color: gray; */
@@ -272,7 +330,8 @@ header {
         display: none;
     }
 
-    .search-button span {
+    
+    .search-button {
         padding: 0;
     }
 }
@@ -297,7 +356,6 @@ header {
     min-height: 2.25rem;
     width: auto;
 }
-
 @media (max-width: 600px) {
     .main-nav {
         transform: translateX(100%);

@@ -77,6 +77,8 @@ interface WorkersOverview {
 
 interface SolverProps {
     isDarkMode: boolean;
+    lastSearched: string[];
+    setLastSearched: (a: string[]) => void;
 }
 
 function LoadWorkers(coin_symbol: string, address: string, setWorkerOverview: any, sort: Sort, oldData?: TableResult<WorkerStats>): Promise<ApiTableResult<WorkerStats>> {
@@ -116,6 +118,7 @@ export default function Solver(props: SolverProps) {
         }
     });
 
+
     const [statsRes, setStatsRes] = useState<StatsHistory[]>([]);
     const [error, setError] = useState<string>();
     const [workerOverview, setWorkerOverview] = useState<WorkersOverview>({ active: 0, inactive: 0 });
@@ -130,6 +133,10 @@ export default function Solver(props: SolverProps) {
                 mature: 0
             }
         });
+
+        if (address && props.lastSearched.indexOf(address) === -1) {
+            props.setLastSearched([address].concat(props.lastSearched))
+        }
 
         fetch(`${REACT_APP_API_URL}/miner/statsHistory?coin=${coin_symbol}&address=${address}`)
             .then(res => res.json())
