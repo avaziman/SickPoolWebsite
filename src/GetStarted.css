@@ -3,7 +3,9 @@
     margin: 0.5rem 0;
 }
 
-.steps-list {padding-left: 0.5rem;}
+.steps-list {
+    margin-left: 1rem;
+}
 
 .steps-list h3 {
     font-size: 1.3rem;
@@ -23,6 +25,7 @@
 .wallet-address, .server-select, .mining-software {
     font-size: 1.1rem;
     width: min(500px, 100%);
+    box-sizing: border-box;
 }
 
 .mining-software {
