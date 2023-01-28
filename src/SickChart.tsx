@@ -23,9 +23,9 @@ export default function SickChart(props: Props) {
         // console.log('width', width)
 
         if (width < 400) {
-            setFontSize(10);
-        } else if (width < 600) {
             setFontSize(12);
+        } else if (width < 600) {
+            setFontSize(14);
         } else {
             setFontSize(DEFAULT_FONT_SIZE);
         }
@@ -44,22 +44,20 @@ export default function SickChart(props: Props) {
                     // decimation: false,
                     legend: {
                         display: props.processedData.datasets.length > 1,
-
                         position: 'bottom',
                     },
                     tooltip: {
-                        intersect: false,
-                        mode: 'index',
-                        backgroundColor: props.isDarkMode ? 'rgb(105,105,105)' : 'rgb(55,55,55)',
+                        backgroundColor: props.isDarkMode ? 'rgba(105,105,105, 0.8)' : 'rgba(55,55,55, 0.8)',
                         displayColors: true,
                         padding: 7,
                         caretSize: 15,
                         boxPadding: 4,
+                        borderWidth: 10,
                         bodyFont: {
-                            size: fontSize * 0.8,
+                            size: fontSize,
                         },
                         titleFont: {
-                            size: fontSize * 0.85,
+                            size: fontSize,
                         },
                         callbacks: {
                             title: function (context) {
@@ -67,7 +65,8 @@ export default function SickChart(props: Props) {
                             },
                             label: function (context) {
                                 return context.dataset.label + ': ' + props.toText(context.parsed.y);
-                            }
+                            },
+          
                         }
                     }
                 },
@@ -126,15 +125,18 @@ export default function SickChart(props: Props) {
                     label: ds.name,
                     borderColor: ds.borderColor,
                     backgroundColor: ds.borderColor,
-                    pointBorderWidth: 0,
-                    borderWidth: 3,
+                    pointBorderColor: props.isDarkMode ? "white" : "black",
+                    pointBorderWidth: 2,
+                    pointRadius: 0,
+                    pointHoverRadius: 4,
+                    borderWidth: 4,
                     tension: 0.15,
                     data: ds.values,
                     normalized: true
                 }
             })
         }
-    }, [props.processedData]);
+    }, [props.processedData, props.isDarkMode]);
 
     return (
         <HistoryChart type={props.type} title={props.title} options={hrChartOptions} data={data} error={props.error} />
