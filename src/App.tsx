@@ -60,12 +60,11 @@ function App() {
           lastSearched={lastSearched} setLastSearched={setLastSearched} />
         <Routes>
           <Route path="/">
-
             <Route path="/" element={<Home />} />
-            <Route path="/" element={<Navigate to={`/${coin}/stats`} />}/>
             <Route path=":coinPretty">
               <Route path="get-started" element={<GetStarted coinPretty={coin} />}/>
               <Route path="stats" element={<Stats coinPretty={coin} isDarkMode={isDarkMode} />} />
+              <Route path="" element={<Navigate to={`/${coin}/stats`} />} />
               <Route path="miners" element={<Solvers coinPretty={coin} />} />
               <Route path="payouts" element={<Payouts coinPretty={coin} />} />
               <Route path="blocks" element={<Blocks isDarkMode={isDarkMode} coinPretty={ coin} />} />

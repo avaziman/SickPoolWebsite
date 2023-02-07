@@ -6,6 +6,7 @@ import './Header.css'
 import SvgBackArrow from './components/Icon/BackArrow';
 import { MoonLight as SvgMoonLight, SunlightLight } from './components/Icon';
 import ToCoin, { CoinMap } from './CoinMap';
+import NewSticker from './newSticker';
 
 interface ThemeChange {
     (): void;
@@ -134,6 +135,7 @@ function Header(props: Props) {
                         <span className='nav-link-text'>
                             {coin.name}
                         </span>
+                        {coin.isNew && <NewSticker />}
                     </Link>
                 )
             }

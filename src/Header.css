@@ -355,6 +355,7 @@ header {
     min-height: 2.25rem;
     width: auto;
 }
+
 @media (max-width: 600px) {
     .main-nav {
         transform: translateX(100%);

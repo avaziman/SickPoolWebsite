@@ -48,6 +48,13 @@ interface Props {
     coinPretty: string,
 }
 
+const wallet_instruction: { [pretty: string]: JSX.Element } = {
+    "VRSC": (<>
+        Download the official <a href="https://verus.io/wallet" target="_blank" rel="noopener noreferrer">Verus wallet</a> and follow the instructions to install it.</>),
+    "ZANO": (<>
+        Download the official <a href="https://github.com/hyle-team/zano/releases" target="_blank" rel="noopener noreferrer">Zano wallet</a> and follow the <a href="https://docs.zano.org/docs/getting-started-1#download-and-install-zano-app" target="_blank" rel="noopener noreferrer">instructions</a> to install it.</>)
+}
+
 export default function GetStarted(props: Props) {
     const coinData = ToCoin(props.coinPretty);
     const coin = coinData.name;
@@ -66,7 +73,7 @@ export default function GetStarted(props: Props) {
                     <h3>Get your {coin} wallet address</h3>
 
                     <p className="step-desc">
-                        Download the official <a href="https://github.com/hyle-team/zano/releases" target="_blank" rel="noopener noreferrer">Zano wallet</a> and follow the <a href="https://docs.zano.org/docs/getting-started-1#download-and-install-zano-app" target="_blank" rel="noopener noreferrer">instructions</a> to install it.
+                        {wallet_instruction[coinData.symbol]}
                     </p>
 
                     <p className="step-desc">This address will be used to send your payouts and to acceses your statistics dashboard.</p>
@@ -82,19 +89,19 @@ export default function GetStarted(props: Props) {
                 </li>
                 <li>
                     <h3>Choose a mining server</h3>
-                    
+
                     <p className="step-desc">Choose the mining server closest to your worker for the best latency. </p>
                     <p className="step-desc">Stratum Server:</p>
                     <select className="server-select" onChange={(e) => setUrl(e.target.value)}>
                         {servers.map(s => {
-                            return <option key={s.endpoint } value={s.endpoint}>{`${s.country} (${s.endpoint})`}</option>
+                            return <option key={s.endpoint} value={s.endpoint}>{`${s.country} (${s.endpoint})`}</option>
                         })}
                     </select>
                 </li>
                 <li>
                     <h3>Pick mining software</h3>
                     <p>Download your preferred mining software, enter your auto-generated configuration and let's get started!</p>
-                        <p className="step-desc">Worker Name: </p>
+                    <p className="step-desc">Worker Name: </p>
 
                     {
                         [trexMiner].map(miner => {

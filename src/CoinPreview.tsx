@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Coin } from './CoinMap';
+import NewSticker from './newSticker';
 import { PayoutOverview, toCoinStr } from './Payouts';
 const { REACT_APP_API_URL } = process.env;
 
@@ -32,12 +33,7 @@ export default function CoinPreview(props: Props) {
                 <h2>
                     <img className="coin-logo-preview" alt={props.coinData.symbol + " logo"} src={"/coins/" + props.coinData.logo}/>
                     <p className="coin-name-preview">{props.coinData.name}</p>
-                    {props.coinData.isNew && <div className='new-sticker'>
-                        <p>New!</p>
-                        <span className="material-symbols-outlined">
-                            auto_awesome
-                        </span>
-                    </div>}
+                    {props.coinData.isNew && <NewSticker/>}
                 </h2>
                 <p>Payout Scheme: {payoutOverview.scheme} </p>
                 <p>Pool fee: {(payoutOverview.fee * 100).toPrecision(3) + '%'}</p>
