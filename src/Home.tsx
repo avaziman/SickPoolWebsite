@@ -54,7 +54,7 @@ export default function Home() {
           <p>Elaborate statistics on a friendly gui for desktop/mobile</p>
           <p>Optional instant payout (not covered)</p>
         </div> */}
-        <div id="coins-preview-container">
+        <div className="coins-preview-container">
           {Object.entries(CoinMap).map(([name, coin], i) => <CoinPreview coinData={coin} key={coin.symbol} />)}
         </div>
       </div>

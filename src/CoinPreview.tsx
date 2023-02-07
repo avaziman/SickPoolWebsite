@@ -30,15 +30,15 @@ export default function CoinPreview(props: Props) {
             <div className="coin-preview-header">
                 {/* <VerusIconBlue className="coin-icon"/> */}
                 <h2>
-                    {props.coinData.name}
                     <img className="coin-logo-preview" alt={props.coinData.symbol + " logo"} src={"/coins/" + props.coinData.logo}/>
+                    <p className="coin-name-preview">{props.coinData.name}</p>
                 </h2>
                 <p>Payout Scheme: {payoutOverview.scheme} </p>
                 <p>Pool fee: {(payoutOverview.fee * 100).toPrecision(3) + '%'}</p>
                 <p>Algorithm: {props.coinData.algo}</p>
                 <p>Min. payout: {toCoinStr(payoutOverview.minimumThreshold, props.coinData, 4)}</p>
             </div>
-            <Link className='get-started start-button' to={`/${props.coinData.name}/get-started`}>
+            <Link className='get-started start-button' to={`/${props.coinData.name.toLocaleLowerCase()}/get-started`}>
                 <p>Start Mining</p>
             </Link>
         </div>

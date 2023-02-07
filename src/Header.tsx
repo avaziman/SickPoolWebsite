@@ -129,7 +129,7 @@ function Header(props: Props) {
                         className={'pool-nav-link'}
                     >
                         <span>
-                            <img src={"/coins/" + coin.logo} className="coin-icon" alt={`Coin logo ${coin.name}`} />
+                            <img src={"/coins/" + coin.logo} className="coin-icon-header" alt={`Coin logo ${coin.name}`} />
                         </span>
                         <span className='nav-link-text'>
                             {coin.name}
@@ -147,7 +147,7 @@ function Header(props: Props) {
                         <Link to="/" id="logo" className="notranslate">SickPool</Link>
                     </h1>
                     <button className='nav-item icon-change' onClick={() => setIsCoinOpen(!isCoinOpen)}>
-                        <img src={"/coins/" + coinData.logo} className="coin-icon" alt="Coin logo" />
+                        <img src={"/coins/" + coinData.logo} className="coin-icon-header" alt="Coin logo" />
                     </button>
                     <div className={isMenuOpen ? 'main-nav-open main-nav' : 'main-nav'}>
                         <div id="main-links">

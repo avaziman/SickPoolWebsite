@@ -10,14 +10,16 @@ export interface Coin {
 }
 
 export const CoinMap: { [pretty: string]: Coin } = {
-    // "verus": {
-    //     symbol: "VRSC",
-    //     name: "verus",
-    //     explorer_url: '',
-    //     multi_chain: true,
-    //     logo: 'zano.svg',
-    //     algo: 'progpow',
-    // },
+    "verus": {
+        symbol: "VRSC",
+        name: "Verus",
+        explorer_url: '',
+        explorer_tx_prefix: 'transaction',
+        multi_chain: false,
+        logo: 'verus-icon-blue.svg',
+        algo: 'verushash2b2',
+        satoshis: 1e8,
+    },
     // "verustest": {
     //     symbol: "VRSCTEST",
     //     name: "verus",
