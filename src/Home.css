@@ -44,6 +44,7 @@
     font-size: 1.75rem;
     display: flex;
     align-items: center;
+
 }
 
 .coin-icon {
@@ -69,6 +70,20 @@
     margin-top: 1rem;
     padding: 0.5rem 0.85rem;
     max-width: fit-content;
+    gap: 0.6rem;
+}
+
+.new-sticker {
+    display: flex;
+    margin-left: auto;
+    font-size: 1.1rem;
+    align-items: center;
+    gap: 0.6rem;
+
+    background-color: var(--primary-color);
+    color: var(--font-color);
+    border-radius: 14px;
+    padding: 0 1rem;
 }
 
 @media (max-width: 1200px) {

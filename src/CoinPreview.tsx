@@ -32,6 +32,12 @@ export default function CoinPreview(props: Props) {
                 <h2>
                     <img className="coin-logo-preview" alt={props.coinData.symbol + " logo"} src={"/coins/" + props.coinData.logo}/>
                     <p className="coin-name-preview">{props.coinData.name}</p>
+                    {props.coinData.isNew && <div className='new-sticker'>
+                        <p>New!</p>
+                        <span className="material-symbols-outlined">
+                            auto_awesome
+                        </span>
+                    </div>}
                 </h2>
                 <p>Payout Scheme: {payoutOverview.scheme} </p>
                 <p>Pool fee: {(payoutOverview.fee * 100).toPrecision(3) + '%'}</p>
@@ -39,6 +45,9 @@ export default function CoinPreview(props: Props) {
                 <p>Min. payout: {toCoinStr(payoutOverview.minimumThreshold, props.coinData, 4)}</p>
             </div>
             <Link className='get-started start-button' to={`/${props.coinData.name.toLocaleLowerCase()}/get-started`}>
+                <span className="material-symbols-outlined">
+                    rocket_launch
+                </span>
                 <p>Start Mining</p>
             </Link>
         </div>

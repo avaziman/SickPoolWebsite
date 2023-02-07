@@ -6,7 +6,8 @@ export interface Coin {
     multi_chain: boolean,
     logo: string,
     algo: string,
-    satoshis: number
+    satoshis: number,
+    isNew: boolean,
 }
 
 export const CoinMap: { [pretty: string]: Coin } = {
@@ -19,6 +20,7 @@ export const CoinMap: { [pretty: string]: Coin } = {
         logo: 'verus-icon-blue.svg',
         algo: 'verushash2b2',
         satoshis: 1e8,
+        isNew: true,
     },
     // "verustest": {
     //     symbol: "VRSCTEST",
@@ -54,6 +56,7 @@ export const CoinMap: { [pretty: string]: Coin } = {
         logo: 'zano.svg',
         algo: 'progpowz',
         satoshis: 1e12,
+        isNew: false,
         // satoshis: 1e10,
     }
 }
