@@ -80,8 +80,6 @@ export default function Verus() {
         ],
     };
 
-    console.log('ok');
-
     return (
         <div>
             {/* <Line options={options} data={data} /> */}

@@ -25,7 +25,7 @@ function IsNavActive(p: { isActive: boolean }) {
     return 'pool-nav-link' + (p.isActive ? ' pool-nav-link-active' : '')
 }
 
-function Header(props: Props) {
+export default function Header(props: Props) {
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [isCoinOpen, setIsCoinOpen] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -35,7 +35,6 @@ function Header(props: Props) {
     const coinData = ToCoin(coinPretty);
 
     let navigate = useNavigate();
-
 
     function SearchOnClick(e: any) {
         if (isSearchOpen) {
@@ -186,7 +185,7 @@ function Header(props: Props) {
                             }
                         </button>
                     </div>
-                    <button id="borgir-menu" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                    <button id="borgir-menu" onClick={() => { setIsMenuOpen(!isMenuOpen);  setIsSearchOpen(false)}}>
                         <span className="material-symbols-outlined notranslate">
                             {
                                 !isMenuOpen ? "menu" : "close"
@@ -207,5 +206,3 @@ function Header(props: Props) {
         </header>
     );
 }
-
-export default Header;

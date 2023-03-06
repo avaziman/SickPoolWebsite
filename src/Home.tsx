@@ -1,8 +1,7 @@
-// import { VerusIconBlue } from './components/Icon';
-import { useState } from 'react';
-import { Coin, CoinMap } from './CoinMap';
-import CoinPreview from './CoinPreview';
 import './Home.css'
+import './Stats.css'
+import { CoinMap } from './CoinMap';
+import CoinPreview from './CoinPreview';
 
 interface BlockProducingInfo {
   fee_type: 'percent' | 'fixed';

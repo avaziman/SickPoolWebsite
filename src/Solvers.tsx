@@ -75,9 +75,9 @@ export default function Solvers(props: Props) {
         <div id="table-section">
             <div className="stats-container">
                 <p className="stats-title">Miners Table</p>
-                <p>
+                {/* <p>
                     Hashes of miner addresses are shown, to respect and prolong Zano's confidential nature by keeping mining addresses private.
-                </p>
+                </p> */}
                 <SortableTable id="solver-table" columns={columns} loadTable={LoadSolversCb} showEntry={ShowSolver} isPaginated={true} defaultSortBy="hashrate"/>
             </div>
         </div>

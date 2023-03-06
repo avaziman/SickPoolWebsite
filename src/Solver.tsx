@@ -6,6 +6,7 @@ import ChartSVG from './components/Icon/ChartFull'
 import SortableTable, { Column, Sort, TableResult, ApiTableResult } from './SortableTable';
 import ToCoin from './CoinMap';
 import SickChart from './SickChart';
+import { GetTimestampsFromRes, TimestampInfo } from './LoadableChart';
 
 const { REACT_APP_API_URL } = process.env;
 const COLUMNS: Column[] = [
@@ -14,25 +15,30 @@ const COLUMNS: Column[] = [
     },
     {
         header: 'current hashrate',
+        headerShort: 'c. hashrate',
         sortBy: 'currentHr',
     },
     {
         header: 'average hashrate',
+        headerShort: 'a. hashrate',
         sortBy: 'averageHr',
     },
     {
         header: 'valid shares',
+        headerShort: 'v. shares',
         // sortBy: 'worker-count'
         sortBy: 'validShares',
     },
     {
         header: 'stale shares',
+        headerShort: 's. shares',
         sortBy: 'staleShares',
 
         // sortBy: 'join-time'
     },
     {
         header: 'invalid shares',
+        headerShort: 'i. shares',
         sortBy: 'invalidShares',
 
         // sortBy: 'join-time'
@@ -51,18 +57,26 @@ interface SolverOverview {
     identity?: string;
 }
 
-export interface StatsHistory {
-    averageHr: number;
-    currentHr: number;
-    invalidShares: number;
-    staleShares: number;
-    time: number;
-    validShares: number;
+export interface StatsHistoryValues {
+    averageHashrate: number[];
+    currentHashrate: number[];
+    invalidShares: number[];
+    staleShares: number[];
+    validShares: number[];
+}
+
+interface StatsHistory {
+    values: StatsHistoryValues;
+    timestamps: TimestampInfo;
 }
 
 interface WorkerStats {
     worker: string,
-    stats: StatsHistory;
+    averageHashrate: number;
+    currentHashrate: number;
+    invalidShares: number;
+    staleShares: number;
+    validShares: number;
 }
 
 interface WorkerHistory {
@@ -86,7 +100,7 @@ function LoadWorkers(coin_symbol: string, address: string, setWorkerOverview: an
         return fetch(`${REACT_APP_API_URL}/miner/workers?coin=${coin_symbol}&address=${address}`)
             .then(res => res.json()).then(res => {
                 let result = res.result as TableResult<WorkerStats>;
-                let active: number = result.entries.filter(i => i.stats.currentHr > 0).length;
+                let active: number = result.entries.filter(i => i.currentHashrate > 0).length;
 
                 setWorkerOverview({ active: active, inactive: result.entries.length - active })
 
@@ -119,7 +133,9 @@ export default function Solver(props: SolverProps) {
     });
 
 
-    const [statsRes, setStatsRes] = useState<StatsHistory[]>([]);
+    const [statsRes, setStatsRes] = useState<StatsHistoryValues>();
+    const [timestamps, setTimestamps] = useState<number[]>([]);
+    
     const [error, setError] = useState<string>();
     const [workerOverview, setWorkerOverview] = useState<WorkersOverview>({ active: 0, inactive: 0 });
     const LoadWorkersCb =
@@ -142,7 +158,8 @@ export default function Solver(props: SolverProps) {
             .then(res => res.json())
             .then(res => {
                 if (res.result !== null) {
-                    setStatsRes(res.result as StatsHistory[]);
+                    setTimestamps(GetTimestampsFromRes(res))
+                    setStatsRes(res.result.values as StatsHistoryValues);
                 }
             }).catch(err => {
                 setError('Failed to load chart');
@@ -157,7 +174,7 @@ export default function Solver(props: SolverProps) {
             }).catch(err => {
 
             });
-    }, [address, coin_symbol]);
+    }, [address, coin_symbol, /* props */]);
 
     // useEffect(() => {
     //     fetch(`${REACT_APP_API_URL}/miner/workerHistory?coin=${coin_symbol}&address=${address}`)
@@ -188,11 +205,11 @@ export default function Solver(props: SolverProps) {
                         <div className="stats-sub-card-holder">
                             <div className="stats-sub-card">
                                 <h4>Current</h4>
-                                <h3>{hrToText(statsRes.at(-1)?.currentHr ?? 0)}</h3>
+                                <h3>{hrToText(statsRes?.currentHashrate.at(-1) ?? 0)}</h3>
                             </div>
                             <div className="stats-sub-card">
                                 <h4>Average 6HR</h4>
-                                <h3>{hrToText(statsRes.at(-1)?.averageHr ?? 0)}</h3>
+                                <h3>{hrToText(statsRes?.averageHashrate.at(-1) ?? 0)}</h3>
                             </div>
                         </div>
                     </div>
@@ -233,35 +250,36 @@ export default function Solver(props: SolverProps) {
                         <div className="stats-sub-card-holder">
                             <div className="stats-sub-card">
                                 <h4>Accepted</h4>
-                                <h3>{statsRes.at(-1)?.validShares ?? 0}</h3>
+                                <h3>{statsRes?.validShares.at(-1) ?? 0}</h3>
                             </div>
                             <div className="stats-sub-card">
                                 <h4>Stale</h4>
-                                <h3>{statsRes.at(-1)?.staleShares ?? 0}</h3>
+                                <h3>{statsRes?.staleShares.at(-1) ?? 0}</h3>
                             </div>
                             <div className="stats-sub-card">
                                 <h4>Invalid</h4>
-                                <h3>{statsRes.at(-1)?.invalidShares ?? 0}</h3>
+                                <h3>{statsRes?.invalidShares.at(-1) ?? 0}</h3>
                             </div>
                         </div>
                     </div>
 
                 </div>
-                <SickChart type="line" isDarkMode={props.isDarkMode} title="Hashrate (24h)"
+                <SickChart type="line" isDarkMode={props.isDarkMode} title="Hashrate (24h)" precision={0}
                     processedData={{
-                        timestamps: statsRes.map(i => i.time),
+                        timestamps: timestamps,
                         datasets: [
-                            { name: 'Hashrate', borderColor: 'rgb(27, 121, 247)', values: statsRes.map(i => i.currentHr) },
-                            { name: 'Average Hashrate', borderColor: '#21ff5c', values: statsRes.map(i => i.averageHr) }
+                            // TODO HANDLE UNDEFINED (LOADING OR SMT)
+                            { name: 'Hashrate', borderColor: 'rgb(27, 121, 247)', values: statsRes?.currentHashrate ?? [] },
+                            { name: 'Average Hashrate', borderColor: '#21ff5c', values: statsRes?.averageHashrate ?? [] }
                         ]
                     }} error={error} toText={hrToText} />
-                <SickChart type="bar" isDarkMode={props.isDarkMode} title="Shares (24h)"
+                <SickChart type="bar" isDarkMode={props.isDarkMode} title="Shares (24h)" precision={0}
                     processedData={{
-                        timestamps: statsRes.map(i => i.time),
+                        timestamps: timestamps,
                         datasets: [
-                            { name: 'Valid Shares', borderColor: 'rgb(27, 121, 247)', values: statsRes.map(i => i.validShares) },
-                            { name: 'Stale Shares', borderColor: '#ff8e00', values: statsRes.map(i => i.staleShares) },
-                            { name: 'Invalid Shares', borderColor: '#FFDB58', values: statsRes.map(i => i.invalidShares) }
+                            { name: 'Valid Shares', borderColor: 'rgb(27, 121, 247)', values: statsRes?.validShares ?? [] },
+                            { name: 'Stale Shares', borderColor: '#ff8e00', values: statsRes?.staleShares ?? [] },
+                            { name: 'Invalid Shares', borderColor: '#FFDB58', values: statsRes?.invalidShares ?? [] }
                         ]
                     }} error={error} toText={toLatin} />
 
@@ -269,7 +287,7 @@ export default function Solver(props: SolverProps) {
                 <SortableTable id="worker-table" columns={columns} showEntry={ShowEntry} loadTable={LoadWorkersCb} isPaginated={false} />
             </div>
         </div>
-    );
+    )
 }
 // TODO: maybe add graph icon to hashrate & shares to pop the graph
 
@@ -277,11 +295,11 @@ function ShowEntry(worker: WorkerStats) {
     return (
         <tr key={worker.worker}>
             <td>{worker.worker}</td>
-            <td>{hrToText(worker.stats.currentHr)}</td>
-            <td>{hrToText(worker.stats.averageHr)}</td>
-            <td>{worker.stats.validShares}</td>
-            <td>{worker.stats.staleShares}</td>
-            <td>{worker.stats.invalidShares}</td>
+            <td>{hrToText(worker.currentHashrate)}</td>
+            <td>{hrToText(worker.averageHashrate)}</td>
+            <td>{worker.validShares}</td>
+            <td>{worker.staleShares}</td>
+            <td>{worker.invalidShares}</td>
             {/* <td>{solver.worker_count}</td>
             <td>{timeToText(Date.now() - solver.joined * 1000)} ago</td> */}
         </tr>

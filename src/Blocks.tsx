@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import SortableTable, { Sort, Column, ApiTableResult } from './SortableTable';
-import { toLatin, timeToText, truncateAddress, toDiff, toLatinInt } from './utils'
+import { toLatin, timeToText, truncateAddress, toDiff } from './utils'
 import { Link } from 'react-router-dom';
 import ToCoin, { Coin } from './CoinMap';
 import SickChart from './SickChart';
@@ -9,8 +9,6 @@ import { toCoinStr } from './Payouts';
 
 const { REACT_APP_API_URL } = process.env;
 
-
-require('./Blocks.css')
 
 function GetColumns(multi_chain: boolean): Column[] {
     let arr = [
@@ -151,10 +149,13 @@ function LoadBlocks(sort: Sort, coinSymbol: string): Promise<ApiTableResult<Bloc
         .then(res => res.json());
 }
 
+function svg(coinSymbol: string, alt: string, loc: string) {
+    return (<img loading="lazy" alt={alt} src={`${REACT_APP_API_URL}${loc}?coin=${coinSymbol}`} onError={(e) => (e.target as HTMLElement).style.display = 'none'} />)
+}
+
 export default function Blocks(props: Props) {
 
     const coinData = ToCoin(props.coinPretty);
-    const coinSymbol: string = coinData.symbol;
 
     let columns = useMemo(() => GetColumns(coinData.multi_chain), [coinData]);
 
@@ -177,18 +178,14 @@ export default function Blocks(props: Props) {
 
 
 
-        fetch(`${REACT_APP_API_URL}/pool/blockOverview?coin=${coinSymbol}`).then(res => res.json()).then(res => {
+        fetch(`${REACT_APP_API_URL}/pool/blockOverview?coin=${coinData.symbol}`).then(res => res.json()).then(res => {
             if (!res.error) {
                 setBlockStats(res.result as BlocksOverview);
             }
         }).catch(err => { });
 
-    }, [coinSymbol]);
+    }, [coinData.symbol]);
 
-
-    function svg(alt: string, loc: string) {
-        return (<img loading="lazy" alt={alt} src={`${REACT_APP_API_URL}${loc}?coin=${coinSymbol}`} onError={(e) => (e.target as HTMLElement).style.display = 'none'} />)
-    }
 
     const [processedData, setProcessedData] = useState<Processed>({ timestamps: [], datasets: [] });
     const [error, setError] = useState<string>();
@@ -196,7 +193,7 @@ export default function Blocks(props: Props) {
     const ShowBlock = useCallback((block: Block) => ShowEntry(block, coinData), [coinData])
     const LoadBlocksCb = useCallback((sort: Sort) => LoadBlocks(sort, coinData.symbol), [coinData])
 
-    const tabs = useMemo(() => {
+    const tabsHeaders = useMemo(() => {
         return [
             {
                 "title": "Block",
@@ -205,61 +202,52 @@ export default function Blocks(props: Props) {
                     (<span className="material-symbols-outlined notranslate stats-card-preview" style={{ opacity: "0.85" }}>
                         history
                     </span>),
-                "component": (
-                    <div className="table-section">
-                        <div id="filter">
-                            {/* <div id="chain-selection">
-                            <p>Chain: </p>
-                        </div> */}
-                        </div>
-                        <SortableTable id="block-table" columns={columns} showEntry={ShowBlock} defaultSortBy='id' isPaginated={true} loadTable={LoadBlocksCb} />
-                    </div>),
-                "data_fetcher": (): Promise<Processed> => new Promise<Processed>(() => { })
             },
             {
                 "title": "Difficulty",
                 "value": toDiff(blockStats.difficulty),
                 "img":
-                    svg('Difficulty chart', '/pool/charts/difficultyHistory.svg'),
-                "component": <SickChart type={'line'} isDarkMode={props.isDarkMode} title='Difficulty History'
-                    processedData={processedData} error={error} toText={toDiff} />,
-                "data_fetcher": () => DataFetcher({
-                    url: `${REACT_APP_API_URL}/network/history/difficulty?coin=${coinData.symbol}`,
-                    process_res: (r) => ProcessStats(r, 'Difficulty')
-                })
+                    svg(coinData.symbol, 'Difficulty chart', '/pool/charts/difficultyHistory.svg'),
             },
             {
                 "title": "Blocks mined 24H",
                 "value": toLatin(blockStats.mined24h),
                 "img":
-                    svg('Blocks mined 24H chart', '/pool/charts/blocksMinedHistory.svg'),
-                "component":
-                    <SickChart type={'bar'} isDarkMode={props.isDarkMode} title='Mined Blocks History'
-                        processedData={processedData} error={error} toText={toLatinInt} />,
-                "data_fetcher": () => DataFetcher({
-                    url: `${REACT_APP_API_URL}/pool/history/blocks-mined?coin=${coinData.symbol}`,
-                    process_res: (r) => ProcessStats(r, 'Block count')
-                })
+                    svg(coinData.symbol, 'Blocks mined 24H chart', '/pool/charts/blocksMinedHistory.svg'),
             },
             {
                 "title": "Round Effort & Duration",
                 "value": `${blockStats.currentRound.effortPercent.toLocaleString(undefined, { maximumFractionDigits: 2 })}% / ${timeToText(Date.now() - blockStats.currentRound.startTime)}`,
                 "img":
-                    svg('Block effort chart', '/pool/charts/blockEffortHistory.svg'),
-                "component":
-                    <SickChart type={'bar'} isDarkMode={props.isDarkMode} title='Block Effort History'
-                        processedData={processedData} error={error} toText={toLatinPercent} />,
-                "data_fetcher": () => DataFetcher({
-                    url: `${REACT_APP_API_URL}/pool/history/round-effort?coin=${coinData.symbol}`,
-                    process_res: (r) => ProcessStats(r, 'Block effort')
-                })
+                    svg(coinData.symbol, 'Block effort chart', '/pool/charts/blockEffortHistory.svg'),
             },
         ]
-    }, [coinData.symbol, columns, blockStats, processedData, error]);
+    }, [coinData.symbol, blockStats]);
+
+    const tabComponents = useMemo(() => [
+        { component: <SortableTable id="block-table" columns={columns} showEntry={ShowBlock} defaultSortBy='id' loadTable={LoadBlocksCb} isPaginated={true} /> },
+        { component: <SickChart type={'line'} isDarkMode={props.isDarkMode} title='Difficulty History' processedData={processedData} error={error} toText={toDiff} precision={0} /> },
+        {
+            component: <SickChart type={'bar'} isDarkMode={props.isDarkMode} title='Mined Blocks History' processedData={processedData} error={error} toText={toLatin} precision={0} />, data_fetcher: () => DataFetcher({
+                url: `${REACT_APP_API_URL}/pool/history/blocks-mined?coin=${coinData.symbol}`,
+                process_res: (r) => ProcessStats(r, 'Block count')
+            })
+        },
+        {
+            component: <SickChart type={'bar'} isDarkMode={props.isDarkMode} title='Block Effort History' processedData={processedData} error={error} toText={toLatinPercent} precision={2} />, data_fetcher: () => DataFetcher({
+                url: `${REACT_APP_API_URL}/pool/history/round-effort?coin=${coinData.symbol}`,
+                process_res: (r) => ProcessStats(r, 'Block effort')
+            })
+        }
+
+    ], [coinData.symbol, processedData, error, props.isDarkMode, columns, ShowBlock, LoadBlocksCb])
 
     useEffect(() => {
         setError(undefined);
-        tabs[tabIndex].data_fetcher().then((r: Processed) => setProcessedData(r)).catch((e) => setError(e));
+        let fetchFn = tabComponents[tabIndex].data_fetcher;
+        if (fetchFn) {
+            fetchFn()?.then((r: Processed) => setProcessedData(r)).catch((e) => setError(e));
+        }
 
     }, [tabIndex]);
 
@@ -285,7 +273,7 @@ export default function Blocks(props: Props) {
                 </div>
                 <div className="stats-card-holder">
                     {/* make selector of time */}
-                    {tabs.map((t, i) => {
+                    {tabsHeaders.map((t, i) => {
                         return (
                             <div className={tabIndex === i ? "stats-card stats-card-active" : "stats-card"} onClick={() => setTabIndex(i)} key={t.title}>
                                 <div>
@@ -297,7 +285,7 @@ export default function Blocks(props: Props) {
                         );
                     })}
                 </div>
-                {tabs[tabIndex].component}
+                {tabComponents[tabIndex].component}
             </div>
         </div>
     );

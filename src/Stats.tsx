@@ -1,13 +1,12 @@
-import { useState, useEffect } from 'react';
+import './Home.css'
 import './Stats.css'
-import { hrToText, toLatin, toLatinInt } from './utils';
+import { useState, useEffect, useMemo } from 'react';
+import { hrToText, toLatin } from './utils';
 import ToCoin from './CoinMap';
 import { DataFetcher, Processed, ProcessStats } from './LoadableChart';
 import SickChart from './SickChart';
 
 const { REACT_APP_API_URL } = process.env;
-
-const primaryColor = [27, 121, 247];
 
 interface StatsProps {
     coinPretty: string,
@@ -28,8 +27,6 @@ export default function Stats(props: StatsProps) {
     const [tabIndex, setTabIndex] = useState(0);
     const [poolStats, setPoolStats] = useState({ poolHashrate: 0, networkHashrate: 0, minerCount: 0, workerCount: 0 });
 
-    const period = 60 * 5;
-
     useEffect(() => {
         fetch(`${REACT_APP_API_URL}/pool/overview?coin=${coin_symbol}`)
             .then((res) => res.json())
@@ -39,24 +36,19 @@ export default function Stats(props: StatsProps) {
             .catch(err => {
                 // console.log("Failed to fetch!")
             });
-    }, []);
+    }, [coin_symbol]);
 
     const [processedData, setProcessedData] = useState<Processed>({ timestamps: [], datasets: [] });
     const [error, setError] = useState<string>();
 
-    useEffect(() => {
-        setError(undefined);
-        tabs[tabIndex].data_fetcher().then((r: Processed) => { setProcessedData(r); }).catch((e) => setError(e));
-    }, [tabIndex]);
-
     // const effortSeparator = new Array(effortHistory.length).fill(100);
-    const tabs = [
+    const tabs = useMemo(() => [
         {
             "title": "Pool Hashrate",
             "value": hrToText(poolStats.poolHashrate),
             "src": `${REACT_APP_API_URL}/pool/charts/hashrateHistory.svg?coin=${coin_symbol}`,
             "component": <SickChart type="line" isDarkMode={props.isDarkMode} title='Pool Hashrate'
-                processedData={processedData} error={error} toText={hrToText} />,
+                processedData={processedData} error={error} toText={hrToText} precision={0}/>,
             "data_fetcher": () => DataFetcher({
                 url: `${REACT_APP_API_URL}/pool/history/hashrate?coin=${coin_symbol}`,
                 process_res: (r) => ProcessStats(r, 'Hashrate')
@@ -67,7 +59,7 @@ export default function Stats(props: StatsProps) {
             "value": hrToText(poolStats.networkHashrate),
             "src": `${REACT_APP_API_URL}/pool/charts/networkHashrateHistory.svg?coin=${coin_symbol}`,
             "component": <SickChart type="line" isDarkMode={props.isDarkMode} title='Network Hashrate'
-                processedData={processedData} error={error} toText={hrToText} />,
+                processedData={processedData} error={error} toText={hrToText} precision={0}/>,
             "data_fetcher": () => DataFetcher({
                 url: `${REACT_APP_API_URL}/network/history/hashrate?coin=${coin_symbol}`,
                 process_res: (r) => ProcessStats(r, 'Hashrate')
@@ -79,7 +71,7 @@ export default function Stats(props: StatsProps) {
             "src": `${REACT_APP_API_URL}/pool/charts/minerCountHistory.svg?coin=${coin_symbol}`,
             "component":
                 <SickChart type="line" isDarkMode={props.isDarkMode} title='Miner Count'
-                    processedData={processedData} error={error} toText={toLatinInt} />,
+                    processedData={processedData} error={error} toText={toLatin} precision={0}/>,
             "data_fetcher": () => DataFetcher({
                 url: `${REACT_APP_API_URL}/pool/history/miner-count?coin=${coin_symbol}`,
                 process_res: (r) => ProcessStats(r, 'Miners')
@@ -91,13 +83,18 @@ export default function Stats(props: StatsProps) {
             "src": `${REACT_APP_API_URL}/pool/charts/workerCountHistory.svg?coin=${coin_symbol}`,
             "component":
                 <SickChart type="line" isDarkMode={props.isDarkMode} title='Worker Count'
-                    processedData={processedData} error={error} toText={toLatinInt} />,
+                    processedData={processedData} error={error} toText={toLatin} precision={0}/>,
             "data_fetcher": () => DataFetcher({
                 url: `${REACT_APP_API_URL}/pool/history/worker-count?coin=${coin_symbol}`,
                 process_res: (r) => ProcessStats(r, 'Workers')
             })
         },
-    ]
+    ], [coin_symbol, poolStats, error, processedData, props.isDarkMode])
+
+    useEffect(() => {
+        setError(undefined);
+        tabs[tabIndex].data_fetcher().then((r: Processed) => { setProcessedData(r); }).catch((e) => setError(e));
+    }, [tabIndex]);
 
     return (
         <div id="stats">
@@ -119,8 +116,6 @@ export default function Stats(props: StatsProps) {
                 </div>
 
                 {tabs[tabIndex].component}
-                {/*<HistoryChart data={hrChartData} options={hrChartOptions} style={{ display: tabIndex == 2 ? 'block' : 'none' }} />
-                <HistoryChart data={effortChartData} options={effortChartOptions} url={`effortHistory?coin=${coin_symbol}`} style={{ display: tabIndex == 4 ? 'block' : 'none' }} /> */}
             </div>
         </div>
     );

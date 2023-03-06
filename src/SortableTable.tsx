@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import "./SortableTable.css"
+import "./Stats.css"
 // TODO: organize this shitshow
 
 export interface LoadTable<Type> {
@@ -20,6 +22,7 @@ export interface ShowEntry<Type> {
 
 export interface Column {
     header: string;
+    headerShort?: string;
     sortBy?: string;
     width?: string;
 }
@@ -44,34 +47,47 @@ export interface ApiTableResult<Type> {
 export default function SortableTable<Type>(props: TableConfig<Type>) {
 
     let [sort, setSort] = useState<Sort>({ page: 0, limit: 10, by: props.defaultSortBy ? props.defaultSortBy : '', dir: "desc" });
-    let [error, setError] = useState<string | undefined>(undefined);
     let [isLoading, setIsLoading] = useState<boolean>(false);
-    let [result, setResult] = useState<TableResult<Type> | undefined>(undefined);
+    let [error, setError] = useState<string>();
+    let [result, setResult] = useState<TableResult<Type>>();
+    let [short, setShort] = useState<boolean>(false);
 
     useEffect(() => {
         setIsLoading(true);
         props.loadTable(sort, result)
-        .then((res: ApiTableResult<Type>) => {
-            if (res.error !== null) {
+            .then((res: ApiTableResult<Type>) => {
+                if (res.error !== null) {
+                    setResult(undefined);
+                    setError(res.error);
+                }
+
+                if (res.result !== null) {
+                    setError(undefined)
+                    setResult(res.result);
+                }
+                setIsLoading(false);
+
+            }).catch((err: string) => {
                 setResult(undefined);
-                setError(res.error);
-            }
+                setError(`Failed to retrieve table`);
+                setIsLoading(false);
+            });
+    }, [sort, props])
 
-            if (res.result !== null) {
-                setError(undefined)
-                setResult(res.result);
-            }
-            setIsLoading(false);
+    function UpdateWidth() {
+        let width = window.innerWidth;
+        // console.log('width', width)
+        if (width < 600) {
+            setShort(true);
+        } else {
+            setShort(false);
+        }
+    }
 
-        }).catch((err: string) => {
-            setResult(undefined);
-            setError(`Failed to retrieve table`);
-            setIsLoading(false);
-        });
-
-
-
-    }, [sort])
+    useEffect(() => {
+        window.addEventListener('resize', UpdateWidth);
+        UpdateWidth();
+    }, []);
 
     function onTableHeaderClick(sortby?: string) {
         if (!sortby) return;
@@ -121,8 +137,8 @@ export default function SortableTable<Type>(props: TableConfig<Type>) {
                         <tr>
                             {props.columns.map((column, i) => {
                                 return (
-                                    <th onClick={(e) => onTableHeaderClick(column.sortBy)} style={{width: column.width}} key={column.header}>
-                                        {column.header} {sort.by && sort.by === column.sortBy && (sort.dir === "desc" ? "\u25be" : "\u25b4")}
+                                    <th onClick={(e) => onTableHeaderClick(column.sortBy)} style={{ width: column.width }} key={column.header}>
+                                        {(short && column.headerShort) ? column.headerShort : column.header} {sort.by && sort.by === column.sortBy && (sort.dir === "desc" ? "\u25be" : "\u25b4")}
                                     </th>
                                 )
                             })}
@@ -130,7 +146,7 @@ export default function SortableTable<Type>(props: TableConfig<Type>) {
                     </thead>
                     <tbody>
                         {isLoading === true && <tr><td className="loading" colSpan={props.columns.length}>Loading...</td></tr>}
-                        { (result && result.entries.length === 0)
+                        {(result && result.entries.length === 0)
                             && <tr><td className="loading" colSpan={props.columns.length}>
                                 No entries found :/</td></tr>}
                         {error && <tr><td className="error" colSpan={props.columns.length}>{error} :(</td></tr>}
@@ -161,7 +177,7 @@ export default function SortableTable<Type>(props: TableConfig<Type>) {
                                 (result && result.entries.length > 0) ?
                                     //todo: check
                                     Array.from(Array(Math.ceil(result.total / sort.limit)).keys())
-                                        .map((pageIndex) => { return <option value={pageIndex} key={ pageIndex}>{pageIndex + 1}</option>; })
+                                        .map((pageIndex) => { return <option value={pageIndex} key={pageIndex}>{pageIndex + 1}</option>; })
                                     : <option value="0">0</option>
                             }
                         </select>

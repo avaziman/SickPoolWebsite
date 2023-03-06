@@ -1,15 +1,16 @@
-.chart-title {
+/* .chart-title {
     font-size: 1.4rem;
     padding-bottom: 1.25rem;
     text-align: center;
     font-weight: 600;
-}
+} */
 
 .chart-container {
     border-radius: 5px;
     border: 1px solid var(--border);
     padding: min(4%, 1.5rem);
     margin: 1rem 0;
+    height: 100%;
 }
 
 .chart-error {

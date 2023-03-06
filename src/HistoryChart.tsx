@@ -30,17 +30,18 @@ ChartJS.register(
 );
 
 interface HistoryChartProp {
-    title: string;
     type: keyof ChartTypeRegistry;
     data: ChartData;
     options: ChartOptions;
     // loading: boolean;
+    height: number;
     error: string | undefined;
 }
 
 export default function HistoryChart(props: HistoryChartProp) {
 
-    let body : JSX.Element = useMemo(() => {
+    const body: JSX.Element = useMemo(() => {
+
         if (props.error) {
             return <div className="chart-error">{props.error} :/</div>
         }
@@ -48,15 +49,14 @@ export default function HistoryChart(props: HistoryChartProp) {
         //     return <p>Loading...</p>;
         // }
         else if (props.data) {
-            return <Chart type={props.type}/*type={props.type}*/ className="history-chart" data={props.data} options={props.options} height="100rem" />;
+            return <Chart type={props.type}/*type={props.type}*/ className="history-chart" data={props.data} options={props.options} height={props.height} width={100} />;
         } else {
             return <p>No data.</p>
         }
     }, [props]);
-    
+
     return (
-        <div className="chart-container">
-            <p className="chart-title">{props.title}</p>
+        <div className="chart-container" style={{height: props.height}}>
             {body}
         </div>
     );

@@ -18,10 +18,6 @@ export function toLatin(n: number) : string {
     return `${+(n).toPrecision(i + 2)} ${units[i]}`;
 };
 
-export function toLatinInt(n: number) {
-    return Number.isInteger(n) ? toLatin(n) : "";
-}
-
 export function unixTimeToClockText(date: Date): string {
     let minutes: number = date.getMinutes();
     let minutesStr: string = minutes.toString();

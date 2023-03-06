@@ -73,7 +73,6 @@ export default function Payouts(props: Props) {
     const coinPretty = props.coinPretty;
 
     const coinData = ToCoin(coinPretty);
-    const coin_symbol: string = coinData.symbol;
 
     const columns = useMemo(() => COLUMNS, []);
 
@@ -94,8 +93,13 @@ export default function Payouts(props: Props) {
             .catch(() => { })
     }, [coinData]);
 
-    const ShowPayout = useCallback((payout: Payout) => ShowEntry(payout, coinData), [coinData]);
-    const LoadPayoutsCb = useCallback((sort: Sort) => LoadPayments(sort, coin_symbol), [coin_symbol]);
+    const ShowPayoutCb = useCallback((payout: Payout) => ShowEntry(payout, coinData), [coinData]);
+    const LoadPayoutsCb = useCallback((sort: Sort) => LoadPayments(sort, coinData.symbol), [coinData.symbol]);
+
+    const payoutsTable = useMemo(() =>
+        <SortableTable id="payouts-table" columns={columns} showEntry={ShowPayoutCb} loadTable={LoadPayoutsCb} isPaginated={true} />
+        , [columns, ShowPayoutCb, LoadPayoutsCb]
+    );
 
     const next_payout = payoutOverview.nextPayout === -1 ? 'pending...' : `in ${timeToText(payoutOverview.nextPayout - Date.now())} (${format(new Date(payoutOverview.nextPayout * 1000), 'shortTime')})`;
 
@@ -118,8 +122,9 @@ export default function Payouts(props: Props) {
                     <span>Next Payout:  {next_payout}
                     </span>
                     <span>Total Paid: {toCoinStr(payoutOverview.totalPaid, coinData)}</span>
-            </div>
-                <SortableTable id="payouts-table" columns={columns} showEntry={ShowPayout} isPaginated={true} loadTable={LoadPayoutsCb} />
+                </div>
+                {/* <SortableTable id="payouts-table" columns={columns} showEntry={ShowPayout} isPaginated={true} loadTable={LoadPayoutsCb} /> */}
+                {payoutsTable}
             </div>
         </div>
     );
