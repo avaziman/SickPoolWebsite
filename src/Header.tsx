@@ -7,6 +7,7 @@ import SvgBackArrow from './components/Icon/BackArrow';
 import { MoonLight as SvgMoonLight, SunlightLight } from './components/Icon';
 import ToCoin, { CoinMap } from './CoinMap';
 import NewSticker from './newSticker';
+import GIcon from './GIcon';
 
 interface ThemeChange {
     (): void;
@@ -64,9 +65,7 @@ export default function Header(props: Props) {
                                 to={`/${coinPretty}/${s[0]}`}
                                 className={IsNavActive}
                             >
-                                <span className="material-symbols-outlined notranslate pool-nav-icon">
-                                    {s[1]}
-                                </span>
+                                <GIcon classNameAddition="pool-nav-icon" name={s[1]} isDarkMode={props.theme} />
                                 <span className='nav-link-text'>
                                     <FormattedMessage id={s[0]} />
                                 </span>

@@ -10,7 +10,7 @@
 
 .stats-card:hover .feature-icon{
     animation: feature-animation 0.75s;
-    font-variation-settings: 'FILL'1, 'wght'700, 'GRAD'200;
+    font-variation-settings: 'FILL'1, 'wght'700, 'GRAD'0;
 
 }
 
@@ -22,7 +22,7 @@
     }
 
     100% {
-        font-variation-settings: 'FILL'1, 'wght'700, 'GRAD'200;
+        font-variation-settings: 'FILL'1, 'wght'700, 'GRAD'0;
     }
 }
 

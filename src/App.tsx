@@ -48,6 +48,7 @@ function App() {
       setReadyState(document.readyState);
     }
 
+    
   }, [])
 
   useEffect(() => {

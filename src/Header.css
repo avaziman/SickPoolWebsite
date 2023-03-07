@@ -211,9 +211,8 @@ header {
 
 .pool-nav-link-active .pool-nav-icon {
     animation: activate-tab 0.75s;
-    font-variation-settings: 'FILL'1, 'wght'700, 'GRAD'200;
+    font-variation-settings: 'FILL'1, 'wght'700, 'GRAD'0;
     font-size: 28px;
-
 }
 
 @keyframes activate-tab {
@@ -224,7 +223,7 @@ header {
     }
 
     100% {
-        font-variation-settings: 'FILL'1, 'wght'700, 'GRAD'200;
+        font-variation-settings: 'FILL'1, 'wght'700, 'GRAD'0;
         font-size: 28px;
     }
 }
