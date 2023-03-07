@@ -1,5 +1,8 @@
+import { ChartResult, GetResult, GetTimestampsFromRes as GetTimestampsFromInfo } from "./api";
+
 export interface Fetcher {
     url: string,
+    coin: string,
     process_res(p: any): Promise<Processed>;
 }
 
@@ -14,22 +17,11 @@ export interface ChartDataSet{
     values: number[]
 }
 
-export function DataFetcher(props: Fetcher): Promise<Processed> {
+export function SingleChartFetcher(props: Fetcher): Promise<Processed> {
     return new Promise((resolve, rej) => {
-        fetch(props.url)
-            .then((res: Response) => {
-                if (!res.ok) {
-                    rej(res.statusText);
-                } else {
-                    return res.json();
-                }
-            })
+        GetResult<ChartResult<number[]>>(props.url, props.coin)
             .then(res => {
-                if (!res) return;
-                if (res.error) { rej(res.err); }
-                else {
-                    resolve(props.process_res(res));
-                }
+                resolve(props.process_res(res));
             })
             .catch(err => {
                 console.log(err);
@@ -38,33 +30,16 @@ export function DataFetcher(props: Fetcher): Promise<Processed> {
     });
 }
 
-export interface TimestampInfo {
-    start: number;
-    interval: number;
-    amount: number;
-}
-
-export function GetTimestampsFromRes(res: any) {
-    const tsinfo = res.result.timestamps as TimestampInfo;
-    const start = tsinfo.start;
-    const interval = tsinfo.interval;
-    const amount = tsinfo.amount;
-
-    const timestamps = Array.from({ length: amount }, (_, i) => start + (i * interval));
-    return timestamps;
-}
-
-export function ProcessStats(res: any, title: string): Promise<Processed> {
+export function ProcessSingleChart(res: ChartResult<number[]>, title: string): Promise<Processed> {
     return new Promise((resolve, rej) => {
-        const timestamps = GetTimestampsFromRes(res)
-        
+        const timestamps = GetTimestampsFromInfo(res.timestamps)
         const processed: Processed = {
             timestamps: timestamps,
             datasets: [
                 {
                     name: title,
                     borderColor: 'rgb(27, 121, 247)',
-                    values: res.result.values
+                    values: res.values
                 }]
         }
         resolve(processed);

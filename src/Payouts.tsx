@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import SortableTable, { Column, Sort, ApiTableResult } from "./SortableTable";
+import SortableTable, { Column, Sort, TableResult } from "./SortableTable";
 import ToCoin, { Coin } from './CoinMap';
 import { timeToText } from './utils';
 import { format } from 'fecha'
-const { REACT_APP_API_URL } = process.env;
+import { GetResult, GetTableResult } from './api';
 
 const COLUMNS: Column[] = [
     {
@@ -60,9 +60,8 @@ function ShowEntry(payout: Payout, coinData: Coin): JSX.Element {
     )
 }
 
-function LoadPayments(sort: Sort, coin_symbol: string): Promise<ApiTableResult<Payout>> {
-    return fetch(`${REACT_APP_API_URL}/pool/payouts?coin=${coin_symbol}&page=${sort.page}&limit=${sort.limit}`)
-        .then(res => res.json());
+function LoadPayments(sort: Sort, coin_symbol: string): Promise<TableResult<Payout>> {
+    return GetTableResult<Payout>(`pool/payouts`, coin_symbol, sort);
 }
 
 interface Props {
@@ -87,10 +86,9 @@ export default function Payouts(props: Props) {
     });
 
     useEffect(() => {
-        fetch(`${REACT_APP_API_URL}/pool/payoutOverview?coin=${coinData.symbol}`)
-            .then(r => r.json())
-            .then(r => setPayoutOverview(r as PayoutOverview))
-            .catch(() => { })
+        GetResult<PayoutOverview>('pool/payoutOverview', coinData.symbol).then(res => {
+            setPayoutOverview(res)
+        })
     }, [coinData]);
 
     const ShowPayoutCb = useCallback((payout: Payout) => ShowEntry(payout, coinData), [coinData]);

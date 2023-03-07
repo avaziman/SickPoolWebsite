@@ -1,11 +1,12 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import SortableTable, { Sort, Column, ApiTableResult } from './SortableTable';
+import SortableTable, { Sort, Column, TableResult } from './SortableTable';
 import { toLatin, timeToText, truncateAddress, toDiff } from './utils'
 import { Link } from 'react-router-dom';
 import ToCoin, { Coin } from './CoinMap';
 import SickChart from './SickChart';
-import { DataFetcher, Processed, ProcessStats } from './LoadableChart';
+import { SingleChartFetcher, Processed, ProcessSingleChart } from './LoadableChart';
 import { toCoinStr } from './Payouts';
+import { GetResult, GetTableResult } from './api';
 
 const { REACT_APP_API_URL } = process.env;
 
@@ -144,9 +145,8 @@ function toLatinPercent(n: number) {
     return toLatin(n) + '%';
 }
 
-function LoadBlocks(sort: Sort, coinSymbol: string): Promise<ApiTableResult<Block>> {
-    return fetch(`${REACT_APP_API_URL}/pool/blocks?coin=${coinSymbol}&page=${sort.page}&limit=${sort.limit}&sortby=${sort.by}&sortdir=${sort.dir}`)
-        .then(res => res.json());
+function LoadBlocks(sort: Sort, coinSymbol: string): Promise<TableResult<Block>> {
+    return GetTableResult<Block>('pool/blocks', coinSymbol, sort);
 }
 
 function svg(coinSymbol: string, alt: string, loc: string) {
@@ -178,11 +178,10 @@ export default function Blocks(props: Props) {
 
 
 
-        fetch(`${REACT_APP_API_URL}/pool/blockOverview?coin=${coinData.symbol}`).then(res => res.json()).then(res => {
-            if (!res.error) {
-                setBlockStats(res.result as BlocksOverview);
-            }
-        }).catch(err => { });
+        GetResult<BlocksOverview>('pool/blockOverview', coinData.symbol)
+            .then(res => {
+                setBlockStats(res);
+            });
 
     }, [coinData.symbol]);
 
@@ -228,15 +227,17 @@ export default function Blocks(props: Props) {
         { component: <SortableTable id="block-table" columns={columns} showEntry={ShowBlock} defaultSortBy='id' loadTable={LoadBlocksCb} isPaginated={true} /> },
         { component: <SickChart type={'line'} isDarkMode={props.isDarkMode} title='Difficulty History' processedData={processedData} error={error} toText={toDiff} precision={0} /> },
         {
-            component: <SickChart type={'bar'} isDarkMode={props.isDarkMode} title='Mined Blocks History' processedData={processedData} error={error} toText={toLatin} precision={0} />, data_fetcher: () => DataFetcher({
-                url: `${REACT_APP_API_URL}/pool/history/blocks-mined?coin=${coinData.symbol}`,
-                process_res: (r) => ProcessStats(r, 'Block count')
+            component: <SickChart type={'bar'} isDarkMode={props.isDarkMode} title='Mined Blocks History' processedData={processedData} error={error} toText={toLatin} precision={0} />, data_fetcher: () => SingleChartFetcher({
+                url: 'pool/history/blocks-mined', 
+                coin: coinData.symbol,
+                process_res: (r) => ProcessSingleChart(r, 'Block count')
             })
         },
         {
-            component: <SickChart type={'bar'} isDarkMode={props.isDarkMode} title='Block Effort History' processedData={processedData} error={error} toText={toLatinPercent} precision={2} />, data_fetcher: () => DataFetcher({
-                url: `${REACT_APP_API_URL}/pool/history/round-effort?coin=${coinData.symbol}`,
-                process_res: (r) => ProcessStats(r, 'Block effort')
+            component: <SickChart type={'bar'} isDarkMode={props.isDarkMode} title='Block Effort History' processedData={processedData} error={error} toText={toLatinPercent} precision={2} />, data_fetcher: () => SingleChartFetcher({
+                url: 'pool/history/round-effort', 
+                coin: coinData.symbol,
+                process_res: (r) => ProcessSingleChart(r, 'Block effort')
             })
         }
 

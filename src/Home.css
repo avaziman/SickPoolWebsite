@@ -8,6 +8,24 @@
     font-variation-settings: 'wght' 500;
 }
 
+.stats-card:hover .feature-icon{
+    animation: feature-animation 0.75s;
+    font-variation-settings: 'FILL'1, 'wght'700, 'GRAD'200;
+
+}
+
+@keyframes feature-animation {
+    0% {
+        font-variation-settings: 'FILL'1, 'wght'400, 'GRAD'0;
+        font-size: 2rem;
+
+    }
+
+    100% {
+        font-variation-settings: 'FILL'1, 'wght'700, 'GRAD'200;
+    }
+}
+
 .home-title {
     font-size: 1.8rem;
     font-weight: 00;
@@ -33,6 +51,17 @@
     border: solid 2px var(--border);
     border-radius: 1rem;
     padding: 1rem 2rem;
+    cursor: pointer;
+    transition: border-color 0.5s ease-out;
+    box-sizing: border-box;
+    color: inherit;
+}
+
+.coin-preview:visited {
+}
+
+.coin-preview:hover {
+    border-color: var(--primary-color);
 }
 
 .coin-preview-header p {
@@ -44,8 +73,8 @@
     font-size: 1.75rem;
     display: flex;
     align-items: center;
-
 }
+
 
 .coin-icon {
     width: 2rem;

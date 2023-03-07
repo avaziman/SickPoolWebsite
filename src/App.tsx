@@ -1,5 +1,5 @@
 import './App.css'
-import { Route, Routes, Navigate, useLocation } from 'react-router-dom';
+import { Route, Routes, Navigate } from 'react-router-dom';
 import React, { useEffect, useState, Suspense } from 'react';
 
 import messages from './messages';
@@ -9,7 +9,7 @@ import { CoinMap } from './CoinMap';
 import Header from './Header'; 
 import Footer from './Footer'
 
-const WidgetBot = React.lazy(() => import('@widgetbot/react-embed'));
+// const WidgetBot = React.lazy(() => import('@widgetbot/react-embed'));
 
 const Solver = React.lazy(() => import('./Solver'));
 const Solvers = React.lazy(() => import('./Solvers'));

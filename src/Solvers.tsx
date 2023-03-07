@@ -1,8 +1,8 @@
 import { useCallback, useMemo } from 'react'
-import SortableTable, { Column, Sort, ApiTableResult } from "./SortableTable";
+import SortableTable, { Column, Sort, TableResult } from "./SortableTable";
 import ToCoin from './CoinMap';
 import { timeToText, hrToText, truncateAddress } from './utils';
-const { REACT_APP_API_URL } = process.env;
+import { GetTableResult } from './api';
 
 const COLUMNS: Column[] = [
     {
@@ -55,9 +55,8 @@ function ShowEntry(solver: Solver, coinPretty: string): JSX.Element {
         </tr>
     )
 }
-function LoadSolvers(sort: Sort, coin_symbol: string): Promise<ApiTableResult<Solver>> {
-    return fetch(`${REACT_APP_API_URL}/pool/miners?coin=${coin_symbol}&page=${sort.page}&limit=${sort.limit}&sortby=${sort.by}&sortdir=${sort.dir}`)
-        .then(res => res.json());
+function LoadSolvers(sort: Sort, coin_symbol: string): Promise<TableResult<Solver>> {
+    return GetTableResult<Solver>('pool/miners', coin_symbol, sort);
 }
 
 

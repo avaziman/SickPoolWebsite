@@ -1,14 +1,13 @@
+import './solver.css'
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { hrToText, toLatin } from './utils';
 import { useParams } from 'react-router-dom';
-import './solver.css'
 import ChartSVG from './components/Icon/ChartFull'
-import SortableTable, { Column, Sort, TableResult, ApiTableResult } from './SortableTable';
+import SortableTable, { Column, Sort, TableResult } from './SortableTable';
 import ToCoin from './CoinMap';
 import SickChart from './SickChart';
-import { GetTimestampsFromRes, TimestampInfo } from './LoadableChart';
+import { ChartResult, GetResult, GetTableResult, GetTimestampsFromRes, TimestampInfo } from './api';
 
-const { REACT_APP_API_URL } = process.env;
 const COLUMNS: Column[] = [
     {
         header: 'name',
@@ -95,24 +94,20 @@ interface SolverProps {
     setLastSearched: (a: string[]) => void;
 }
 
-function LoadWorkers(coin_symbol: string, address: string, setWorkerOverview: any, sort: Sort, oldData?: TableResult<WorkerStats>): Promise<ApiTableResult<WorkerStats>> {
+function LoadWorkers(coin_symbol: string, address: string, setWorkerOverview: any, sort: Sort, oldData?: TableResult<WorkerStats>): Promise<TableResult<WorkerStats>> {
     if (!oldData) {
-        return fetch(`${REACT_APP_API_URL}/miner/workers?coin=${coin_symbol}&address=${address}`)
-            .then(res => res.json()).then(res => {
-                let result = res.result as TableResult<WorkerStats>;
+        return GetTableResult<WorkerStats>('miner/workers', coin_symbol + `&address=${address}`, sort)
+            .then(result => {
                 let active: number = result.entries.filter(i => i.currentHashrate > 0).length;
 
                 setWorkerOverview({ active: active, inactive: result.entries.length - active })
 
-                return res;
+                return result;
             });
     } else {
         return Promise.resolve({
-            result: {
                 total: oldData.total,
                 entries: [...oldData.entries].sort((a: any, b: any) => (a[sort.by] > b[sort.by]) ? 1 : -1)
-            },
-            error: null
         });
     }
 }
@@ -154,23 +149,17 @@ export default function Solver(props: SolverProps) {
             props.setLastSearched([address].concat(props.lastSearched))
         }
 
-        fetch(`${REACT_APP_API_URL}/miner/statsHistory?coin=${coin_symbol}&address=${address}`)
-            .then(res => res.json())
+        GetResult<ChartResult<StatsHistoryValues>>('miner/statsHistory', coin_symbol + `&address=${address}`)
             .then(res => {
-                if (res.result !== null) {
-                    setTimestamps(GetTimestampsFromRes(res))
-                    setStatsRes(res.result.values as StatsHistoryValues);
-                }
+                    setTimestamps(GetTimestampsFromRes(res.timestamps))
+                    setStatsRes(res.values);
             }).catch(err => {
                 setError('Failed to load chart');
             });
 
-        fetch(`${REACT_APP_API_URL}/solver/overview?coin=${coin_symbol}&address=${address}`)
-            .then(res => res.json())
+        GetResult<SolverOverview>('solver/overview', coin_symbol + `&address=${address}`)
             .then(res => {
-                if (res.result !== null) {
-                    setOverviewRes(res.result)
-                }
+                setOverviewRes(res)
             }).catch(err => {
 
             });

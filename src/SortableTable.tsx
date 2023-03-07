@@ -4,7 +4,7 @@ import "./Stats.css"
 // TODO: organize this shitshow
 
 export interface LoadTable<Type> {
-    (sort: Sort, last_res?: TableResult<Type>): Promise<ApiTableResult<Type>>;
+    (sort: Sort, last_res?: TableResult<Type>): Promise<TableResult<Type>>;
 }
 
 export interface TableConfig<Type> {
@@ -39,11 +39,6 @@ export interface TableResult<Type> {
     total: number;
 }
 
-export interface ApiTableResult<Type> {
-    result: TableResult<Type> | null;
-    error: string | null;
-}
-
 export default function SortableTable<Type>(props: TableConfig<Type>) {
 
     let [sort, setSort] = useState<Sort>({ page: 0, limit: 10, by: props.defaultSortBy ? props.defaultSortBy : '', dir: "desc" });
@@ -55,16 +50,10 @@ export default function SortableTable<Type>(props: TableConfig<Type>) {
     useEffect(() => {
         setIsLoading(true);
         props.loadTable(sort, result)
-            .then((res: ApiTableResult<Type>) => {
-                if (res.error !== null) {
-                    setResult(undefined);
-                    setError(res.error);
-                }
-
-                if (res.result !== null) {
-                    setError(undefined)
-                    setResult(res.result);
-                }
+            .then((res: TableResult<Type>) => {
+                
+                setError(undefined)
+                setResult(res);
                 setIsLoading(false);
 
             }).catch((err: string) => {

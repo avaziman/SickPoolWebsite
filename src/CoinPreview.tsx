@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { GetResult } from './api';
 import { Coin } from './CoinMap';
 import NewSticker from './newSticker';
 import { PayoutOverview, toCoinStr } from './Payouts';
-const { REACT_APP_API_URL } = process.env;
 
 interface Props {
     coinData: Coin;
@@ -20,14 +20,13 @@ export default function CoinPreview(props: Props) {
     });
 
     useEffect(() => {
-        fetch(`${REACT_APP_API_URL}/pool/payoutOverview?coin=${props.coinData.symbol}`)
-            .then(r => r.json())
-            .then(r => setPayoutOverview(r as PayoutOverview))
+        GetResult<PayoutOverview>('pool/payoutOverview', props.coinData.symbol)
+            .then(r => setPayoutOverview(r))
             .catch(() => { })
     }, [props.coinData]);
 
     return (
-        <div className="coin-preview" key={props.coinData.symbol}>
+        <Link className='coin-preview' key={props.coinData.symbol} to={`/${props.coinData.name.toLocaleLowerCase()}/stats`}>
             <div className="coin-preview-header">
                 {/* <VerusIconBlue className="coin-icon"/> */}
                 <h2>
@@ -46,6 +45,6 @@ export default function CoinPreview(props: Props) {
                 </span>
                 <p>Start Mining</p>
             </Link>
-        </div>
+        </Link>
     )
 }

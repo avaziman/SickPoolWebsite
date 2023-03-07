@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { ApiTableResult, Column, Sort } from "./SortableTable"
+import { useState } from "react";
+import { Column } from "./SortableTable"
 import './GetStarted.css'
 import ToCoin from "./CoinMap";
 
