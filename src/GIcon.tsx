@@ -1,6 +1,6 @@
 interface Props {
     name: string;
-    isDarkMode: boolean;
+    isDarkMode?: boolean;
     classNameAddition?: string
 }
 

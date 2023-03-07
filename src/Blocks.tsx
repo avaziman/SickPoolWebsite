@@ -7,6 +7,7 @@ import SickChart from './SickChart';
 import { SingleChartFetcher, Processed, ProcessSingleChart } from './LoadableChart';
 import { toCoinStr } from './Payouts';
 import { GetResult, GetTableResult } from './api';
+import GIcon from './GIcon';
 
 const { REACT_APP_API_URL } = process.env;
 
@@ -105,6 +106,13 @@ interface BlocksOverview {
     confirmations: number;
 }
 
+function GetBlockStatusIcon(block: Block) {
+    if (block.status === 0b1) { return 'hourglass_empty'; /* pending */ }
+    else if ((block.status & 0b10) > 0) { return 'done'; /* confirmed */ }
+    // else if ((block.status & 0b100) > 0) { return 'error' /* orphaned */ }
+    return 'error';/* orphaned */;
+}
+
 function ShowEntry(block: Block, coinData: Coin) {
     return (
         <tr key={block.hash}>
@@ -116,11 +124,7 @@ function ShowEntry(block: Block, coinData: Coin) {
 
             {coinData.multi_chain && <td>{block.chain} </td>}
             <td>
-                <span className="material-symbols-outlined notranslate">
-                    {block.status === 0b1 && 'hourglass_empty'}  {/* pending */}
-                    {(block.status & 0b10) > 0 && 'done'}        {/* confirmed */}
-                    {(block.status & 0b100) > 0 && 'error'}      {/* orphaned */}
-                </span>
+                <GIcon name={GetBlockStatusIcon(block)} />
             </td>
             {/* <td>
                 {(block.blockType & 0b1) > 0 && "PoW"}
@@ -198,9 +202,7 @@ export default function Blocks(props: Props) {
                 "title": "Block",
                 "value": "Lifetime history",
                 "img":
-                    (<span className="material-symbols-outlined notranslate stats-card-preview" style={{ opacity: "0.85" }}>
-                        history
-                    </span>),
+                    (<GIcon classNameAddition='stats-card-preview' name="history" /* style={{ opacity: "0.85" }} *//>)
             },
             {
                 "title": "Difficulty",
@@ -228,14 +230,14 @@ export default function Blocks(props: Props) {
         { component: <SickChart type={'line'} isDarkMode={props.isDarkMode} title='Difficulty History' processedData={processedData} error={error} toText={toDiff} precision={0} /> },
         {
             component: <SickChart type={'bar'} isDarkMode={props.isDarkMode} title='Mined Blocks History' processedData={processedData} error={error} toText={toLatin} precision={0} />, data_fetcher: () => SingleChartFetcher({
-                url: 'pool/history/blocks-mined', 
+                url: 'pool/history/blocks-mined',
                 coin: coinData.symbol,
                 process_res: (r) => ProcessSingleChart(r, 'Block count')
             })
         },
         {
             component: <SickChart type={'bar'} isDarkMode={props.isDarkMode} title='Block Effort History' processedData={processedData} error={error} toText={toLatinPercent} precision={2} />, data_fetcher: () => SingleChartFetcher({
-                url: 'pool/history/round-effort', 
+                url: 'pool/history/round-effort',
                 coin: coinData.symbol,
                 process_res: (r) => ProcessSingleChart(r, 'Block effort')
             })

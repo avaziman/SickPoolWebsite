@@ -11,14 +11,12 @@
 .stats-card:hover .feature-icon{
     animation: feature-animation 0.75s;
     font-variation-settings: 'FILL'1, 'wght'700, 'GRAD'0;
-
 }
 
 @keyframes feature-animation {
     0% {
         font-variation-settings: 'FILL'1, 'wght'400, 'GRAD'0;
         font-size: 2rem;
-
     }
 
     100% {

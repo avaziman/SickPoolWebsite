@@ -215,19 +215,6 @@ header {
     font-size: 28px;
 }
 
-@keyframes activate-tab {
-    0% {
-        font-variation-settings: 'FILL'1, 'wght'400, 'GRAD'0;
-        font-size: 24px;
-
-    }
-
-    100% {
-        font-variation-settings: 'FILL'1, 'wght'700, 'GRAD'0;
-        font-size: 28px;
-    }
-}
-
 #borgir-menu {
     color: inherit;
     background-color: transparent;

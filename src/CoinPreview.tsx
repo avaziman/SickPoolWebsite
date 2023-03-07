@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { GetResult } from './api';
 import { Coin } from './CoinMap';
+import GIcon from './GIcon';
 import NewSticker from './newSticker';
 import { PayoutOverview, toCoinStr } from './Payouts';
 
@@ -40,9 +41,7 @@ export default function CoinPreview(props: Props) {
                 <p>Min. payout: {toCoinStr(payoutOverview.minimumThreshold, props.coinData, 4)}</p>
             </div>
             <Link className='get-started start-button' to={`/${props.coinData.name.toLocaleLowerCase()}/get-started`}>
-                <span className="material-symbols-outlined">
-                    rocket_launch
-                </span>
+                <GIcon name="rocket_launch" />
                 <p>Start Mining</p>
             </Link>
         </Link>

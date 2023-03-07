@@ -2,6 +2,7 @@ import './Home.css'
 import './Stats.css'
 import { CoinMap } from './CoinMap';
 import CoinPreview from './CoinPreview';
+import GIcon from './GIcon';
 
 interface BlockProducingInfo {
   fee_type: 'percent' | 'fixed';
@@ -22,27 +23,19 @@ export default function Home() {
 
         <div className="stats-card-holder features">
           <div className="stats-card">
-            <span className="material-symbols-outlined notranslate feature-icon">
-              bolt
-            </span>
+            <GIcon classNameAddition='feature-icon' name='bolt'/>
             <p>Highly efficient mining software written in house</p>
           </div>
           <div className="stats-card">
-            <span className="material-symbols-outlined notranslate feature-icon">
-              dns
-            </span>
+            <GIcon classNameAddition='feature-icon' name='dns' />
             <p>Robust servers in EU ready to handle your rig</p>
           </div>
           <div className="stats-card">
-            <span className="material-symbols-outlined notranslate feature-icon">
-              monitoring
-            </span>
+            <GIcon classNameAddition='feature-icon' name='monitoring' />
             <p>Elaborate statistics on a friendly interface for desktop/mobile</p>
           </div>
           <div className="stats-card">
-            <span className="material-symbols-outlined notranslate feature-icon">
-              support
-            </span>
+            <GIcon classNameAddition='feature-icon' name='support' />
             <p>Support with mining related inquiries on our Discord</p>
           </div>
         </div>

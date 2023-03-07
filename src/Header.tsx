@@ -93,9 +93,7 @@ export default function Header(props: Props) {
                         <span className="search-name-text">
                             <FormattedMessage id="search" />
                         </span>
-                        <span className="material-symbols-outlined notranslate pool-nav-icon search-button-icon">
-                            search
-                        </span>
+                        <GIcon classNameAddition='pool-nav-icon search-button-icon' name='search' />
                     </button>
                 </div>
                 <div className="address-list">
@@ -106,10 +104,9 @@ export default function Header(props: Props) {
                                     onClick={() => { setSolverSearch(addr); SearchAddress(); }}>
                                     {addr}
                                 </span>
-                                <span className="material-symbols-outlined notranslate addr-close"
-                                    onClick={() => { props.setLastSearched(props.lastSearched.filter(i => i !== addr)) }}>
-                                    close
-                                </span>
+                                <div className='addr-close' onClick={() => { props.setLastSearched(props.lastSearched.filter(i => i !== addr)) }}>
+                                    <GIcon name="close" />
+                                </div>
                             </p>)
                         })
                     }
@@ -184,12 +181,8 @@ export default function Header(props: Props) {
                             }
                         </button>
                     </div>
-                    <button id="borgir-menu" onClick={() => { setIsMenuOpen(!isMenuOpen);  setIsSearchOpen(false)}}>
-                        <span className="material-symbols-outlined notranslate">
-                            {
-                                !isMenuOpen ? "menu" : "close"
-                            }
-                        </span>
+                    <button id="borgir-menu" onClick={() => { setIsMenuOpen(!isMenuOpen); setIsSearchOpen(false) }}>
+                        <GIcon name={!isMenuOpen ? "menu" : "close"} />
                     </button>
                 </div>
             </div>
