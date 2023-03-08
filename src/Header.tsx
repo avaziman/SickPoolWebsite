@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, NavLink, useNavigate, useParams } from 'react-router-dom'
 import { FormattedMessage, useIntl } from 'react-intl';
 import './Header.css'
+import './Home.css'
 
 import SvgBackArrow from './components/Icon/BackArrow';
 import { MoonLight as SvgMoonLight, SunlightLight } from './components/Icon';

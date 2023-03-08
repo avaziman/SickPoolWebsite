@@ -29,19 +29,21 @@ let servers: Server[] = [
 
 interface Miner {
     name: string;
+    downloadUrl: string;
     getConfig(addr: string, url: string, worker: string, algo: string): string;
 }
 
 let trexMiner: Miner = {
     name: 'T-Rex Miner',
+    downloadUrl: 'https://trex-miner.com',
     getConfig: getConfigTrex,
 };
 
-let ttminer: Miner = {
-    name: 'TT-Miner',
-    getConfig: getConfigTrex,
+// let ttminer: Miner = {
+//     name: 'TT-Miner',
+//     getConfig: getConfigTrex,
 
-}
+// }
 
 function getConfigTrex(addr: string, url: string, worker: string, algo: string): string {
     return `t-rex -a ${algo} -o stratum+tcp://${url} -u ${addr} -w ${worker}`;
@@ -86,7 +88,7 @@ export default function GetStarted(props: Props) {
                     <input className="wallet-address" type="text" placeholder={default_addr}
                         onChange={(e) => setAddr(e.target.value)} onBlur={(e) => {
                             setCurrentStep(1);
-                            workerNameRef.current?.focus()  
+                            workerNameRef.current?.focus()
                         }} />
                 </>)
             },
@@ -125,16 +127,21 @@ export default function GetStarted(props: Props) {
                         {
                             [trexMiner].map(miner => {
                                 const config = miner.getConfig(addr, url, worker, coinData.algo);
-                                return <div className="mining-software" key={miner.name} onClick={(e) => {
-                                    setCurrentStep(4);
-                                    copyIconRef.current?.classList.add('step-done');
-                                    navigator.clipboard.writeText(config)
-                                    setHandshakeText("Good luck mining!");
-                                }} >
+                                return <div className="mining-software" key={miner.name}>
                                     <div className="mining-software-header">
                                         <h4>{miner.name}</h4>
-                                        <div ref={copyIconRef} className={"copy-holder" + (currentStep === 4 ? " step-done" : "")} onAnimationEnd={(e) => (e.target as HTMLElement).classList.remove("step-done")}>
-                                            <GIcon name="content_copy" />
+                                        <div className="button-holder">
+                                            <a className="copy-holder" href={miner.downloadUrl} target="_blank" rel="noreferrer">
+                                                <GIcon name="download" />
+                                            </a>
+                                            <span ref={copyIconRef} className={"copy-holder" + (currentStep === 4 ? " step-done" : "")} onClick={(e) => {
+                                                setCurrentStep(4);
+                                                copyIconRef.current?.classList.add('step-done');
+                                                navigator.clipboard.writeText(config)
+                                                setHandshakeText("Good luck mining!");
+                                            }} onAnimationEnd={(e) => (e.target as HTMLElement).classList.remove("step-done")}>
+                                                <GIcon name="content_copy" />
+                                            </span>
                                         </div>
                                     </div>
                                     <p>
@@ -147,15 +154,15 @@ export default function GetStarted(props: Props) {
             },
             {
                 icon: 'handshake',
-                title:  handshakeText
+                title: handshakeText
             }
         ]
-    }, [coinData, worker, url, addr, currentStep])
+    }, [coinData, worker, url, addr, currentStep, handshakeText])
 
     return (
         <div className="stats-container steps-container">
-            <p className="stats-title">Get started mining: {coinData.name}</p>
-            <p>Follow these simple steps to mine at SickPool</p>
+            <p className="stats-title">Start Mining {coinData.name}</p>
+            <p>Follow these simple steps to start mining!</p>
 
             <ol className="steps-list">
                 {
@@ -165,8 +172,8 @@ export default function GetStarted(props: Props) {
                             <li key={step.icon}>
                                 <div className="step-gap">
                                     <GIcon name={step.icon} classNameAddition={i <= currentStep ? "step-done" : ""} />
-                                    <div className={"step-gap-line" + (isStepDone ? " gap-done" : "")}/>
-                                    <div className={"step-gap-line" + (isStepDone ? " gap-done" : "")}/>
+                                    <div className={"step-gap-line" + (isStepDone ? " gap-done" : "")} />
+                                    <div className={"step-gap-line" + (isStepDone ? " gap-done" : "")} />
                                 </div>
                                 <div className="step">
                                     <div className="step-title">

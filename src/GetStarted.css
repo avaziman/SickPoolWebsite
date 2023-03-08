@@ -9,7 +9,6 @@
 }
 
 .steps-list {
-    margin-left: 1rem;
     display: flex;
     flex-wrap: nowrap;
     flex-direction: column;
@@ -95,22 +94,32 @@ li:last-of-type .step-gap-line {
     border-radius: 6px;
     padding: 0.5rem;
     margin: 0.5rem 0;
-    cursor: pointer;
 }
 
 .mining-software:hover {
     border-color: var(--primary-color);
 }
 
-.mining-software:hover .copy-holder:not(.step-done) {
+.copy-holder:hover:not(.step-done) {
     animation: copy-animation 0.75s;
     font-size: 24px;
     font-variation-settings: 'FILL'0, 'wght'700;
 }
 
+.copy-holder, .mining-software-header h4 {
+    cursor: pointer;
+    padding: 0.1rem;
+    color: inherit;
+}
+
 .step-done {
     animation: feature-animation 0.3s;
     font-variation-settings: 'FILL'1, 'wght'700;
+}
+
+.button-holder {
+    display: flex;
+    gap: 0.3em;
 }
 
 .mining-software-header {
