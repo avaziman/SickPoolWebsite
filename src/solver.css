@@ -39,5 +39,9 @@
 }
 
 .address-title {
+    padding-bottom: 5px;
     font-size: 1.35rem;
+    font-family: monospace;
+    border-bottom: 1px solid var(--border);
+    text-align: center;
 }

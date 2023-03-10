@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import SortableTable, { Sort, Column, TableResult } from './SortableTable';
+import SortableTable, {  Column } from './SortableTable';
 import { toLatin, timeToText, truncateAddress, toDiff } from './utils'
 import { Link } from 'react-router-dom';
 import ToCoin, { Coin } from './CoinMap';
@@ -8,6 +8,10 @@ import { SingleChartFetcher, Processed, ProcessSingleChart } from './LoadableCha
 import { toCoinStr } from './Payouts';
 import { GetResult, GetTableResult } from './api';
 import GIcon from './GIcon';
+import { BlockOverview } from './bindings/BlockOverview'
+import { BlockSubmission } from './bindings/BlockSubmission';
+import { TableRes } from './bindings/TableRes';
+import { TableQuerySort } from './bindings/TableQuerySort';
 
 const { REACT_APP_API_URL } = process.env;
 
@@ -68,52 +72,19 @@ function GetColumns(multi_chain: boolean): Column[] {
     return arr;
 }
 
-interface Block {
-    id: number;
-    status: number;
-    blockType: number;
-    reward: number;
-    timeMs: number;
-    durationMs: number;
-    height: number;
-    difficulty: number;
-    effortPercent: number;
-    chain: string;
-    solver: string;
-    worker: string;
-    hash: string;
-}
-
 interface Props {
     isDarkMode: boolean;
     coinPretty: string;
 }
 
-interface RoundOverview {
-    effortPercent: number;
-    startTime: number;
-}
-
-interface BlocksOverview {
-    currentRound: RoundOverview;
-    height: number;
-    orphans: number;
-    mined: number;
-    averageEffort: number;
-    averageDuration: number;
-    mined24h: number;
-    difficulty: number;
-    confirmations: number;
-}
-
-function GetBlockStatusIcon(block: Block) {
+function GetBlockStatusIcon(block: BlockSubmission) {
     if (block.status === 0b1) { return 'hourglass_empty'; /* pending */ }
     else if ((block.status & 0b10) > 0) { return 'done'; /* confirmed */ }
     // else if ((block.status & 0b100) > 0) { return 'error' /* orphaned */ }
     return 'error';/* orphaned */;
 }
 
-function ShowEntry(block: Block, coinData: Coin) {
+function ShowEntry(block: BlockSubmission, coinData: Coin) {
     return (
         <tr key={block.hash}>
             <td>
@@ -131,7 +102,7 @@ function ShowEntry(block: Block, coinData: Coin) {
                 {(block.blockType & 0b100) > 0 && " + Payment"}
             </td> */}
             <td>{block.height.toLocaleString()}</td>
-            <td>{toCoinStr(block.reward, coinData)}</td>
+            <td>{toCoinStr(block.reward as unknown as number, coinData)}</td>
             <td className='primary-color'>
                 {/* <Link to={`/${coinData.name}/miner/${block.solver}`}>
                 {truncateAddress(block.solver)}
@@ -140,8 +111,8 @@ function ShowEntry(block: Block, coinData: Coin) {
             </td>
             <td>{toLatin(block.difficulty)}</td>
             <td>{block.effortPercent.toLocaleString(undefined, { maximumFractionDigits: 2 })} %</td>
-            <td>{timeToText(block.durationMs)}</td>
-            <td>{timeToText(Date.now() - block.timeMs)} ago</td>
+            <td>{timeToText(block.durationMs as unknown as number)}</td>
+            <td>{timeToText(Date.now() - (block.timeMs as unknown as number))} ago</td>
         </tr>)
 }
 
@@ -149,8 +120,8 @@ function toLatinPercent(n: number) {
     return toLatin(n) + '%';
 }
 
-function LoadBlocks(sort: Sort, coinSymbol: string): Promise<TableResult<Block>> {
-    return GetTableResult<Block>('pool/blocks', coinSymbol, sort);
+function LoadBlocks(sort: TableQuerySort, coinSymbol: string): Promise<TableRes<BlockSubmission>> {
+    return GetTableResult<BlockSubmission>('pool/blocks', coinSymbol, sort);
 }
 
 function svg(coinSymbol: string, alt: string, loc: string) {
@@ -163,14 +134,14 @@ export default function Blocks(props: Props) {
 
     let columns = useMemo(() => GetColumns(coinData.multi_chain), [coinData]);
 
-    let [blockStats, setBlockStats] = useState<BlocksOverview>({
-        currentRound: { startTime: Date.now(), effortPercent: 0 },
+    let [blockStats, setBlockStats] = useState<BlockOverview>({
+        currentRound: { startTime: BigInt(Date.now()), effortPercent: 0 },
         height: 0,
         orphans: 0,
         mined: 0,
         averageEffort: 0,
         averageDuration: 0,
-        mined24h: 0,
+        mined24H: 0,
         difficulty: 0,
         confirmations: 0
     });
@@ -182,7 +153,7 @@ export default function Blocks(props: Props) {
 
 
 
-        GetResult<BlocksOverview>('pool/blockOverview', coinData.symbol)
+        GetResult<BlockOverview>('pool/blockOverview', coinData.symbol)
             .then(res => {
                 setBlockStats(res);
             });
@@ -193,8 +164,8 @@ export default function Blocks(props: Props) {
     const [processedData, setProcessedData] = useState<Processed>({ timestamps: [], datasets: [] });
     const [error, setError] = useState<string>();
 
-    const ShowBlock = useCallback((block: Block) => ShowEntry(block, coinData), [coinData])
-    const LoadBlocksCb = useCallback((sort: Sort) => LoadBlocks(sort, coinData.symbol), [coinData])
+    const ShowBlock = useCallback((block: BlockSubmission) => ShowEntry(block, coinData), [coinData])
+    const LoadBlocksCb = useCallback((sort: TableQuerySort) => LoadBlocks(sort, coinData.symbol), [coinData])
 
     const tabsHeaders = useMemo(() => {
         return [
@@ -202,7 +173,7 @@ export default function Blocks(props: Props) {
                 "title": "Block",
                 "value": "Lifetime history",
                 "img":
-                    (<GIcon classNameAddition='stats-card-preview' name="history" /* style={{ opacity: "0.85" }} *//>)
+                    (<GIcon classNameAddition='stats-card-preview' name="history" /* style={{ opacity: "0.85" }} */ />)
             },
             {
                 "title": "Difficulty",
@@ -212,13 +183,13 @@ export default function Blocks(props: Props) {
             },
             {
                 "title": "Blocks mined 24H",
-                "value": toLatin(blockStats.mined24h),
+                "value": toLatin(blockStats.mined24H),
                 "img":
                     svg(coinData.symbol, 'Blocks mined 24H chart', '/pool/charts/blocksMinedHistory.svg'),
             },
             {
                 "title": "Round Effort & Duration",
-                "value": `${blockStats.currentRound.effortPercent.toLocaleString(undefined, { maximumFractionDigits: 2 })}% / ${timeToText(Date.now() - blockStats.currentRound.startTime)}`,
+                "value": `${blockStats.currentRound.effortPercent.toLocaleString(undefined, { maximumFractionDigits: 2 })}% / ${timeToText(Date.now() - (blockStats.currentRound.startTime as unknown as number))}`,
                 "img":
                     svg(coinData.symbol, 'Block effort chart', '/pool/charts/blockEffortHistory.svg'),
             },

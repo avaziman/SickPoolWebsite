@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import { TableQuerySort } from "./bindings/TableQuerySort";
+import { TableRes } from "./bindings/TableRes";
 import "./SortableTable.css"
 import "./Stats.css"
 // TODO: organize this shitshow
 
 export interface LoadTable<Type> {
-    (sort: Sort, last_res?: TableResult<Type>): Promise<TableResult<Type>>;
+    (sort: TableQuerySort, last_res?: TableRes<Type>): Promise<TableRes<Type>>;
 }
 
 export interface TableConfig<Type> {
@@ -27,30 +29,18 @@ export interface Column {
     width?: string;
 }
 
-export interface Sort {
-    page: number;
-    limit: number;
-    dir: "desc" | "asc";
-    by: string;
-}
-
-export interface TableResult<Type> {
-    entries: Type[];
-    total: number;
-}
-
 export default function SortableTable<Type>(props: TableConfig<Type>) {
 
-    let [sort, setSort] = useState<Sort>({ page: 0, limit: 10, by: props.defaultSortBy ? props.defaultSortBy : '', dir: "desc" });
+    let [sort, setSort] = useState<TableQuerySort>({ page: 0, limit: 10, sortby: props.defaultSortBy ? props.defaultSortBy : '', sortdir: "desc" });
     let [isLoading, setIsLoading] = useState<boolean>(false);
     let [error, setError] = useState<string>();
-    let [result, setResult] = useState<TableResult<Type>>();
+    let [result, setResult] = useState<TableRes<Type>>();
     let [short, setShort] = useState<boolean>(false);
 
     useEffect(() => {
         setIsLoading(true);
         props.loadTable(sort, result)
-            .then((res: TableResult<Type>) => {
+            .then((res: TableRes<Type>) => {
                 
                 setError(undefined)
                 setResult(res);
@@ -82,15 +72,15 @@ export default function SortableTable<Type>(props: TableConfig<Type>) {
         if (!sortby) return;
 
         let dir: "desc" | "asc" = "desc";
-        if (sort.by === sortby) {
-            dir = sort.dir === "desc" ? "asc" : "desc";
+        if (sort.sortby === sortby) {
+            dir = sort.sortdir === "desc" ? "asc" : "desc";
         }
 
         setSort({
             page: 0, // reset the page count if the sortby changes
             limit: sort.limit,
-            dir: dir,
-            by: sortby
+            sortdir: dir,
+            sortby: sortby
         });
     }
 
@@ -104,8 +94,8 @@ export default function SortableTable<Type>(props: TableConfig<Type>) {
         setSort({
             page: newPage,
             limit: newLimit,
-            dir: sort.dir,
-            by: sort.by
+            sortdir: sort.sortdir,
+            sortby: sort.sortby
         });
     }
 
@@ -113,8 +103,8 @@ export default function SortableTable<Type>(props: TableConfig<Type>) {
         setSort({
             page: newPage,
             limit: sort.limit,
-            dir: sort.dir,
-            by: sort.by
+            sortdir: sort.sortdir,
+            sortby: sort.sortby
         });
     }
 
@@ -127,7 +117,7 @@ export default function SortableTable<Type>(props: TableConfig<Type>) {
                             {props.columns.map((column, i) => {
                                 return (
                                     <th onClick={(e) => onTableHeaderClick(column.sortBy)} style={{ width: column.width }} key={column.header}>
-                                        {(short && column.headerShort) ? column.headerShort : column.header} {sort.by && sort.by === column.sortBy && (sort.dir === "desc" ? "\u25be" : "\u25b4")}
+                                        {(short && column.headerShort) ? column.headerShort : column.header} {sort.sortby && sort.sortby === column.sortBy && (sort.sortdir === "desc" ? "\u25be" : "\u25b4")}
                                     </th>
                                 )
                             })}

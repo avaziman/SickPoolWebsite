@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import SortableTable, { Column, Sort, TableResult } from "./SortableTable";
+import SortableTable, { Column } from "./SortableTable";
 import ToCoin, { Coin } from './CoinMap';
 import { timeToText } from './utils';
 import { format } from 'fecha'
 import { GetResult, GetTableResult } from './api';
+import { TableQuerySort } from './bindings/TableQuerySort';
+import { TableRes } from './bindings/TableRes';
 
 const COLUMNS: Column[] = [
     {
@@ -60,7 +62,7 @@ function ShowEntry(payout: Payout, coinData: Coin): JSX.Element {
     )
 }
 
-function LoadPayments(sort: Sort, coin_symbol: string): Promise<TableResult<Payout>> {
+function LoadPayments(sort: TableQuerySort, coin_symbol: string): Promise<TableRes<Payout>> {
     return GetTableResult<Payout>(`pool/payouts`, coin_symbol, sort);
 }
 
@@ -92,7 +94,7 @@ export default function Payouts(props: Props) {
     }, [coinData]);
 
     const ShowPayoutCb = useCallback((payout: Payout) => ShowEntry(payout, coinData), [coinData]);
-    const LoadPayoutsCb = useCallback((sort: Sort) => LoadPayments(sort, coinData.symbol), [coinData.symbol]);
+    const LoadPayoutsCb = useCallback((sort: TableQuerySort) => LoadPayments(sort, coinData.symbol), [coinData.symbol]);
 
     const payoutsTable = useMemo(() =>
         <SortableTable id="payouts-table" columns={columns} showEntry={ShowPayoutCb} loadTable={LoadPayoutsCb} isPaginated={true} />

@@ -2,10 +2,16 @@ import './solver.css'
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { hrToText, toLatin } from './utils';
 import { useParams } from 'react-router-dom';
-import SortableTable, { Column, Sort, TableResult } from './SortableTable';
+import SortableTable, { Column } from './SortableTable';
 import ToCoin from './CoinMap';
 import SickChart from './SickChart';
-import { ChartResult, GetResult, GetTableResult, GetTimestampsFromRes, TimestampInfo } from './api';
+import { GetResult, GetTableResult, GetTimestampsFromRes } from './api';
+import { TimestampInfo } from './bindings/TimestampInfo';
+import { TableRes } from './bindings/TableRes';
+import { WorkerStatsEntry } from './bindings/WorkerStatsEntry';
+import { TableQuerySort } from './bindings/TableQuerySort';
+import { MinerStats } from './bindings/MinerStats';
+import { HistoryResult } from './bindings/HistoryResult';
 
 const COLUMNS: Column[] = [
     {
@@ -55,28 +61,6 @@ interface SolverOverview {
     identity?: string;
 }
 
-export interface StatsHistoryValues {
-    averageHashrate: number[];
-    currentHashrate: number[];
-    invalidShares: number[];
-    staleShares: number[];
-    validShares: number[];
-}
-
-interface StatsHistory {
-    values: StatsHistoryValues;
-    timestamps: TimestampInfo;
-}
-
-interface WorkerStats {
-    worker: string,
-    averageHashrate: number;
-    currentHashrate: number;
-    invalidShares: number;
-    staleShares: number;
-    validShares: number;
-}
-
 interface WorkerHistory {
     time: number;
     workers: number;
@@ -93,9 +77,9 @@ interface SolverProps {
     setLastSearched: (a: string[]) => void;
 }
 
-function LoadWorkers(coin_symbol: string, address: string, setWorkerOverview: any, sort: Sort, oldData?: TableResult<WorkerStats>): Promise<TableResult<WorkerStats>> {
+function LoadWorkers(coin_symbol: string, address: string, setWorkerOverview: any, sort: TableQuerySort, oldData?: TableRes<WorkerStatsEntry>): Promise<TableRes<WorkerStatsEntry>> {
     if (!oldData) {
-        return GetTableResult<WorkerStats>('miner/workers', coin_symbol + `&address=${address}`, sort)
+        return GetTableResult<WorkerStatsEntry>('miner/workers', coin_symbol + `&address=${address}`, sort)
             .then(result => {
                 let active: number = result.entries.filter(i => i.currentHashrate > 0).length;
 
@@ -106,7 +90,7 @@ function LoadWorkers(coin_symbol: string, address: string, setWorkerOverview: an
     } else {
         return Promise.resolve({
                 total: oldData.total,
-                entries: [...oldData.entries].sort((a: any, b: any) => (a[sort.by] > b[sort.by]) ? 1 : -1)
+            entries: [...oldData.entries].sort((a: any, b: any) => (a[sort.sortby] > b[sort.sortby]) ? 1 : -1)
         });
     }
 }
@@ -127,13 +111,13 @@ export default function Solver(props: SolverProps) {
     });
 
 
-    const [statsRes, setStatsRes] = useState<StatsHistoryValues>();
+    const [statsRes, setStatsRes] = useState<MinerStats>();
     const [timestamps, setTimestamps] = useState<number[]>([]);
     
     const [error, setError] = useState<string>();
     const [workerOverview, setWorkerOverview] = useState<WorkersOverview>({ active: 0, inactive: 0 });
     const LoadWorkersCb =
-        useCallback((sort: Sort, oldData?: TableResult<WorkerStats>) => LoadWorkers(coin_symbol, address ?? '', setWorkerOverview, sort, oldData), [coin_symbol, address]);
+        useCallback((sort: TableQuerySort, oldData?: TableRes<WorkerStatsEntry>) => LoadWorkers(coin_symbol, address ?? '', setWorkerOverview, sort, oldData), [coin_symbol, address]);
 
     useEffect(() => {
         setOverviewRes({
@@ -148,7 +132,7 @@ export default function Solver(props: SolverProps) {
             props.setLastSearched([address].concat(props.lastSearched))
         }
 
-        GetResult<ChartResult<StatsHistoryValues>>('miner/statsHistory', coin_symbol + `&address=${address}`)
+        GetResult<HistoryResult<MinerStats>>('miner/statsHistory', coin_symbol + `&address=${address}`)
             .then(res => {
                     setTimestamps(GetTimestampsFromRes(res.timestamps))
                     setStatsRes(res.values);
@@ -181,11 +165,11 @@ export default function Solver(props: SolverProps) {
     return (
         <div>
             <div className="stats-container">
-                <p className="stats-title miner-title">
+                {/* <p className="stats-title miner-title">
                     <p>Miner Dashboard</p>
-                </p>
-                <p className="stats-title address-title">
-                    <p>{overviewRes?.address} {overviewRes?.identity && `AKA ${overviewRes?.identity}`}</p>
+                </p> */}
+                <p className="stats-title">
+                    <p className='address-title'>{overviewRes?.address} {overviewRes?.identity && `AKA ${overviewRes?.identity}`}</p>
                 </p>
                 <div className="stats-card-holder">
                     <div className="nested-card">
@@ -279,7 +263,7 @@ export default function Solver(props: SolverProps) {
 }
 // TODO: maybe add graph icon to hashrate & shares to pop the graph
 
-function ShowEntry(worker: WorkerStats) {
+function ShowEntry(worker: WorkerStatsEntry) {
     return (
         <tr key={worker.worker}>
             <td>{worker.worker}</td>
