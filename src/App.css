@@ -5,6 +5,7 @@
     /* --secondary-color: #101024; */
     --border: #242426;
     --font-color: white;
+    --pool-header-size: 2.75rem;
 }
 
 [theme="light"] {

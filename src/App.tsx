@@ -1,12 +1,12 @@
 import './App.css'
-import { Route, Routes, Navigate } from 'react-router-dom';
+import { Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import React, { useEffect, useState, Suspense } from 'react';
 
 import messages from './messages';
 import { IntlProvider } from 'react-intl';
 import { CoinMap } from './CoinMap';
 // don't lazy load these
-import Header from './Header'; 
+import Header from './Header';
 import Footer from './Footer'
 
 // const WidgetBot = React.lazy(() => import('@widgetbot/react-embed'));
@@ -29,6 +29,8 @@ function App() {
   const [lastSearched, setLastSearched] = useState<string[]>([]);
   const [coin, setCoin] = useState<string>('zano');
   const [readyState, setReadyState] = useState('loading');
+  const location = useLocation();
+  console.log({ isDarkMode })
 
   function setTheme(dark: boolean) {
     const theme = dark ? 'dark' : 'light';
@@ -36,9 +38,14 @@ function App() {
     localStorage.setItem('theme', theme);
     setIsDarkMode(dark);
   }
-  let themeChange = () => {
-    setTheme(!isDarkMode);
+
+  function themeChange() {
+    setIsDarkMode(!isDarkMode);
   }
+
+  useEffect(() => {
+    setTheme(isDarkMode)
+  }, [isDarkMode])
 
 
   useEffect(() => {
@@ -47,8 +54,6 @@ function App() {
     document.onreadystatechange = function (e) {
       setReadyState(document.readyState);
     }
-
-    
   }, [])
 
   useEffect(() => {
@@ -57,11 +62,11 @@ function App() {
   }, [lastSearched]);
 
   useEffect(() => {
-    setTheme(isDarkMode);
-    let temp = document.location.pathname.substring(1, document.location.pathname.indexOf('/', 1));
+    let temp = location.pathname.substring(1, location.pathname.indexOf('/', 1));
     if (temp && CoinMap[temp])
       setCoin(temp);
-  }, [isDarkMode]);
+
+  }, [location]);
 
   return (
     <IntlProvider locale={locale} messages={messages[locale]}>
@@ -90,7 +95,7 @@ function App() {
             server="888722096698576906"
             channel="1056682597318676500"
           />} */}
-        <Footer />
+          <Footer />
         </Suspense>
       </div>
     </IntlProvider >

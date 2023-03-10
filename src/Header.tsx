@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react'
-import { Link, NavLink, useNavigate, useParams } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { FormattedMessage, useIntl } from 'react-intl';
 import './Header.css'
 import './Home.css'
 
-import SvgBackArrow from './components/Icon/BackArrow';
 import { MoonLight as SvgMoonLight, SunlightLight } from './components/Icon';
 import ToCoin, { CoinMap } from './CoinMap';
 import NewSticker from './newSticker';
@@ -35,7 +34,7 @@ export default function Header(props: Props) {
 
     const coinPretty = props.coinPretty;
     const coinData = ToCoin(coinPretty);
-
+console.log(coinData)
     let navigate = useNavigate();
 
     function SearchOnClick(e: any) {
@@ -62,7 +61,7 @@ export default function Header(props: Props) {
                     {[['stats', 'analytics'], ['miners', 'group'], ['blocks', 'grid_view'], ['payouts', 'payments']].map((s, i) => {
                         return (
                             <NavLink
-                                key={i}
+                                key={s[0]}
                                 to={`/${coinPretty}/${s[0]}`}
                                 className={IsNavActive}
                             >
@@ -76,7 +75,9 @@ export default function Header(props: Props) {
             }
             <div className={isSearchOpen ? "search-holder-open" : "pool-nav-link"}>
                 <div className="search-field">
-                    <SvgBackArrow id="close-search" onClick={() => setIsSearchOpen(false)} style={{ display: isSearchOpen ? "flex" : "none" }} />
+                    <div className='close-search' onClick={() => setIsSearchOpen(false)}>
+                        <GIcon name="keyboard_backspace" />
+                    </div>
                     <input
                         className="search-input"
                         type="text"
