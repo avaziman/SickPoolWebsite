@@ -4,7 +4,6 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import './Header.css'
 import './Home.css'
 
-import { MoonLight as SvgMoonLight, SunlightLight } from './components/Icon';
 import ToCoin, { CoinMap } from './CoinMap';
 import NewSticker from './newSticker';
 import GIcon from './GIcon';
@@ -177,10 +176,8 @@ console.log(coinData)
                             props.themeChange();
                             setIsMenuOpen(false);
                         }}>
+                                <GIcon name={props.theme ? 'light_mode' : 'dark_mode'} classNameAddition="them-changei"/>
                             {/* <p>{props.theme ? "Light" : "Dark"} Mode</p> */}
-                            {
-                                props.theme ? <SunlightLight className="theme-change-icon" /> : <SvgMoonLight className="theme-change-icon" />
-                            }
                         </button>
                     </div>
                     <button id="borgir-menu" onClick={() => { setIsMenuOpen(!isMenuOpen); setIsSearchOpen(false) }}>

@@ -7,7 +7,6 @@ import { SingleChartFetcher, Processed, ProcessSingleChart } from './LoadableCha
 import SickChart from './SickChart';
 import { GetResult } from './api';
 
-
 interface StatsProps {
     coinPretty: string,
     isDarkMode: boolean;

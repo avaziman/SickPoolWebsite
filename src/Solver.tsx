@@ -2,7 +2,6 @@ import './solver.css'
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { hrToText, toLatin } from './utils';
 import { useParams } from 'react-router-dom';
-import ChartSVG from './components/Icon/ChartFull'
 import SortableTable, { Column, Sort, TableResult } from './SortableTable';
 import ToCoin from './CoinMap';
 import SickChart from './SickChart';
@@ -190,7 +189,7 @@ export default function Solver(props: SolverProps) {
                 </p>
                 <div className="stats-card-holder">
                     <div className="nested-card">
-                        <h2>Hashrate<ChartSVG /></h2>
+                        <h2>Hashrate</h2>
                         <div className="stats-sub-card-holder">
                             <div className="stats-sub-card">
                                 <h4>Current</h4>
@@ -204,7 +203,7 @@ export default function Solver(props: SolverProps) {
                     </div>
                     {!isWorker &&
                         <div className="nested-card">
-                            <h2>Balance{/*<ChartSVG />*/}</h2>
+                            <h2>Balance</h2>
                             <div className="stats-sub-card-holder">
                                 <div className="stats-sub-card">
                                     <h4>Immature</h4>
@@ -221,7 +220,7 @@ export default function Solver(props: SolverProps) {
                     }
                     {!isWorker &&
                         <div className="nested-card">
-                            <h2>Workers<ChartSVG /></h2>
+                            <h2>Workers</h2>
                             <div className="stats-sub-card-holder">
                                 <div className="stats-sub-card">
                                     <h4>Active</h4>
@@ -235,7 +234,7 @@ export default function Solver(props: SolverProps) {
                         </div>
                     }
                     <div className="nested-card">
-                        <h2>Shares (5m)<ChartSVG /></h2>
+                        <h2>Shares (5m)</h2>
                         <div className="stats-sub-card-holder">
                             <div className="stats-sub-card">
                                 <h4>Accepted</h4>
