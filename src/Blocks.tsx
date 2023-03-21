@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import SortableTable, {  Column } from './SortableTable';
+import SortableTable, { Column } from './SortableTable';
 import { toLatin, timeToText, truncateAddress, toDiff } from './utils'
 import { Link } from 'react-router-dom';
 import ToCoin, { Coin } from './CoinMap';
@@ -156,7 +156,7 @@ export default function Blocks(props: Props) {
         GetResult<BlockOverview>('pool/blockOverview', coinData.symbol)
             .then(res => {
                 setBlockStats(res);
-            });
+            }).catch(() => { });
 
     }, [coinData.symbol]);
 
@@ -189,7 +189,7 @@ export default function Blocks(props: Props) {
             },
             {
                 "title": "Round Effort & Duration",
-                "value": `${blockStats.currentRound.effortPercent.toLocaleString(undefined, { maximumFractionDigits: 2 })}% / ${timeToText(Date.now() - (blockStats.currentRound.startTime as unknown as number))}`,
+                "value": `${blockStats.currentRound.effortPercent.toLocaleString(undefined, { maximumFractionDigits: 2 })}% / ${timeToText(Date.now() - (Number(blockStats.currentRound.startTime)))}`,
                 "img":
                     svg(coinData.symbol, 'Block effort chart', '/pool/charts/blockEffortHistory.svg'),
             },
@@ -198,7 +198,13 @@ export default function Blocks(props: Props) {
 
     const tabComponents = useMemo(() => [
         { component: <SortableTable id="block-table" columns={columns} showEntry={ShowBlock} defaultSortBy='id' loadTable={LoadBlocksCb} isPaginated={true} /> },
-        { component: <SickChart type={'line'} isDarkMode={props.isDarkMode} title='Difficulty History' processedData={processedData} error={error} toText={toDiff} precision={0} /> },
+        {
+            component: <SickChart type={'line'} isDarkMode={props.isDarkMode} title='Difficulty History' processedData={processedData} error={error} toText={toDiff} precision={0} />, data_fetcher: () => SingleChartFetcher({
+                url: 'pool/history/difficulty',
+                coin: coinData.symbol,
+                process_res: (r) => ProcessSingleChart(r, 'Block difficulty')
+            })
+        },
         {
             component: <SickChart type={'bar'} isDarkMode={props.isDarkMode} title='Mined Blocks History' processedData={processedData} error={error} toText={toLatin} precision={0} />, data_fetcher: () => SingleChartFetcher({
                 url: 'pool/history/blocks-mined',

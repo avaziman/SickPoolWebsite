@@ -29,7 +29,7 @@ export function GetResult<Type>(url: string, coin: string): Promise<Type> {
                     return rej("unexpected result.")
                 }
             })
-            .catch(e => console.log(e));
+            .catch(e => rej(e));
     })
 }
 

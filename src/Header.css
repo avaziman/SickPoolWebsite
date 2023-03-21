@@ -130,7 +130,7 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-radius: 10px;
+    /* border-radius: 10px; */
 
 }
 
@@ -143,8 +143,7 @@ header {
     height: 100%;
     display: block;
     word-wrap: break-word;
-    width: 90%;
-
+    width: 100%;
 }
 
 .addr-close {

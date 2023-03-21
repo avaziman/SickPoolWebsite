@@ -33,7 +33,6 @@ export default function Header(props: Props) {
 
     const coinPretty = props.coinPretty;
     const coinData = ToCoin(coinPretty);
-console.log(coinData)
     let navigate = useNavigate();
 
     function SearchOnClick(e: any) {
@@ -100,14 +99,15 @@ console.log(coinData)
                 <div className="address-list">
                     {
                         props.lastSearched.map((addr, i) => {
-                            return (<p key={addr}>
+                            return (<p key={addr} onClick={() => { setSolverSearch(addr); SearchAddress(); }}>
                                 <span className="addr-span"
-                                    onClick={() => { setSolverSearch(addr); SearchAddress(); }}>
+                                    >
                                     {addr}
                                 </span>
-                                <div className='addr-close' onClick={() => { props.setLastSearched(props.lastSearched.filter(i => i !== addr)) }}>
+                                <span className='addr-close' onClick={(e) => {
+                                    props.setLastSearched(props.lastSearched.filter(i => i !== addr)); e.stopPropagation();}}>
                                     <GIcon name="close" />
-                                </div>
+                                </span>
                             </p>)
                         })
                     }
@@ -179,6 +179,7 @@ console.log(coinData)
                                 <GIcon name={props.theme ? 'light_mode' : 'dark_mode'} classNameAddition="them-changei"/>
                             {/* <p>{props.theme ? "Light" : "Dark"} Mode</p> */}
                         </button>
+                        
                     </div>
                     <button id="borgir-menu" onClick={() => { setIsMenuOpen(!isMenuOpen); setIsSearchOpen(false) }}>
                         <GIcon name={!isMenuOpen ? "menu" : "close"} />

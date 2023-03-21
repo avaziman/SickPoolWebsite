@@ -30,7 +30,6 @@ function App() {
   const [coin, setCoin] = useState<string>('zano');
   const [readyState, setReadyState] = useState('loading');
   const location = useLocation();
-  console.log({ isDarkMode })
 
   function setTheme(dark: boolean) {
     const theme = dark ? 'dark' : 'light';

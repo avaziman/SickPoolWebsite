@@ -90,7 +90,7 @@ export default function Payouts(props: Props) {
     useEffect(() => {
         GetResult<PayoutOverview>('pool/payoutOverview', coinData.symbol).then(res => {
             setPayoutOverview(res)
-        })
+        }).catch(e => { })
     }, [coinData]);
 
     const ShowPayoutCb = useCallback((payout: Payout) => ShowEntry(payout, coinData), [coinData]);
